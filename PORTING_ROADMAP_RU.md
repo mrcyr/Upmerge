@@ -13,7 +13,10 @@ Reference: original Android/WebView build 4.11 (`app/src/main/assets/index.html`
 - [x] When no lane can legally accept the current value, run the board-capacity check; offer emergency split when charged and expose an explicit end-run action.
 - [x] Emergency split consumes a saved charge and asks the player to select one cube to remove; then resume and re-check board capacity.
 - [x] Engine exposes a stable-id removal operation and compacts the affected lane.
-- [x] Add persistent coin rewards for merges and a native shop that sells emergency-split charge packs.
+- [x] Add persistent coin rewards for merges and a native shop with separate packs for all five tools.
+- [x] Add matching in-game tool buttons: Разбить, Переместить, Обмен, Бомба, Отмена.
+- [x] Port board operations for moving a cube, swapping two cubes, and a 3×3 bomb removal.
+- [x] Add one-step undo for the last launch, restoring the settled board and queue.
 
 ## Queue parity — original 4.11
 
@@ -32,7 +35,8 @@ Reference: original Android/WebView build 4.11 (`app/src/main/assets/index.html`
 - [x] Board snapshot serialization/restoration for settled states.
 - [x] Persist board, score, direction, combo, and queue slots using libGDX Preferences.
 - [x] Restore the challenge target and terminal run state; clamp restored timer and split charges to valid ranges.
-- [ ] Persist all remaining 4.11 run fields (shots, elapsed time, run stats, tools/charges, etc.) once their native systems exist.
+- [x] Persist balances for split, move, swap, bomb, and undo tool charges.
+- [ ] Persist all remaining 4.11 run fields (shots, elapsed time, run stats, etc.) once their native systems exist.
 - [x] Add complete menu flow: New Game / Continue / Settings (including a persistent merge-haptics toggle).
 - [x] Add initial mode selector for Classic / Timed (90 seconds) / Challenge.
 - [x] Add timed countdown, visible timer HUD, challenge goal completion, and basic pause / resume / restart / return-to-menu controls.
