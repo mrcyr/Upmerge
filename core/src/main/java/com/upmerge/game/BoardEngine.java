@@ -385,6 +385,19 @@ public final class BoardEngine {
         }
     }
 
+    /** Removes a settled cube selected by its stable id (emergency split/tool). */
+    public boolean removeCube(long cubeId) {
+        if (isMergePending() || hasMovingCubes()) return false;
+        for (Cube cube : cubes) {
+            if (cube.id == cubeId) {
+                cubes.remove(cube);
+                compactAllLanes();
+                return true;
+            }
+        }
+        return false;
+    }
+
     public int cubesInLane(int lane) {
         if (lane < 0 || lane >= COLUMNS) return 0;
         return lane(lane).size();
