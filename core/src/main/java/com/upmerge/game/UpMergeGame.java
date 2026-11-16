@@ -350,7 +350,6 @@ public final class UpMergeGame extends ApplicationAdapter {
         if (splitSelecting) {
             shapes.begin(ShapeRenderer.ShapeType.Line);
             shapes.setColor(0.25f, 0.95f, 1f, 1f);
-            shapes.set(ShapeRenderer.ShapeType.Line);
             for (BoardEngine.Cube cube : engine.cubes()) {
                 float x = boardLeft + cube.lane * cell + cell * 0.045f;
                 float y = boardBottom + (BoardEngine.ROWS - 1 - cube.visualRow) * cell + cell * 0.045f;
