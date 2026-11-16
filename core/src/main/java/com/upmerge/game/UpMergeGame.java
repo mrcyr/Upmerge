@@ -209,13 +209,17 @@ public final class UpMergeGame extends ApplicationAdapter {
         font.getData().setScale(labelScale);
         font.setColor(0.58f, 0.70f, 0.82f, 1f);
         font.draw(batch, "SCORE", pad + 10f, cardY + cardH - 12f);
-        font.draw(batch, "NEXT", pad + cardW + cardGap + 10f, cardY + cardH - 12f);
+        font.draw(batch, "DROP", pad + cardW + cardGap + 10f, cardY + cardH - 12f);
 
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 245f, 1.25f, 1.75f));
         font.setColor(0.96f, 0.98f, 1f, 1f);
         font.draw(batch, Integer.toString(engine.score()), pad + 10f, cardY + cardH * 0.48f);
-        font.draw(batch, Integer.toString(cubeQueue.upcoming()), pad + cardW + cardGap + 10f,
+        font.draw(batch, Integer.toString(cubeQueue.current()), pad + cardW + cardGap + 10f,
                 cardY + cardH * 0.48f);
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 390f, 0.78f, 0.95f));
+        font.setColor(0.58f, 0.70f, 0.82f, 1f);
+        font.draw(batch, "NEXT: " + cubeQueue.upcoming(), pad + cardW + cardGap + 10f,
+                cardY + 12f);
 
         font.getData().setScale(uiScale * MathUtils.clamp(cell / 39f, 0.90f, 1.35f));
         font.setColor(0.68f, 0.80f, 0.91f, 1f);
