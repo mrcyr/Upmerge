@@ -27,6 +27,7 @@ public final class UpMergeGame extends ApplicationAdapter {
     private int splitCharges = 2;
     private boolean emergencyDialog;
     private boolean splitSelecting;
+    private boolean gameOver;
 
     private OrthographicCamera camera;
     private ShapeRenderer shapes;
@@ -128,12 +129,18 @@ public final class UpMergeGame extends ApplicationAdapter {
         float x = Gdx.input.getX();
         float y = screenH - Gdx.input.getY();
 
+        if (gameOver) {
+            if (y >= screenH * 0.36f && y <= screenH * 0.58f) startNewRun();
+            return;
+        }
         if (emergencyDialog) {
             if (y >= screenH * 0.42f && y <= screenH * 0.54f && splitCharges > 0) {
                 emergencyDialog = false;
                 splitSelecting = true;
             } else if (y < screenH * 0.42f) {
                 emergencyDialog = false;
+                gameOver = true;
+                saveGame();
             }
             return;
         }
@@ -175,19 +182,22 @@ public final class UpMergeGame extends ApplicationAdapter {
     }
 
     private void checkBoardCapacity() {
-        if (emergencyDialog || splitSelecting || engine.isMergePending()) return;
+        if (gameOver || emergencyDialog || splitSelecting || engine.isMergePending()) return;
         for (BoardEngine.Cube cube : engine.cubes()) if (cube.moving) return;
         if (!engine.hasLegalLaunch(cubeQueue.current())) emergencyDialog = true;
     }
 
     private void drawOverlays() {
-        if (!emergencyDialog && !splitSelecting) return;
+        if (!emergencyDialog && !splitSelecting && !gameOver) return;
         shapes.begin(ShapeRenderer.ShapeType.Filled);
         shapes.setColor(0f, 0f, 0f, 0.78f);
         shapes.rect(0, 0, screenW, screenH);
         shapes.setColor(0.075f, 0.105f, 0.145f, 1f);
         shapes.rect(screenW * 0.08f, screenH * 0.34f, screenW * 0.84f, screenH * 0.32f);
-        if (emergencyDialog && splitCharges > 0) {
+        if (gameOver) {
+            shapes.setColor(0.12f, 0.36f, 0.58f, 1f);
+            shapes.rect(screenW * 0.16f, screenH * 0.40f, screenW * 0.68f, 0.14f);
+        } else if (emergencyDialog && splitCharges > 0) {
             shapes.setColor(0.12f, 0.48f, 0.34f, 1f);
             shapes.rect(screenW * 0.16f, screenH * 0.42f, screenW * 0.68f, screenH * 0.10f);
         }
@@ -195,10 +205,13 @@ public final class UpMergeGame extends ApplicationAdapter {
         batch.begin();
         font.setColor(1f, 1f, 1f, 1f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 300f, 0.95f, 1.25f));
-        drawCentered(emergencyDialog ? "ПОЛЕ ЗАПОЛНЕНО" : "ВЫБЕРИ КУБИК",
+        drawCentered(gameOver ? "ИГРА ОКОНЧЕНА" : emergencyDialog ? "ПОЛЕ ЗАПОЛНЕНО" : "ВЫБЕРИ КУБИК",
                 screenW * 0.5f, screenH * 0.59f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 390f, 0.78f, 1f));
-        if (emergencyDialog) {
+        if (gameOver) {
+            drawCentered("СЧЁТ: " + engine.score() + "   РЕКОРД: " + bestScore, screenW * 0.5f, screenH * 0.49f);
+            drawCentered("НОВАЯ ИГРА", screenW * 0.5f, screenH * 0.435f);
+        } else if (emergencyDialog) {
             drawCentered(splitCharges > 0 ? "РАЗБИТЬ КУБИК · ЗАРЯД " + splitCharges
                     : "НЕТ ЗАРЯДОВ", screenW * 0.5f, screenH * 0.47f);
             drawCentered("НАЖМИ НИЖЕ ДЛЯ ЗАВЕРШЕНИЯ", screenW * 0.5f, screenH * 0.38f);
@@ -371,6 +384,21 @@ public final class UpMergeGame extends ApplicationAdapter {
         font.draw(batch, value, centerX - textLayout.width * 0.5f, baselineY);
     }
 
+
+    private void startNewRun() {
+        engine.clear();
+        engine.setDirection(BoardEngine.Direction.UP);
+        cubeQueue.reset(2048);
+        splitCharges = 2;
+        emergencyDialog = false;
+        splitSelecting = false;
+        gameOver = false;
+        mergeFlashTime = 0f;
+        mergeFlightTime = 0f;
+        mergeFlightSources.clear();
+        preferences.putInteger("splitCharges", splitCharges);
+        saveGame();
+    }
 
     private void saveGame() {
         if (preferences == null) return;
