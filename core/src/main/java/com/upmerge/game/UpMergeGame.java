@@ -619,14 +619,14 @@ public final class UpMergeGame extends ApplicationAdapter {
 
         float topPad = Math.max(10f, screenW * .04f);
         float statGap = 7f;
-        float statY = screenH - 112f;
+        float statY = screenH - 112f * uiScale;
         float statH = 58f;
         float statW = (screenW - topPad * 2f - statGap * 2f) / 3f;
         for (int i = 0; i < 3; i++) {
             shapes.setColor(.075f, .105f, .145f, 1f);
             roundedRectInBatch(topPad + i * (statW + statGap), statY, statW, statH, 14f * uiScale);
         }
-        float pillY = screenH - 165f;
+        float pillY = screenH - 165f * uiScale;
         float pillGap = 7f;
         float pillW = (screenW - topPad * 2f - pillGap) * .5f;
         shapes.setColor(.065f, .095f, .14f, 1f);
@@ -650,9 +650,9 @@ public final class UpMergeGame extends ApplicationAdapter {
         }
         // Current and upcoming cube previews are grouped above the hint.
         shapes.setColor(.055f, .085f, .12f, 1f);
-        roundedRectInBatch(screenW * .5f - 91f * uiScale, footerHeight - 49f * uiScale, 86f * uiScale, 35f * uiScale, 10f * uiScale);
+        roundedRectInBatch(screenW * .5f - 91f * uiScale, footerHeight - 49f * uiScale * uiScale, 86f * uiScale, 35f * uiScale, 10f * uiScale);
         shapes.setColor(.055f, .085f, .12f, 1f);
-        roundedRectInBatch(screenW * .5f + 5f * uiScale, footerHeight - 49f * uiScale, 86f * uiScale, 35f * uiScale, 10f * uiScale);
+        roundedRectInBatch(screenW * .5f + 5f * uiScale, footerHeight - 49f * uiScale * uiScale, 86f * uiScale, 35f * uiScale, 10f * uiScale);
         shapes.end();
     }
 
@@ -782,7 +782,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         float pad = Math.max(10f, screenW * .04f);
         float gap = 7f;
         float statW = (screenW - pad * 2f - gap * 2f) / 3f;
-        float statY = screenH - 112f, statH = 58f;
+        float statY = screenH - 112f * uiScale, statH = 58f;
 
         // Brand row, matching the reference's compact header.
         font.setColor(.42f, .86f, 1f, 1f);
@@ -801,29 +801,29 @@ public final class UpMergeGame extends ApplicationAdapter {
             float x = pad + i * (statW + gap);
             font.setColor(.58f, .70f, .82f, 1f);
             font.getData().setScale(uiScale * (10f / 24f));
-            font.draw(batch, labels[i], x + 8f, statY + statH - 10f);
+            font.draw(batch, labels[i], x + 8f, statY + statH - 10f * uiScale);
             font.setColor(.96f, .98f, 1f, 1f);
             font.getData().setScale(uiScale * (22f / 24f));
-            font.draw(batch, values[i], x + 8f, statY + 25f);
+            font.draw(batch, values[i], x + 8f, statY + 25f * uiScale);
         }
 
-        float pillY = screenH - 165f, pillW = (screenW - pad * 2f - gap) * .5f;
+        float pillY = screenH - 165f * uiScale, pillW = (screenW - pad * 2f - gap) * .5f;
         font.setColor(.58f, .70f, .82f, 1f);
         font.getData().setScale(uiScale * (10f / 24f));
-        font.draw(batch, "МОНЕТЫ", pad + 8f, pillY + 25f);
+        font.draw(batch, "МОНЕТЫ", pad + 8f, pillY + 25f * uiScale);
         font.setColor(.94f, .97f, 1f, 1f);
         font.getData().setScale(uiScale * (16f / 24f));
-        font.draw(batch, NumberFormatter.compact(economy.coins()), pad + pillW - 42f, pillY + 13f);
+        font.draw(batch, NumberFormatter.compact(economy.coins()), pad + pillW - 42f, pillY + 13f * uiScale);
         font.setColor(.58f, .70f, .82f, 1f);
         font.getData().setScale(uiScale * .58f);
-        font.draw(batch, "УРОВЕНЬ", pad + pillW + gap + 8f, pillY + 25f);
+        font.draw(batch, "УРОВЕНЬ", pad + pillW + gap + 8f, pillY + 25f * uiScale);
         font.setColor(.45f, .82f, 1f, 1f);
         font.getData().setScale(uiScale * .80f);
         font.draw(batch, NumberFormatter.compact(cubeQueue.goalTarget()),
-                pad + pillW + gap + pillW - 52f, pillY + 13f);
+                pad + pillW + gap + pillW - 52f, pillY + 13f * uiScale);
 
         // Queue preview, instruction, then the five equal-width power cells.
-        float queueY = footerHeight - 25f;
+        float queueY = footerHeight - 25f * uiScale;
         font.setColor(.62f, .72f, .84f, 1f);
         font.getData().setScale(uiScale * .48f);
         drawCentered("СЕЙЧАС", screenW * .5f - 62f, queueY + 6f);
@@ -836,7 +836,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         font.setColor(.58f, .68f, .78f, 1f);
         font.getData().setScale(uiScale * (11f / 24f));
         drawCenteredFit("НАЖМИ НА СТОЛБЕЦ, ЧТОБЫ БРОСИТЬ КУБИК",
-                screenW * .5f, footerHeight - 69f, screenW * .94f,
+                screenW * .5f, footerHeight - 69f * uiScale, screenW * .94f,
                 uiScale * (11f / 24f));
         String[] tools = {"↶ ОТМЕНА", "БОМБА", "✂ УДАЛИТЬ", "↗ ПЕРЕМЕСТИТЬ", "⇄ ОБМЕН"};
         int[] charges = {undoCharges, bombCharges, splitCharges, moveCharges, swapCharges};
@@ -845,7 +845,7 @@ public final class UpMergeGame extends ApplicationAdapter {
             font.setColor(.88f, .94f, 1f, 1f);
             font.getData().setScale(uiScale * (8f / 24f));
             drawCenteredFit(tools[i] + "\n" + charges[i], (i + .5f) * toolW,
-                    39f, toolW - 4f, uiScale * (8f / 24f));
+                    39f * uiScale, toolW - 4f, uiScale * (8f / 24f));
         }
 
         for (BoardEngine.Cube cube : engine.cubes()) {
