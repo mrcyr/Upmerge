@@ -154,27 +154,33 @@ public final class UpMergeGame extends ApplicationAdapter {
     }
 
     private BitmapFont createLogoFont() {
-        FreeTypeFontGenerator generator = null;
-        try {
-            generator = new FreeTypeFontGenerator(Gdx.files.absolute("/system/fonts/Roboto-Bold.ttf"));
-            FreeTypeFontGenerator.FreeTypeFontParameter parameter =
-                    new FreeTypeFontGenerator.FreeTypeFontParameter();
-            parameter.size = 24;
-            parameter.characters = FreeTypeFontGenerator.DEFAULT_CHARS
-                    + "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"
-                    + "абвгдеёжзийклмнопрстуфхцчшщъыьэюя·—№";
-            parameter.incremental = false;
-            BitmapFont generated = generator.generateFont(parameter);
-            for (com.badlogic.gdx.graphics.g2d.TextureRegion region : generated.getRegions()) {
-                region.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        String[] candidates = {
+                "/system/fonts/Roboto-Black.ttf",
+                "/system/fonts/Roboto-Bold.ttf"
+        };
+        for (String path : candidates) {
+            FreeTypeFontGenerator generator = null;
+            try {
+                generator = new FreeTypeFontGenerator(Gdx.files.absolute(path));
+                FreeTypeFontGenerator.FreeTypeFontParameter parameter =
+                        new FreeTypeFontGenerator.FreeTypeFontParameter();
+                parameter.size = 24;
+                parameter.characters = FreeTypeFontGenerator.DEFAULT_CHARS
+                        + "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"
+                        + "абвгдеёжзийклмнопрстуфхцчшщъыьэюя·—№";
+                parameter.incremental = false;
+                BitmapFont generated = generator.generateFont(parameter);
+                for (com.badlogic.gdx.graphics.g2d.TextureRegion region : generated.getRegions()) {
+                    region.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+                }
+                return generated;
+            } catch (Exception error) {
+                Gdx.app.error("UpMergeFont", "Could not load logo font " + path, error);
+            } finally {
+                if (generator != null) generator.dispose();
             }
-            return generated;
-        } catch (Exception error) {
-            Gdx.app.error("UpMergeFont", "Could not load bold system font", error);
-            return createCyrillicFont();
-        } finally {
-            if (generator != null) generator.dispose();
         }
+        return createCyrillicFont();
     }
 
     @Override public void resize(int width, int height) {
@@ -1016,7 +1022,7 @@ public final class UpMergeGame extends ApplicationAdapter {
                 .055f, .085f, .13f, 1f);
         if (selected) {
             drawRoundedFill(left + 1f, bottom + 1f, width - 2f, height - 2f,
-                    Math.max(4f, radius - 1f), .10f, .32f, .43f, 1f);
+                    Math.max(4f, radius - 1f), .07f, .17f, .24f, 1f);
             shapes.begin(ShapeRenderer.ShapeType.Line);
             shapes.setColor(.36f, .82f, .98f, .92f);
             shapes.rect(left + 1f, bottom + 1f, width - 2f, height - 2f);
