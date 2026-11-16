@@ -24,6 +24,9 @@ public final class UpMergeGame extends ApplicationAdapter {
     private com.badlogic.gdx.Preferences preferences;
     private float saveTimer;
     private int bestScore;
+    private int splitCharges = 2;
+    private boolean emergencyDialog;
+    private boolean splitSelecting;
 
     private OrthographicCamera camera;
     private ShapeRenderer shapes;
@@ -50,6 +53,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         font = new BitmapFont();
         preferences = Gdx.app.getPreferences("UpMergeNative");
         bestScore = preferences.getInteger("bestScore", 0);
+        splitCharges = preferences.getInteger("splitCharges", 2);
         restoreGame();
         font.setColor(0.94f, 0.97f, 1f, 1f);
         Gdx.input.setCatchKey(Input.Keys.BACK, true);
@@ -103,9 +107,11 @@ public final class UpMergeGame extends ApplicationAdapter {
             cubeQueue.onMergedValue(mergeEvent.value);
             bestScore = Math.max(bestScore, engine.score());
             preferences.putInteger("bestScore", bestScore);
+        preferences.putInteger("splitCharges", splitCharges);
             preferences.flush();
             saveGame();
         }
+        checkBoardCapacity();
         handleInput();
 
         ScreenUtils.clear(0.025f, 0.038f, 0.060f, 1f);
@@ -114,12 +120,34 @@ public final class UpMergeGame extends ApplicationAdapter {
         drawCubes();
         drawMergeFlights();
         drawText();
+        drawOverlays();
     }
 
     private void handleInput() {
         if (!Gdx.input.justTouched()) return;
         float x = Gdx.input.getX();
         float y = screenH - Gdx.input.getY();
+
+        if (emergencyDialog) {
+            if (y >= screenH * 0.42f && y <= screenH * 0.54f && splitCharges > 0) {
+                emergencyDialog = false;
+                splitSelecting = true;
+            } else if (y < screenH * 0.42f) {
+                emergencyDialog = false;
+            }
+            return;
+        }
+        if (splitSelecting) {
+            BoardEngine.Cube selected = cubeAt(x, y);
+            if (selected != null && engine.removeCube(selected.id)) {
+                splitCharges--;
+                preferences.putInteger("splitCharges", splitCharges);
+                preferences.flush();
+                splitSelecting = false;
+                saveGame();
+            }
+            return;
+        }
 
         // The direction control is an intentional, large hit target in the header.
         if (y >= screenH - headerHeight) {
@@ -134,6 +162,50 @@ public final class UpMergeGame extends ApplicationAdapter {
                 cubeQueue.advance();
             }
         }
+    }
+
+
+    private BoardEngine.Cube cubeAt(float x, float y) {
+        for (BoardEngine.Cube cube : engine.cubes()) {
+            float cx = boardLeft + (cube.lane + 0.5f) * cell;
+            float cy = boardBottom + (BoardEngine.ROWS - 0.5f - cube.visualRow) * cell;
+            if (Math.abs(x - cx) <= cell * 0.44f && Math.abs(y - cy) <= cell * 0.44f) return cube;
+        }
+        return null;
+    }
+
+    private void checkBoardCapacity() {
+        if (emergencyDialog || splitSelecting || engine.isMergePending()) return;
+        for (BoardEngine.Cube cube : engine.cubes()) if (cube.moving) return;
+        if (!engine.hasLegalLaunch(cubeQueue.current())) emergencyDialog = true;
+    }
+
+    private void drawOverlays() {
+        if (!emergencyDialog && !splitSelecting) return;
+        shapes.begin(ShapeRenderer.ShapeType.Filled);
+        shapes.setColor(0f, 0f, 0f, 0.78f);
+        shapes.rect(0, 0, screenW, screenH);
+        shapes.setColor(0.075f, 0.105f, 0.145f, 1f);
+        shapes.rect(screenW * 0.08f, screenH * 0.34f, screenW * 0.84f, screenH * 0.32f);
+        if (emergencyDialog && splitCharges > 0) {
+            shapes.setColor(0.12f, 0.48f, 0.34f, 1f);
+            shapes.rect(screenW * 0.16f, screenH * 0.42f, screenW * 0.68f, screenH * 0.10f);
+        }
+        shapes.end();
+        batch.begin();
+        font.setColor(1f, 1f, 1f, 1f);
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 300f, 0.95f, 1.25f));
+        drawCentered(emergencyDialog ? "ПОЛЕ ЗАПОЛНЕНО" : "ВЫБЕРИ КУБИК",
+                screenW * 0.5f, screenH * 0.59f);
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 390f, 0.78f, 1f));
+        if (emergencyDialog) {
+            drawCentered(splitCharges > 0 ? "РАЗБИТЬ КУБИК · ЗАРЯД " + splitCharges
+                    : "НЕТ ЗАРЯДОВ", screenW * 0.5f, screenH * 0.47f);
+            drawCentered("НАЖМИ НИЖЕ ДЛЯ ЗАВЕРШЕНИЯ", screenW * 0.5f, screenH * 0.38f);
+        } else {
+            drawCentered("ВЫБЕРИ ЛЮБОЙ КУБИК НА ПОЛЕ", screenW * 0.5f, screenH * 0.45f);
+        }
+        batch.end();
     }
 
     private void drawPanels() {
@@ -319,6 +391,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         int goal = preferences.getInteger("queueGoal", 2048);
         int current = preferences.getInteger("queueCurrent", 2);
         int upcoming = preferences.getInteger("queueUpcoming", 2);
+        splitCharges = preferences.getInteger("splitCharges", 2);
         if (!cubeQueue.restore(goal, current, upcoming)) {
             engine.clear();
             preferences.remove("boardV1");
