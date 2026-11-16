@@ -7,12 +7,11 @@ public class MainMenuLayoutTest {
     @Test public void modeAndDirectionCardsAreCenteredAndDoNotOverlap() {
         for (float[] size : new float[][] {{320, 568}, {360, 800}, {430, 932}, {1080, 2400}}) {
             MainMenuLayout layout = new MainMenuLayout(size[0], size[1], false);
-            float modeStep = size[0] * (.255f + .025f);
-            for (int i = 0; i < layout.modes.length; i++) {
-                assertEquals(size[0] * .5f + (i - 1) * modeStep,
-                        layout.modes[i].centerX(), .01f);
-                assertEquals(size[1] * .615f, layout.modes[i].centerY(), .01f);
-            }
+            assertEquals(size[0] * .5f,
+                    (layout.modes[0].centerX() + layout.modes[2].centerX()) * .5f, .01f);
+            assertEquals(layout.modes[1].centerX(), size[0] * .5f, .01f);
+            for (MainMenuLayout.Rect mode : layout.modes)
+                assertEquals(40f, mode.height, .01f);
             assertFalse(layout.modes[0].overlaps(layout.modes[1]));
             assertFalse(layout.modes[1].overlaps(layout.modes[2]));
             assertFalse(layout.directions[0].overlaps(layout.directions[1]));
@@ -77,6 +76,8 @@ public class MainMenuLayoutTest {
         MainMenuLayout layout = new MainMenuLayout(360, 800, true);
         assertFalse(layout.utilities[0][0].overlaps(layout.utilities[1][0]));
         assertFalse(layout.utilities[0][1].overlaps(layout.utilities[1][1]));
+        assertFalse(layout.newGameButton.overlaps(layout.menuActions[0]));
+        assertFalse(layout.newGameButton.overlaps(layout.menuActions[1]));
         assertFalse(layout.newGameButton.overlaps(layout.utilities[0][0]));
         assertFalse(layout.newGameButton.overlaps(layout.utilities[0][1]));
         assertFalse(layout.menuActions[0].overlaps(layout.menuActions[1]));
