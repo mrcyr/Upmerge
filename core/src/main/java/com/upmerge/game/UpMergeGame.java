@@ -380,7 +380,9 @@ public final class UpMergeGame extends ApplicationAdapter {
         if (y >= boardBottom && y <= boardTop) {
             if (activeTool != Tool.NONE) { handleToolBoardInput(x, y); return; }
             int lane = MathUtils.clamp((int) ((x - boardLeft) / cell), 0, BoardEngine.COLUMNS - 1);
-            if (engine.launch(lane, cubeQueue.current())) { captureUndoSnapshot(); cubeQueue.advance(); }
+            captureUndoSnapshot();
+            if (engine.launch(lane, cubeQueue.current())) cubeQueue.advance();
+            else undoBoardState = null;
         }
     }
 
@@ -455,6 +457,16 @@ public final class UpMergeGame extends ApplicationAdapter {
         shapes.rect(0, screenH - headerHeight, screenW, headerHeight);
         shapes.setColor(0.035f, 0.050f, 0.075f, 1f);
         shapes.rect(0, 0, screenW, footerHeight);
+        float toolW = screenW / 5f;
+        for (int i = 0; i < 5; i++) {
+            boolean selected = (i == 0 && activeTool == Tool.SPLIT)
+                    || (i == 1 && activeTool == Tool.MOVE)
+                    || (i == 2 && activeTool == Tool.SWAP)
+                    || (i == 3 && activeTool == Tool.BOMB);
+            shapes.setColor(selected ? 0.12f : 0.075f, selected ? 0.38f : 0.12f,
+                    selected ? 0.48f : 0.17f, 1f);
+            shapes.rect(i * toolW + 2f, 8f, toolW - 4f, footerHeight * 0.56f);
+        }
 
         // Header information cards.
         float pad = Math.max(10f, screenW * 0.04f);
@@ -628,27 +640,13 @@ public final class UpMergeGame extends ApplicationAdapter {
         drawCenteredFit("НАЖМИ НА СТОЛБЕЦ, ЧТОБЫ БРОСИТЬ КУБИК",
                 screenW * 0.5f, footerHeight * 0.62f, screenW * 0.94f,
                 uiScale * MathUtils.clamp(screenW / 330f, 0.55f, 0.78f));
-        String[] labels = {"РАЗБИТЬ " + splitCharges, "ПЕРЕНЕСТИ " + moveCharges,
-                "ОБМЕН " + swapCharges, "БОМБА " + bombCharges, "ОТМЕНА " + undoCharges};
-        String[] icons = {"✂", "↗", "⇄", "✹", "↶"};
+        String[] labels = {"✂ " + splitCharges, "↗ " + moveCharges,
+                "⇄ " + swapCharges, "✹ " + bombCharges, "↶ " + undoCharges};
         float toolW = screenW / 5f;
-        shapes.end();
-        shapes.begin(ShapeRenderer.ShapeType.Filled);
-        for (int i = 0; i < 5; i++) {
-            boolean selected = (i == 0 && activeTool == Tool.SPLIT)
-                    || (i == 1 && activeTool == Tool.MOVE)
-                    || (i == 2 && activeTool == Tool.SWAP)
-                    || (i == 3 && activeTool == Tool.BOMB);
-            shapes.setColor(selected ? .12f : .075f, selected ? .38f : .12f, selected ? .48f : .17f, 1f);
-            shapes.rect(i * toolW + 2f, 8f, toolW - 4f, footerHeight * .56f);
-        }
-        shapes.end();
-        batch.begin();
-        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 440f, .55f, .72f));
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 390f, .58f, .76f));
         font.setColor(.88f, .94f, 1f, 1f);
-        for (int i = 0; i < 5; i++) drawCentered(icons[i] + " " + labels[i],
+        for (int i = 0; i < 5; i++) drawCentered(labels[i],
                 (i + .5f) * toolW, footerHeight * .39f);
-        batch.end();
         // Center each value in its cube, with a scale that remains readable for large numbers.
         for (BoardEngine.Cube cube : engine.cubes()) {
             String value = NumberFormatter.compact(cube.value);
