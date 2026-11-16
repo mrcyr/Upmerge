@@ -11,7 +11,9 @@ Reference: original Android/WebView build 4.11 (`app/src/main/assets/index.html`
 - [ ] A column with a moving/falling cube rejects another launch until the motion settles.
 - [ ] After every merge, compact each lane toward gravity without changing the relative order of cubes.
 - [ ] When no lane can legally accept the current value, run the board-capacity check. If a split charge is available, offer emergency split; otherwise end the run. Do not silently allow an impossible move.
-- [ ] Emergency split consumes a charge/coins and asks the player to select one cube to remove; then resume and re-check board capacity.
+- [x] Emergency split consumes a saved charge and asks the player to select one cube to remove; then resume and re-check board capacity.
+- [x] Engine exposes a stable-id removal operation and compacts the affected lane.
+- [ ] Add coin payment when the native economy/shop is ported; current emergency flow uses stored split charges only.
 
 ## Queue parity — original 4.11
 
