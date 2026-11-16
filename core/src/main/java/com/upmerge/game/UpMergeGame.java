@@ -71,6 +71,7 @@ public final class UpMergeGame extends ApplicationAdapter {
 
     private float screenW, screenH;
     private MainMenuLayout mainMenuLayout;
+    private GameScreenLayout gameLayout;
     private float cell, boardLeft, boardBottom, boardTop;
     private float headerHeight, footerHeight;
     private float uiScale = 1f;
@@ -188,18 +189,13 @@ public final class UpMergeGame extends ApplicationAdapter {
         shapes.setProjectionMatrix(camera.combined);
         batch.setProjectionMatrix(camera.combined);
 
-        // Match the 4.11 vertical stack: brand + HUD + pills above the arena,
-        // queue + hint + five tools below it. The board owns only the remaining
-        // central flex region, so neither header nor footer can cover cells.
-        headerHeight = Math.max(174f, screenH * 0.223f);
-        footerHeight = Math.max(146f, screenH * 0.19f);
-        float sideMargin = Math.max(10f, screenW * 0.035f);
-        float availableHeight = Math.max(7f, screenH - headerHeight - footerHeight - 20f);
-        cell = Math.max(1f, Math.min((screenW - sideMargin * 2f) / BoardEngine.COLUMNS,
-                availableHeight / BoardEngine.ROWS));
-        boardLeft = (screenW - cell * BoardEngine.COLUMNS) * 0.5f;
-        boardBottom = footerHeight + 10f + (availableHeight - cell * BoardEngine.ROWS) * 0.5f;
-        boardTop = boardBottom + cell * BoardEngine.ROWS;
+        gameLayout = new GameScreenLayout(screenW, screenH, uiScale);
+        headerHeight = gameLayout.headerHeight;
+        footerHeight = gameLayout.footerHeight;
+        cell = gameLayout.cell;
+        boardLeft = gameLayout.boardLeft;
+        boardBottom = gameLayout.boardBottom;
+        boardTop = gameLayout.boardTop;
         font.getData().setScale(uiScale * MathUtils.clamp(cell / 43f, 0.90f, 1.55f));
     }
 
@@ -477,8 +473,8 @@ public final class UpMergeGame extends ApplicationAdapter {
         }
 
         // The direction control is an intentional, large hit target in the header.
-        if (y <= 70f * uiScale) { handleToolBarInput(x, y); return; }
-        if (y >= screenH - 48f * uiScale && x >= screenW * .78f) {
+        if (gameLayout.toolbarIndex(x, y) >= 0) { handleToolBarInput(x, y); return; }
+        if (gameLayout.pauseContains(x, y)) {
             paused = true;
             saveGame();
             return;
