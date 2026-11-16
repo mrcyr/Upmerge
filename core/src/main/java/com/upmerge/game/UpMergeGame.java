@@ -948,9 +948,6 @@ public final class UpMergeGame extends ApplicationAdapter {
         drawCentered("ЗАПУСКАЙ КУБИКИ ВВЕРХ.", center, screenH * .79f);
         drawCentered("ОБЪЕДИНЯЙ ОДИНАКОВЫЕ ЧИСЛА", center, screenH * .765f);
         drawCentered("И СОЗДАВАЙ ЦЕПНЫЕ РЕАКЦИИ.", center, screenH * .74f);
-        font.setColor(.53f, .67f, .82f, 1f);
-        font.getData().setScale(uiScale * (13f / 24f));
-        drawCentered("ВЫБЕРИ РЕЖИМ", center, screenH * .69f);
         batch.end();
 
         MainMenuLayout.Rect[] modeCards = mainMenuLayout.modes;
@@ -961,11 +958,6 @@ public final class UpMergeGame extends ApplicationAdapter {
         drawMenuChoice("ВЫЗОВ", modeCards[2].centerX(), modeCards[2].centerY(), modeCards[2].width, modeCards[2].height,
                 menuSelectedMode == GameMode.CHALLENGE);
 
-        batch.begin();
-        font.setColor(.53f, .67f, .82f, 1f);
-        font.getData().setScale(uiScale * (13f / 24f));
-        drawCentered("НАПРАВЛЕНИЕ", center, screenH * .535f);
-        batch.end();
         MainMenuLayout.Rect[] directionCards = mainMenuLayout.directions;
         drawMenuChoice("СНИЗУ ВВЕРХ ↑", directionCards[0].centerX(), directionCards[0].centerY(), directionCards[0].width, directionCards[0].height,
                 menuSelectedDirection == BoardEngine.Direction.UP);
@@ -1000,7 +992,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         font.setColor(.58f, .69f, .82f, 1f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 450f, .60f, .76f));
         drawCenteredFit("Цель растёт вдвое после каждого достижения · K / M / B / T",
-                center, screenH * (screenH / uiScale < 680f ? .035f : .075f), mainMenuLayout.contentWidth * .92f, uiScale * (11f / 24f));
+                center, screenH * (screenH / uiScale < 680f ? .075f : .12f), mainMenuLayout.contentWidth * .92f, uiScale * (11f / 24f));
         batch.end();
     }
 
