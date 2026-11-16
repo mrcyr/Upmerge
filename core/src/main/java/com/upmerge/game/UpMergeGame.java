@@ -993,7 +993,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         font.setColor(.58f, .69f, .82f, 1f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 450f, .60f, .76f));
         drawCenteredFit("Цель растёт вдвое после каждого достижения · K / M / B / T",
-                center, screenH * (screenH / uiScale < 680f ? .075f : .12f), mainMenuLayout.contentWidth * .92f, uiScale * (11f / 24f));
+                center, screenH * (screenH / uiScale < 680f ? .07f : .13f), mainMenuLayout.contentWidth * .92f, uiScale * (11f / 24f));
         batch.end();
     }
 
