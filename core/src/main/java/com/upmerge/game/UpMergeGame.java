@@ -6,6 +6,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
@@ -51,7 +52,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         camera = new OrthographicCamera();
         shapes = new ShapeRenderer();
         batch = new SpriteBatch();
-        font = new BitmapFont();
+        font = createCyrillicFont();
         preferences = Gdx.app.getPreferences("UpMergeNative");
         bestScore = preferences.getInteger("bestScore", 0);
         splitCharges = preferences.getInteger("splitCharges", 2);
@@ -59,6 +60,39 @@ public final class UpMergeGame extends ApplicationAdapter {
         font.setColor(0.94f, 0.97f, 1f, 1f);
         Gdx.input.setCatchKey(Input.Keys.BACK, true);
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+    }
+
+    /**
+     * Android's bundled Roboto has full Cyrillic coverage. Generate one atlas
+     * at startup so every native dialog and HUD label can render Russian text.
+     */
+    private BitmapFont createCyrillicFont() {
+        String[] candidates = {
+                "/system/fonts/Roboto-Regular.ttf",
+                "/system/fonts/NotoSans-Regular.ttf"
+        };
+        for (String path : candidates) {
+            FreeTypeFontGenerator generator = null;
+            try {
+                generator = new FreeTypeFontGenerator(Gdx.files.absolute(path));
+                FreeTypeFontGenerator.FreeTypeFontParameter parameter =
+                        new FreeTypeFontGenerator.FreeTypeFontParameter();
+                parameter.size = 24;
+                parameter.characters = FreeTypeFontGenerator.DEFAULT_CHARS
+                        + "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"
+                        + "абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
+                        + "·—№";
+                parameter.incremental = false;
+                BitmapFont generated = generator.generateFont(parameter);
+                generated.setColor(0.94f, 0.97f, 1f, 1f);
+                return generated;
+            } catch (Exception ignored) {
+                // Try the next Android system font; retain a safe fallback below.
+            } finally {
+                if (generator != null) generator.dispose();
+            }
+        }
+        return new BitmapFont();
     }
 
     @Override public void resize(int width, int height) {
