@@ -29,5 +29,10 @@ public final class GameEconomy {
         return true;
     }
 
+    public void grantCoins(long amount) {
+        if (amount <= 0L) return;
+        coins = coins > Long.MAX_VALUE - amount ? Long.MAX_VALUE : coins + amount;
+    }
+
     public void setCoins(long value) { coins = Math.max(0L, value); }
 }
