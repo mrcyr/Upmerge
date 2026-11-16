@@ -925,7 +925,7 @@ public final class UpMergeGame extends ApplicationAdapter {
 
         batch.begin();
         font.setColor(.53f, .67f, .82f, 1f);
-        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 420f, .62f, .78f));
+        font.getData().setScale(uiScale * (13f / 24f));
         drawCentered("НАПРАВЛЕНИЕ", center, screenH * .535f);
         batch.end();
         MainMenuLayout.Rect[] directionCards = mainMenuLayout.directions;
@@ -944,7 +944,7 @@ public final class UpMergeGame extends ApplicationAdapter {
             drawMenuButton("ПРОДОЛЖИТЬ ИГРУ", mainMenuLayout.continueButton.centerY(), .070f, true);
             drawMenuButton("НОВАЯ ИГРА", mainMenuLayout.newGameButton.centerY(), .075f, false);
         } else {
-            drawMenuButton("НОВАЯ ИГРА", mainMenuLayout.newGameButton.centerY(), .075f, true);
+            drawMenuButton("НОВАЯ ИГРА", mainMenuLayout.newGameButton.centerY(), .075f, false);
         }
 
         MainMenuLayout.Rect[][] utilityCards = mainMenuLayout.utilities;
