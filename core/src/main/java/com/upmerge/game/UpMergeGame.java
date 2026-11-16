@@ -21,6 +21,9 @@ public final class UpMergeGame extends ApplicationAdapter {
     private final BoardEngine engine = new BoardEngine();
     private final CubeQueue cubeQueue = new CubeQueue();
     private final GlyphLayout textLayout = new GlyphLayout();
+    private com.badlogic.gdx.Preferences preferences;
+    private float saveTimer;
+    private int bestScore;
 
     private OrthographicCamera camera;
     private ShapeRenderer shapes;
@@ -45,6 +48,9 @@ public final class UpMergeGame extends ApplicationAdapter {
         shapes = new ShapeRenderer();
         batch = new SpriteBatch();
         font = new BitmapFont();
+        preferences = Gdx.app.getPreferences("UpMergeNative");
+        bestScore = preferences.getInteger("bestScore", 0);
+        restoreGame();
         font.setColor(0.94f, 0.97f, 1f, 1f);
         Gdx.input.setCatchKey(Input.Keys.BACK, true);
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -76,6 +82,11 @@ public final class UpMergeGame extends ApplicationAdapter {
     @Override public void render() {
         float dt = Math.min(Gdx.graphics.getDeltaTime(), 0.05f);
         engine.update(dt);
+        saveTimer += dt;
+        if (saveTimer >= 0.8f) {
+            saveTimer = 0f;
+            saveGame();
+        }
         if (mergeFlashTime > 0f) mergeFlashTime = Math.max(0f, mergeFlashTime - dt);
         if (mergeFlightTime > 0f) mergeFlightTime = Math.max(0f, mergeFlightTime - dt);
         BoardEngine.MergeEvent mergeEvent = engine.consumeMergeEvent();
@@ -90,6 +101,10 @@ public final class UpMergeGame extends ApplicationAdapter {
             mergeFlightSources.clear();
             mergeFlightSources.addAll(mergeEvent.sources);
             cubeQueue.onMergedValue(mergeEvent.value);
+            bestScore = Math.max(bestScore, engine.score());
+            preferences.putInteger("bestScore", bestScore);
+            preferences.flush();
+            saveGame();
         }
         handleInput();
 
@@ -284,7 +299,39 @@ public final class UpMergeGame extends ApplicationAdapter {
         font.draw(batch, value, centerX - textLayout.width * 0.5f, baselineY);
     }
 
+
+    private void saveGame() {
+        if (preferences == null) return;
+        String board = engine.saveState();
+        if (board == null) return; // Keep the last complete board while animations are in flight.
+        preferences.putString("boardV1", board);
+        preferences.putInteger("queueGoal", cubeQueue.goalTarget());
+        preferences.putInteger("queueCurrent", cubeQueue.current());
+        preferences.putInteger("queueUpcoming", cubeQueue.upcoming());
+        preferences.putInteger("bestScore", bestScore);
+        preferences.flush();
+    }
+
+    private void restoreGame() {
+        if (preferences == null) return;
+        String board = preferences.getString("boardV1", "");
+        if (board.isEmpty() || !engine.loadState(board)) return;
+        int goal = preferences.getInteger("queueGoal", 2048);
+        int current = preferences.getInteger("queueCurrent", 2);
+        int upcoming = preferences.getInteger("queueUpcoming", 2);
+        if (!cubeQueue.restore(goal, current, upcoming)) {
+            engine.clear();
+            preferences.remove("boardV1");
+            preferences.flush();
+        }
+    }
+
+    @Override public void pause() {
+        saveGame();
+    }
+
     @Override public void dispose() {
+        saveGame();
         shapes.dispose();
         batch.dispose();
         font.dispose();
