@@ -461,6 +461,36 @@ public class BoardEngineTest {
         assertEquals(0, engine.cubesInLane(0));
     }
 
+    @Test public void everyLaunchedCubeEmitsMovementAndLandingHapticEventsOnce() {
+        BoardEngine engine = new BoardEngine();
+        assertTrue(engine.launch(2, 2));
+        assertEquals(1, engine.consumeMovementHaptics());
+        assertEquals(0, engine.consumeMovementHaptics());
+        assertEquals(0, engine.consumeLandingHaptics());
+
+        settle(engine);
+        assertEquals(1, engine.consumeLandingHaptics());
+        assertEquals(0, engine.consumeLandingHaptics());
+    }
+
+    @Test public void gravityRepackEmitsOneMovementEventPerMovedCube() {
+        BoardEngine engine = new BoardEngine();
+        assertTrue(engine.launch(1, 2));
+        settle(engine);
+        engine.consumeMovementHaptics();
+        engine.consumeLandingHaptics();
+        assertTrue(engine.launch(1, 4));
+        settle(engine);
+        engine.consumeMovementHaptics();
+        engine.consumeLandingHaptics();
+
+        engine.setDirection(BoardEngine.Direction.DOWN);
+        assertEquals(2, engine.consumeMovementHaptics());
+        assertEquals(0, engine.consumeMovementHaptics());
+        settle(engine);
+        assertEquals(2, engine.consumeLandingHaptics());
+    }
+
     @Test public void clearResetsBoardAndScore() {
         BoardEngine engine = new BoardEngine();
         assertTrue(engine.launch(0, 2));
