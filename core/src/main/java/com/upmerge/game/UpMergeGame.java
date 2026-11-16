@@ -57,6 +57,7 @@ public final class UpMergeGame extends ApplicationAdapter {
     private boolean paused;
     private GameMode gameMode = GameMode.CLASSIC;
     private GameMode menuSelectedMode = GameMode.CLASSIC;
+    private BoardEngine.Direction menuSelectedDirection = BoardEngine.Direction.UP;
     private float timeLeft = 90f;
     private long challengeGoal = 2048;
     private enum GameMode { CLASSIC, TIMED, CHALLENGE }
@@ -102,6 +103,8 @@ public final class UpMergeGame extends ApplicationAdapter {
         undoCharges = preferences.getInteger("undoCharges", 0);
         economy = new GameEconomy(preferences.getLong("coins", 0L));
         hapticsEnabled = preferences.getBoolean("hapticsEnabled", true);
+        menuSelectedDirection = preferences.getString("menuDirection", "UP").equals("DOWN")
+                ? BoardEngine.Direction.DOWN : BoardEngine.Direction.UP;
         restoreGame();
         menuVisible = true;
         font.setColor(0.94f, 0.97f, 1f, 1f);
@@ -382,13 +385,16 @@ public final class UpMergeGame extends ApplicationAdapter {
                 else if (choice == 1) menuSelectedMode = GameMode.TIMED;
                 else if (choice == 2) menuSelectedMode = GameMode.CHALLENGE;
             } else if (y >= screenH * .475f && y < screenH * .555f) {
-                engine.setDirection(x < screenW * .5f
-                        ? BoardEngine.Direction.UP : BoardEngine.Direction.DOWN);
+                menuSelectedDirection = x < screenW * .5f
+                        ? BoardEngine.Direction.UP : BoardEngine.Direction.DOWN;
+                preferences.putString("menuDirection", menuSelectedDirection.name());
+                preferences.flush();
             } else if (hasSavedGame && y >= screenH * .385f && y < screenH * .465f) {
                 menuVisible = false;
                 paused = false;
                 return;
-            } else if (y >= screenH * .285f && y < screenH * .375f) {
+            } else if (y >= screenH * (hasSavedGame ? .285f : .345f)
+                    && y < screenH * (hasSavedGame ? .375f : .435f)) {
                 startMode(menuSelectedMode, true);
             } else if (y >= screenH * .17f && y < screenH * .265f) {
                 int action = menuUtilityAt(x, y);
@@ -872,9 +878,9 @@ public final class UpMergeGame extends ApplicationAdapter {
         batch.end();
         float dirW = screenW * .37f, dirH = screenH * .064f, dirY = screenH * .49f;
         drawMenuChoice("СНИЗУ ВВЕРХ ↑", center - dirW * .52f, dirY, dirW, dirH,
-                engine.direction() == BoardEngine.Direction.UP);
+                menuSelectedDirection == BoardEngine.Direction.UP);
         drawMenuChoice("СВЕРХУ ВНИЗ ↓", center + dirW * .52f, dirY, dirW, dirH,
-                engine.direction() == BoardEngine.Direction.DOWN);
+                menuSelectedDirection == BoardEngine.Direction.DOWN);
 
         if (hasSavedGame) {
             drawMenuButton("ПРОДОЛЖИТЬ ИГРУ", screenH * .425f, .078f, false);
@@ -1376,7 +1382,7 @@ public final class UpMergeGame extends ApplicationAdapter {
     private void startNewRun(boolean resetProgress) {
         long savedGoal = resetProgress ? 2048L : cubeQueue.goalTarget();
         engine.clear();
-        engine.setDirection(BoardEngine.Direction.UP);
+        engine.setDirection(menuSelectedDirection);
         cubeQueue.reset(savedGoal);
         challengeGoal = cubeQueue.goalTarget();
         timeLeft = 90f;
