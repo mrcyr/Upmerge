@@ -41,17 +41,31 @@ public final class BoardEngine {
         }
     }
 
+    public static final class MergeSource {
+        public final int lane;
+        public final int row;
+        public final int value;
+
+        private MergeSource(Cube cube) {
+            lane = cube.lane;
+            row = cube.row;
+            value = cube.value;
+        }
+    }
+
     public static final class MergeEvent {
         public final int value;
         public final int count;
         public final int lane;
         public final int row;
+        public final List<MergeSource> sources;
 
-        private MergeEvent(int value, int count, int lane, int row) {
+        private MergeEvent(int value, int count, int lane, int row, List<MergeSource> sources) {
             this.value = value;
             this.count = count;
             this.lane = lane;
             this.row = row;
+            this.sources = Collections.unmodifiableList(sources);
         }
     }
 
@@ -237,12 +251,16 @@ public final class BoardEngine {
         if (result > 0) {
             int lane = pendingAnchor.lane;
             int row = pendingAnchor.row;
-            for (Cube cube : pendingGroup) cubes.remove(cube);
+            ArrayList<MergeSource> sources = new ArrayList<>();
+            for (Cube cube : pendingGroup) {
+                sources.add(new MergeSource(cube));
+                cubes.remove(cube);
+            }
             Cube made = new Cube(nextId++, lane, row, result, row);
             made.moving = false;
             cubes.add(made);
             score += result;
-            lastMerge = new MergeEvent(result, count, lane, row);
+            lastMerge = new MergeEvent(result, count, lane, row, sources);
         }
         pendingGroup = Collections.emptyList();
         pendingAnchor = null;
