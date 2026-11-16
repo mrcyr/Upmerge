@@ -1054,10 +1054,8 @@ public final class UpMergeGame extends ApplicationAdapter {
             int col = i % 2, row = i / 2;
             float x = left + col * (cardW + screenW * .04f);
             float y = top - row * (cardH + gap);
-            shapes.begin(ShapeRenderer.ShapeType.Filled);
-            shapes.setColor(.075f, .105f, .155f, 1f);
-            shapes.rect(x, y, cardW, cardH);
-            shapes.end();
+            drawRoundedFill(x, y, cardW, cardH, Math.min(15f, cardH * .22f),
+                    .075f, .115f, .17f, 1f);
             batch.begin();
             font.setColor(.58f, .68f, .80f, 1f);
             font.getData().setScale(uiScale * MathUtils.clamp(screenW / 520f, .48f, .62f));
@@ -1228,13 +1226,32 @@ public final class UpMergeGame extends ApplicationAdapter {
         drawMenuButton("НАЗАД", screenH * 0.25f, 0.11f, false);
     }
 
+    private void drawRoundedFill(float x, float y, float width, float height, float radius,
+                                 float red, float green, float blue, float alpha) {
+        float r = Math.min(radius, Math.min(width, height) * 0.5f);
+        shapes.begin(ShapeRenderer.ShapeType.Filled);
+        shapes.setColor(red, green, blue, alpha);
+        shapes.rect(x + r, y, width - 2f * r, height);
+        shapes.rect(x, y + r, width, height - 2f * r);
+        shapes.circle(x + r, y + r, r, 20);
+        shapes.circle(x + width - r, y + r, r, 20);
+        shapes.circle(x + r, y + height - r, r, 20);
+        shapes.circle(x + width - r, y + height - r, r, 20);
+        shapes.end();
+    }
+
     private void drawMenuBackdrop() {
         shapes.begin(ShapeRenderer.ShapeType.Filled);
-        shapes.setColor(0.018f, 0.030f, 0.050f, 0.97f);
+        shapes.setColor(0.012f, 0.022f, 0.040f, 0.96f);
         shapes.rect(0, 0, screenW, screenH);
-        shapes.setColor(0.055f, 0.095f, 0.145f, 1f);
-        shapes.rect(screenW * 0.07f, screenH * 0.12f,
-                screenW * 0.86f, screenH * 0.76f);
+        shapes.setColor(0.025f, 0.050f, 0.085f, 1f);
+        shapes.rect(0, screenH * .72f, screenW, screenH * .28f);
+        shapes.end();
+        drawRoundedFill(screenW * .045f, screenH * .085f, screenW * .91f, screenH * .83f,
+                Math.max(22f, screenW * .055f), .045f, .085f, .145f, 1f);
+        shapes.begin(ShapeRenderer.ShapeType.Line);
+        shapes.setColor(.25f, .55f, .76f, .30f);
+        shapes.rect(screenW * .045f, screenH * .085f, screenW * .91f, screenH * .83f);
         shapes.end();
     }
 
@@ -1243,12 +1260,15 @@ public final class UpMergeGame extends ApplicationAdapter {
         float height = screenH * heightRatio;
         float left = (screenW - width) * 0.5f;
         float bottom = centerY - height * 0.5f;
-        shapes.begin(ShapeRenderer.ShapeType.Filled);
-        shapes.setColor(highlighted ? 0.10f : 0.075f,
-                highlighted ? 0.30f : 0.12f,
-                highlighted ? 0.43f : 0.18f, 1f);
-        shapes.rect(left, bottom, width, height);
-        shapes.end();
+        if (highlighted) {
+            drawRoundedFill(left, bottom, width, height, Math.min(18f, height * .42f),
+                    .12f, .48f, .68f, 1f);
+            drawRoundedFill(left + 2f, bottom + 2f, width - 4f, height - 4f,
+                    Math.min(16f, height * .40f), .18f, .66f, .88f, 1f);
+        } else {
+            drawRoundedFill(left, bottom, width, height, Math.min(17f, height * .40f),
+                    .075f, .13f, .205f, 1f);
+        }
         batch.begin();
         font.setColor(1f, 1f, 1f, 1f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 390f, 0.82f, 1.08f));
