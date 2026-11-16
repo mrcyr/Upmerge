@@ -20,7 +20,12 @@ Reference: original Android/WebView build 4.11 (`app/src/main/assets/index.html`
 - [x] Two-slot queue: current drop and upcoming preview.
 - [x] Weighted random selection from six consecutive powers of two for the current goal tier.
 - [x] On reaching the goal, double the goal and reroll both queue slots.
-- [ ] Verify the exact original tier progression and weights against the source before changing them.
+- [x] Verify the exact original tier progression and weights against the 4.11 source.
+- [x] Start at 2048; after a merged value >= goal, double goal and reroll both queue slots.
+- [x] Preserve goal progress across ordinary restarts; reset to 2048 only for a fresh game.
+- [x] Preserve 4.11 rounding: merge result is the smallest power of two >= (cube value × group size).
+- [x] Match 4.11 compact suffixes through the currently supported `long` range: K, M, B, T, Qa, Qi.
+- [ ] Extend beyond signed 64-bit only if/when BigInteger migration is approved.
 
 ## Native port progress
 
@@ -29,7 +34,8 @@ Reference: original Android/WebView build 4.11 (`app/src/main/assets/index.html`
 - [ ] Persist all remaining 4.11 run fields (shots, elapsed time, run stats, tools/charges, etc.) once their native systems exist.
 - [ ] Add complete menu flow: New Game / Continue / Settings.
 - [x] Add initial mode selector for Classic / Timed (90 seconds) / Challenge.
-- [x] Add timed countdown, challenge goal completion, and basic pause / resume / restart / return-to-menu controls.
+- [x] Add timed countdown, visible timer HUD, challenge goal completion, and basic pause / resume / restart / return-to-menu controls.
+- [x] Show current level goal in the HUD and brief feedback when the goal advances.
 - [x] Replace the default ASCII-only bitmap font with a runtime-generated Android system font atlas covering Russian Cyrillic for HUD and overlays.
 - [x] Add emergency capacity recovery overlay, split-selection mode, and explicit end-run screen with restart.
 - [x] Add persistence regression tests for queue + board consistency after interrupted launches.
