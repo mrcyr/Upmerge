@@ -24,7 +24,7 @@ public final class UpMergeGame extends ApplicationAdapter {
     private final GlyphLayout textLayout = new GlyphLayout();
     private com.badlogic.gdx.Preferences preferences;
     private float saveTimer;
-    private int bestScore;
+    private long bestScore;
     private int splitCharges = 2;
     private boolean emergencyDialog;
     private boolean splitSelecting;
@@ -33,7 +33,7 @@ public final class UpMergeGame extends ApplicationAdapter {
     private boolean paused;
     private GameMode gameMode = GameMode.CLASSIC;
     private float timeLeft = 90f;
-    private int challengeGoal = 2048;
+    private long challengeGoal = 2048;
     private enum GameMode { CLASSIC, TIMED, CHALLENGE }
 
     private OrthographicCamera camera;
@@ -60,7 +60,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         batch = new SpriteBatch();
         font = createCyrillicFont();
         preferences = Gdx.app.getPreferences("UpMergeNative");
-        bestScore = preferences.getInteger("bestScore", 0);
+        bestScore = preferences.getLong("bestScore", 0L);
         splitCharges = preferences.getInteger("splitCharges", 2);
         restoreGame();
         menuVisible = true;
@@ -156,7 +156,7 @@ public final class UpMergeGame extends ApplicationAdapter {
             cubeQueue.onMergedValue(mergeEvent.value);
             if (reachedChallenge) gameOver = true;
             bestScore = Math.max(bestScore, engine.score());
-            preferences.putInteger("bestScore", bestScore);
+            preferences.putLong("bestScore", bestScore);
         preferences.putInteger("splitCharges", splitCharges);
             preferences.flush();
             saveGame();
@@ -452,12 +452,12 @@ public final class UpMergeGame extends ApplicationAdapter {
 
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 245f, 1.25f, 1.75f));
         font.setColor(0.96f, 0.98f, 1f, 1f);
-        font.draw(batch, Integer.toString(engine.score()), pad + 10f, cardY + cardH * 0.48f);
-        font.draw(batch, Integer.toString(cubeQueue.current()), pad + cardW + cardGap + 10f,
+        font.draw(batch, NumberFormatter.compact(engine.score()), pad + 10f, cardY + cardH * 0.48f);
+        font.draw(batch, NumberFormatter.compact(cubeQueue.current()), pad + cardW + cardGap + 10f,
                 cardY + cardH * 0.48f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 390f, 0.78f, 0.95f));
         font.setColor(0.58f, 0.70f, 0.82f, 1f);
-        font.draw(batch, "NEXT: " + cubeQueue.upcoming(), pad + cardW + cardGap + 10f,
+        font.draw(batch, "NEXT: " + NumberFormatter.compact(cubeQueue.upcoming()), pad + cardW + cardGap + 10f,
                 cardY + 12f);
 
         font.getData().setScale(uiScale * MathUtils.clamp(cell / 39f, 0.90f, 1.35f));
@@ -475,7 +475,7 @@ public final class UpMergeGame extends ApplicationAdapter {
                 screenW * 0.5f, footerHeight * 0.28f);
         // Center each value in its cube, with a scale that remains readable for large numbers.
         for (BoardEngine.Cube cube : engine.cubes()) {
-            String value = Integer.toString(cube.value);
+            String value = NumberFormatter.compact(cube.value);
             float sizeScale = value.length() >= 5 ? 0.58f : value.length() >= 4 ? 0.68f
                     : value.length() >= 3 ? 0.78f : 0.94f;
             font.getData().setScale(uiScale * MathUtils.clamp(cell / 42f, 0.95f, 1.50f) * sizeScale);
@@ -560,9 +560,9 @@ public final class UpMergeGame extends ApplicationAdapter {
         String board = engine.saveState();
         if (board == null) return; // Keep the last complete board while animations are in flight.
         preferences.putString("boardV1", board);
-        preferences.putInteger("queueGoal", cubeQueue.goalTarget());
-        preferences.putInteger("queueCurrent", cubeQueue.current());
-        preferences.putInteger("queueUpcoming", cubeQueue.upcoming());
+        preferences.putLong("queueGoal", cubeQueue.goalTarget());
+        preferences.putLong("queueCurrent", cubeQueue.current());
+        preferences.putLong("queueUpcoming", cubeQueue.upcoming());
         preferences.putString("gameMode", gameMode.name());
         preferences.putFloat("timeLeft", timeLeft);
         preferences.putInteger("bestScore", bestScore);
@@ -576,9 +576,9 @@ public final class UpMergeGame extends ApplicationAdapter {
         try { gameMode = GameMode.valueOf(preferences.getString("gameMode", "CLASSIC")); }
         catch (IllegalArgumentException ignored) { gameMode = GameMode.CLASSIC; }
         timeLeft = preferences.getFloat("timeLeft", 90f);
-        int goal = preferences.getInteger("queueGoal", 2048);
-        int current = preferences.getInteger("queueCurrent", 2);
-        int upcoming = preferences.getInteger("queueUpcoming", 2);
+        long goal = preferences.getLong("queueGoal", 2048L);
+        long current = preferences.getLong("queueCurrent", 2L);
+        long upcoming = preferences.getLong("queueUpcoming", 2L);
         splitCharges = preferences.getInteger("splitCharges", 2);
         if (!cubeQueue.restore(goal, current, upcoming)) {
             engine.clear();
