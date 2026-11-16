@@ -16,7 +16,7 @@ public class MainMenuLayoutTest {
             assertFalse(layout.modes[0].overlaps(layout.modes[1]));
             assertFalse(layout.modes[1].overlaps(layout.modes[2]));
             assertFalse(layout.directions[0].overlaps(layout.directions[1]));
-            assertEquals(size[0] * .5f, layout.directions[0].centerX()
+            assertEquals(size[0], layout.directions[0].centerX()
                     + layout.directions[1].centerX(), .01f);
         }
     }
