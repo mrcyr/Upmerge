@@ -1,0 +1,56 @@
+package com.upmerge.game;
+
+import org.junit.Test;
+import java.util.Random;
+import static org.junit.Assert.*;
+
+public class CubeQueueTest {
+    @Test public void baseLevelUsesSixConsecutivePowersWithOriginalWeights() {
+        assertArrayEquals(new int[]{2, 4, 8, 16, 32, 64}, CubeQueue.valuesForGoal(2048));
+        assertEquals(5, CubeQueue.weightForIndex(0));
+        assertEquals(4, CubeQueue.weightForIndex(1));
+        assertEquals(3, CubeQueue.weightForIndex(2));
+        assertEquals(2, CubeQueue.weightForIndex(3));
+        assertEquals(1, CubeQueue.weightForIndex(4));
+        assertEquals(1, CubeQueue.weightForIndex(5));
+    }
+
+    @Test public void nextLevelShiftsTheRangeUpByOnePower() {
+        assertArrayEquals(new int[]{4, 8, 16, 32, 64, 128}, CubeQueue.valuesForGoal(4096));
+        assertArrayEquals(new int[]{8, 16, 32, 64, 128, 256}, CubeQueue.valuesForGoal(8192));
+    }
+
+    @Test public void queueAdvancesOnlyWhenSuccessfulLaunchConsumesCurrent() {
+        CubeQueue queue = new CubeQueue(new Random(1234));
+        int current = queue.current();
+        int upcoming = queue.upcoming();
+        queue.advance();
+        assertEquals(upcoming, queue.current());
+        assertTrue(isAllowed(queue.upcoming(), 2048));
+        assertTrue(isAllowed(current, 2048));
+    }
+
+    @Test public void reachingGoalDoublesTargetAndRerollsQueueForNewLevel() {
+        CubeQueue queue = new CubeQueue(new Random(7));
+        assertFalse(queue.onMergedValue(1024));
+        assertEquals(2048, queue.goalTarget());
+        assertTrue(queue.onMergedValue(2048));
+        assertEquals(4096, queue.goalTarget());
+        assertTrue(isAllowed(queue.current(), 4096));
+        assertTrue(isAllowed(queue.upcoming(), 4096));
+    }
+
+    @Test public void randomDrawsNeverLeaveCurrentLevelRange() {
+        CubeQueue queue = new CubeQueue(new Random(99));
+        for (int i = 0; i < 500; i++) {
+            assertTrue(isAllowed(queue.current(), queue.goalTarget()));
+            assertTrue(isAllowed(queue.upcoming(), queue.goalTarget()));
+            queue.advance();
+        }
+    }
+
+    private static boolean isAllowed(int value, int goal) {
+        for (int candidate : CubeQueue.valuesForGoal(goal)) if (candidate == value) return true;
+        return false;
+    }
+}
