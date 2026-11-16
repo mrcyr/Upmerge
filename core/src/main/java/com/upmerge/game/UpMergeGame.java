@@ -34,6 +34,9 @@ public final class UpMergeGame extends ApplicationAdapter {
     private boolean settingsVisible;
     private boolean hapticsEnabled = true;
     private boolean hasSavedGame;
+    private long[] activeHapticPattern = new long[0];
+    private int activeHapticIndex;
+    private float hapticTimeRemaining;
     private boolean paused;
     private GameMode gameMode = GameMode.CLASSIC;
     private float timeLeft = 90f;
@@ -151,7 +154,8 @@ public final class UpMergeGame extends ApplicationAdapter {
         int movementHaptics = engine.consumeMovementHaptics();
         int landingHaptics = engine.consumeLandingHaptics();
         BoardEngine.MergeEvent mergeEvent = engine.consumeMergeEvent();
-        playHapticFeedback(movementHaptics, landingHaptics, mergeEvent != null);
+        enqueueHapticFeedback(movementHaptics, landingHaptics, mergeEvent != null);
+        updateHapticFeedback(dt);
         if (mergeEvent != null) {
             mergeFlashTime = 0.42f;
             mergeFlashLane = mergeEvent.lane;
@@ -190,28 +194,63 @@ public final class UpMergeGame extends ApplicationAdapter {
     }
 
     /**
-     * One distinct pulse per cube movement/landing, plus a stronger pulse for
-     * each completed merge. A single waveform preserves every pulse when
-     * several cubes settle in the same frame.
+     * Queue one Android-compatible libGDX vibration per cube movement/landing,
+     * followed by a stronger pulse for each completed merge. Input.vibrate()
+     * accepts a single duration; waveform arrays are Android Vibrator API
+     * details and are not part of the cross-platform libGDX Input interface.
      */
-    private void playHapticFeedback(int movementCount, int landingCount, boolean merged) {
+    private void enqueueHapticFeedback(int movementCount, int landingCount, boolean merged) {
         if (!hapticsEnabled) return;
-        int pulseCount = Math.min(12, Math.max(0, movementCount))
-                + Math.min(12, Math.max(0, landingCount)) + (merged ? 1 : 0);
+        int movement = Math.min(12, Math.max(0, movementCount));
+        int landing = Math.min(12, Math.max(0, landingCount));
+        int pulseCount = movement + landing + (merged ? 1 : 0);
         if (pulseCount == 0) return;
 
-        long[] pattern = new long[pulseCount * 2 + 1];
+        long[] next = new long[pulseCount * 2 - 1];
         int index = 0;
-        for (int i = 0; i < Math.min(12, movementCount); i++) {
-            pattern[++index] = 14L; // cube starts falling or rising
-            pattern[++index] = 28L;
+        for (int i = 0; i < movement; i++) {
+            if (index > 0) next[index++] = 28L;
+            next[index++] = 14L;
         }
-        for (int i = 0; i < Math.min(12, landingCount); i++) {
-            pattern[++index] = 22L; // cube reaches its cell
-            pattern[++index] = 34L;
+        for (int i = 0; i < landing; i++) {
+            if (index > 0) next[index++] = 34L;
+            next[index++] = 22L;
         }
-        if (merged) pattern[++index] = 78L; // stronger, longer merge pulse
-        Gdx.input.vibrate(pattern, -1);
+        if (merged) {
+            if (index > 0) next[index++] = 42L;
+            next[index++] = 78L;
+        }
+
+        // Preserve an in-progress sequence and append this frame's events.
+        int remaining = activeHapticPattern.length - activeHapticIndex;
+        long[] combined = new long[remaining + index];
+        if (remaining > 0) {
+            System.arraycopy(activeHapticPattern, activeHapticIndex, combined, 0, remaining);
+        }
+        System.arraycopy(next, 0, combined, remaining, index);
+        activeHapticPattern = combined;
+        activeHapticIndex = 0;
+    }
+
+    private void updateHapticFeedback(float deltaSeconds) {
+        if (!hapticsEnabled) {
+            activeHapticPattern = new long[0];
+            activeHapticIndex = 0;
+            hapticTimeRemaining = 0f;
+            return;
+        }
+        hapticTimeRemaining -= deltaSeconds;
+        if (hapticTimeRemaining > 0f) return;
+        if (activeHapticIndex >= activeHapticPattern.length) {
+            activeHapticPattern = new long[0];
+            activeHapticIndex = 0;
+            return;
+        }
+        long segment = activeHapticPattern[activeHapticIndex++];
+        if ((activeHapticIndex & 1) == 1) {
+            Gdx.input.vibrate((int) segment);
+        }
+        hapticTimeRemaining = segment / 1000f;
     }
 
     private void handleInput() {
