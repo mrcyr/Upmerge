@@ -316,8 +316,17 @@ public final class UpMergeGame extends ApplicationAdapter {
             float y = boardBottom + (BoardEngine.ROWS - 1 - cube.visualRow) * cell + cell * 0.075f;
             float size = cell * 0.85f;
             if (cube.mergePending) {
-                float pulse = 0.5f + 0.5f * MathUtils.sin(engine.mergeElapsedSeconds() * 18f);
-                size *= 1f + pulse * 0.075f;
+                float mergeProgress = MathUtils.clamp(
+                        engine.mergeElapsedSeconds() / BoardEngine.MERGE_DELAY_SECONDS, 0f, 1f);
+                if (cube.forcedMergeIncoming) {
+                    // The incoming cube is entering an already occupied edge cell.
+                    // Shrink it into the resident cube instead of drawing two
+                    // identical squares directly on top of each other.
+                    size *= Math.max(0.04f, 1f - mergeProgress * 0.96f);
+                } else {
+                    float pulse = 0.5f + 0.5f * MathUtils.sin(engine.mergeElapsedSeconds() * 18f);
+                    size *= 1f + pulse * 0.11f;
+                }
             } else if (mergeFlashTime > 0f && cube.value == mergeFlashValue
                     && cube.lane == mergeFlashLane && cube.row == mergeFlashRow) {
                 float progress = 1f - mergeFlashTime / 0.42f;
