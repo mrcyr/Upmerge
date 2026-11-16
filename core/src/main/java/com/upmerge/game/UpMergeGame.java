@@ -28,6 +28,9 @@ public final class UpMergeGame extends ApplicationAdapter {
     private int splitCharges = 2, moveCharges = 2, swapCharges = 2, bombCharges = 1, undoCharges;
     private GameEconomy economy;
     private boolean shopVisible;
+    private boolean achievementsVisible;
+    private int runMerges, runMaxCombo = 1;
+    private long runMaxBlock = 2L;
     private Tool activeTool = Tool.NONE;
     private long selectedToolCubeId = -1L;
     private String undoBoardState;
@@ -179,6 +182,10 @@ public final class UpMergeGame extends ApplicationAdapter {
             mergeFlightTargetRow = mergeEvent.row;
             mergeFlightSources.clear();
             mergeFlightSources.addAll(mergeEvent.sources);
+            runMerges += Math.max(1, mergeEvent.count - 1);
+            runMaxCombo = Math.max(runMaxCombo, mergeEvent.combo);
+            runMaxBlock = Math.max(runMaxBlock, mergeEvent.value);
+            awardAchievements();
             boolean reachedChallenge = gameMode == GameMode.CHALLENGE && mergeEvent.value >= challengeGoal;
             boolean advancedLevel = cubeQueue.onMergedValue(mergeEvent.value);
             if (advancedLevel) levelUpTime = 2.0f;
@@ -204,6 +211,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         if (menuVisible) {
             if (settingsVisible) drawSettingsMenu();
             else if (shopVisible) drawShopMenu();
+            else if (achievementsVisible) drawAchievementsMenu();
             else if (modeSelectionVisible) drawModeMenu();
             else drawMainMenu();
         } else if (paused) drawPauseMenu();
@@ -274,6 +282,7 @@ public final class UpMergeGame extends ApplicationAdapter {
             if (menuVisible) {
                 if (settingsVisible) settingsVisible = false;
                 else if (shopVisible) shopVisible = false;
+                else if (achievementsVisible) achievementsVisible = false;
                 else if (modeSelectionVisible) modeSelectionVisible = false;
             } else if (paused) {
                 paused = false;
@@ -298,6 +307,10 @@ public final class UpMergeGame extends ApplicationAdapter {
         float y = screenH - Gdx.input.getY();
 
         if (menuVisible) {
+            if (achievementsVisible) {
+                if (y <= screenH * 0.14f) achievementsVisible = false;
+                return;
+            }
             if (shopVisible) {
                 int item = shopItemAt(x, y);
                 if (item >= 0) buyToolPack(item);
@@ -322,6 +335,7 @@ public final class UpMergeGame extends ApplicationAdapter {
                 if (y > screenH * 0.32f && y <= screenH * 0.47f) modeSelectionVisible = true;
                 else if (y > screenH * 0.17f && y <= screenH * 0.29f) settingsVisible = true;
                 else if (y > screenH * 0.05f && y <= screenH * 0.16f) shopVisible = true;
+                else if (y > screenH * 0.005f && y <= screenH * 0.045f) achievementsVisible = true;
             } else {
                 if (y > screenH * 0.51f && y <= screenH * 0.68f) startMode(GameMode.CLASSIC, true);
                 else if (y > screenH * 0.34f && y <= screenH * 0.51f) startMode(GameMode.TIMED, true);
@@ -730,6 +744,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         drawMenuButton("НАСТРОЙКИ", screenH * 0.23f, 0.11f, false);
         drawMenuButton("МАГАЗИН · " + NumberFormatter.compact(economy.coins()) + " МОНЕТ",
                 screenH * 0.105f, 0.09f, false);
+        drawMenuButton("ДОСТИЖЕНИЯ", screenH * 0.025f, 0.045f, false);
 
         batch.begin();
         font.setColor(0.60f, 0.70f, 0.82f, 1f);
@@ -752,6 +767,66 @@ public final class UpMergeGame extends ApplicationAdapter {
         drawMenuButton("НА ВРЕМЯ · 90 СЕКУНД", screenH * 0.425f, 0.14f, true);
         drawMenuButton("ИСПЫТАНИЕ", screenH * 0.255f, 0.14f, true);
         drawMenuButton("НАЗАД", screenH * 0.105f, 0.10f, false);
+    }
+
+    private static final String[] ACHIEVEMENT_KEYS = {
+            "first_merge", "combo3", "score1000", "block128", "merge10", "score5000"
+    };
+    private static final String[] ACHIEVEMENT_NAMES = {
+            "ПЕРВОЕ СЛИЯНИЕ", "КОМБО ×3", "ТЫСЯЧА ОЧКОВ",
+            "БОЛЬШОЙ КУБ 128", "МАСТЕР СЛИЯНИЯ", "ПЯТЬ ТЫСЯЧ"
+    };
+    private static final String[] ACHIEVEMENT_DETAILS = {
+            "Объедини любые два кубика · 20 монет",
+            "Добейся комбо ×3 · 35 монет",
+            "Набери 1 000 очков за партию · 40 монет",
+            "Создай кубик 128 или больше · 60 монет",
+            "Сделай 10 объединений за партию · 75 монет",
+            "Набери 5 000 очков за партию · 100 монет"
+    };
+    private static final long[] ACHIEVEMENT_REWARDS = {20, 35, 40, 60, 75, 100};
+
+    private void awardAchievements() {
+        boolean changed = false;
+        for (int i = 0; i < ACHIEVEMENT_KEYS.length; i++) {
+            String key = "achievement_" + ACHIEVEMENT_KEYS[i];
+            if (preferences.getBoolean(key, false)) continue;
+            boolean earned = i == 0 ? runMerges >= 1 : i == 1 ? runMaxCombo >= 3
+                    : i == 2 ? engine.score() >= 1000 : i == 3 ? runMaxBlock >= 128
+                    : i == 4 ? runMerges >= 10 : engine.score() >= 5000;
+            if (earned) {
+                preferences.putBoolean(key, true);
+                economy.rewardForMerge(ACHIEVEMENT_REWARDS[i] * 30L);
+                changed = true;
+            }
+        }
+        if (changed) persistToolBalances();
+    }
+
+    private void drawAchievementsMenu() {
+        drawMenuBackdrop();
+        batch.begin();
+        font.setColor(.35f, .82f, 1f);
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 250f, 1.15f, 1.45f));
+        drawCentered("ДОСТИЖЕНИЯ", screenW * .5f, screenH * .84f);
+        font.setColor(1f, .82f, .38f);
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 350f, .82f, 1f));
+        drawCentered("НАГРАДЫ ЗА ИГРОВЫЕ ЦЕЛИ", screenW * .5f, screenH * .75f);
+        batch.end();
+        for (int i = 0; i < ACHIEVEMENT_KEYS.length; i++) {
+            boolean done = preferences.getBoolean("achievement_" + ACHIEVEMENT_KEYS[i], false);
+            batch.begin();
+            font.setColor(done ? .35f : .72f, done ? .88f : .82f, done ? .62f : .92f, 1f);
+            font.getData().setScale(uiScale * MathUtils.clamp(screenW / 420f, .62f, .78f));
+            drawCenteredFit((done ? "✓ " : "◇ ") + ACHIEVEMENT_NAMES[i],
+                    screenW * .5f, screenH * (.65f - i * .085f), screenW * .84f,
+                    uiScale * MathUtils.clamp(screenW / 460f, .55f, .68f));
+            font.setColor(.58f, .68f, .80f, 1f);
+            font.getData().setScale(uiScale * MathUtils.clamp(screenW / 500f, .50f, .62f));
+            drawCentered(ACHIEVEMENT_DETAILS[i], screenW * .5f, screenH * (.62f - i * .085f));
+            batch.end();
+        }
+        drawMenuButton("НАЗАД", screenH * .08f, .07f, false);
     }
 
     private void drawShopMenu() {
