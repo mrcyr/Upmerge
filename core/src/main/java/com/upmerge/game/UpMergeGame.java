@@ -726,9 +726,9 @@ public final class UpMergeGame extends ApplicationAdapter {
             roundedRectInBatch(x + 1.5f, y - 3f, size, size, radius);
             shapes.setColor(red * .70f, green * .70f, blue * .72f, 1f);
             roundedRectInBatch(x, y, size, size, radius);
-            shapes.setColor(red, green, blue, 1f);
-            roundedRectInBatch(x + 1.5f, y + 1.5f, size - 3f, size - 3f, radius - 1.5f);
-            // Convex finish used by the original default neon theme.
+            drawCubeConvexGradient(x + 1.5f, y + 1.5f, size - 3f, radius - 1.5f,
+                    red, green, blue);
+            // Soft top sheen and lower bevel are the original convex finish.
             shapes.setColor(1f, 1f, 1f, .18f);
             roundedRectInBatch(x + size * .10f, y + size * .82f,
                     size * .80f, Math.max(2f, size * .035f), 2f);
@@ -755,6 +755,37 @@ public final class UpMergeGame extends ApplicationAdapter {
             shapes.setColor(.45f, .90f, 1f, 1f - progress);
             shapes.circle(centerX, centerY, cell * (.28f + progress * .48f), 32);
             shapes.end();
+        }
+    }
+
+    /** Approximate the source canvas' diagonal convex face gradient with clipped bands. */
+    private void drawCubeConvexGradient(float x, float y, float size, float radius,
+                                        float red, float green, float blue) {
+        final int strips = 12;
+        float r = Math.max(0f, Math.min(radius, size * .5f));
+        for (int i = 0; i < strips; i++) {
+            float t = (i + .5f) / strips;
+            float cr, cg, cb;
+            if (t < .48f) {
+                float p = t / .48f;
+                cr = MathUtils.lerp(Math.min(1f, red + .14f), red, p);
+                cg = MathUtils.lerp(Math.min(1f, green + .14f), green, p);
+                cb = MathUtils.lerp(Math.min(1f, blue + .14f), blue, p);
+            } else {
+                float p = (t - .48f) / .52f;
+                cr = MathUtils.lerp(red, Math.max(0f, red - .137f), p);
+                cg = MathUtils.lerp(green, Math.max(0f, green - .137f), p);
+                cb = MathUtils.lerp(blue, Math.max(0f, blue - .137f), p);
+            }
+            float stripY = y + size * i / strips;
+            float stripH = size / strips + .5f;
+            float centerY = stripY + stripH * .5f;
+            float edge = Math.min(centerY - y, y + size - centerY);
+            float inset = edge < r
+                    ? r - (float) Math.sqrt(Math.max(0f, r * r - (r - edge) * (r - edge)))
+                    : 0f;
+            shapes.setColor(cr, cg, cb, 1f);
+            shapes.rect(x + inset, stripY, size - inset * 2f, stripH);
         }
     }
 
