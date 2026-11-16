@@ -27,6 +27,7 @@ public final class UpMergeGame extends ApplicationAdapter {
     private float screenW, screenH;
     private float cell, boardLeft, boardBottom, boardTop;
     private float headerHeight, footerHeight;
+    private float uiScale = 1f;
     private int nextValue = 2;
 
     @Override public void create() {
@@ -42,6 +43,9 @@ public final class UpMergeGame extends ApplicationAdapter {
     @Override public void resize(int width, int height) {
         screenW = Math.max(1, width);
         screenH = Math.max(1, height);
+        // libGDX renders in physical pixels on Android; the built-in BitmapFont
+        // is small in pixel terms, so scale UI typography with device density.
+        uiScale = Math.max(1f, Gdx.graphics.getDensity());
         camera.setToOrtho(false, screenW, screenH);
         camera.update();
         shapes.setProjectionMatrix(camera.combined);
@@ -56,7 +60,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         boardLeft = (screenW - cell * BoardEngine.COLUMNS) * 0.5f;
         boardBottom = footerHeight + 10f + (availableHeight - cell * BoardEngine.ROWS) * 0.5f;
         boardTop = boardBottom + cell * BoardEngine.ROWS;
-        font.getData().setScale(MathUtils.clamp(cell / 43f, 0.78f, 1.35f));
+        font.getData().setScale(uiScale * MathUtils.clamp(cell / 43f, 0.90f, 1.55f));
     }
 
     @Override public void render() {
@@ -163,26 +167,26 @@ public final class UpMergeGame extends ApplicationAdapter {
         float cardW = (screenW - pad * 2f - cardGap) * 0.5f;
         float cardY = screenH - headerHeight + 12f;
         float cardH = headerHeight - 24f;
-        float labelScale = MathUtils.clamp(screenW / 360f, 0.78f, 1f);
+        float labelScale = uiScale * MathUtils.clamp(screenW / 360f, 0.90f, 1.15f);
 
         font.getData().setScale(labelScale);
         font.setColor(0.58f, 0.70f, 0.82f, 1f);
         font.draw(batch, "SCORE", pad + 10f, cardY + cardH - 12f);
         font.draw(batch, "NEXT", pad + cardW + cardGap + 10f, cardY + cardH - 12f);
 
-        font.getData().setScale(MathUtils.clamp(screenW / 245f, 1.05f, 1.55f));
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 245f, 1.25f, 1.75f));
         font.setColor(0.96f, 0.98f, 1f, 1f);
         font.draw(batch, Integer.toString(engine.score()), pad + 10f, cardY + cardH * 0.48f);
         font.draw(batch, Integer.toString(nextValue), pad + cardW + cardGap + 10f,
                 cardY + cardH * 0.48f);
 
-        font.getData().setScale(MathUtils.clamp(cell / 39f, 0.82f, 1.2f));
+        font.getData().setScale(uiScale * MathUtils.clamp(cell / 39f, 0.90f, 1.35f));
         font.setColor(0.68f, 0.80f, 0.91f, 1f);
         String direction = engine.direction() == BoardEngine.Direction.UP ? "GRAVITY  ↑" : "GRAVITY  ↓";
         drawCentered(direction, screenW * 0.5f, screenH - headerHeight + 5f);
 
         font.setColor(0.58f, 0.68f, 0.78f, 1f);
-        font.getData().setScale(MathUtils.clamp(screenW / 330f, 0.72f, 0.95f));
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 330f, 0.90f, 1.10f));
         drawCentered("TAP A COLUMN TO DROP", screenW * 0.5f, footerHeight * 0.62f);
         drawCentered("TAP THE TOP PANEL TO CHANGE DIRECTION",
                 screenW * 0.5f, footerHeight * 0.28f);
@@ -192,7 +196,7 @@ public final class UpMergeGame extends ApplicationAdapter {
             String value = Integer.toString(cube.value);
             float sizeScale = value.length() >= 5 ? 0.58f : value.length() >= 4 ? 0.68f
                     : value.length() >= 3 ? 0.78f : 0.94f;
-            font.getData().setScale(MathUtils.clamp(cell / 42f, 0.82f, 1.35f) * sizeScale);
+            font.getData().setScale(uiScale * MathUtils.clamp(cell / 42f, 0.95f, 1.50f) * sizeScale);
             font.setColor(1f, 1f, 1f, 1f);
             float centerX = boardLeft + (cube.lane + 0.5f) * cell;
             float centerY = boardBottom + (BoardEngine.ROWS - 0.5f - cube.visualRow) * cell;
