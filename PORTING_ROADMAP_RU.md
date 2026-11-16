@@ -28,6 +28,8 @@ Reference: original Android/WebView build 4.11 (`app/src/main/assets/index.html`
 - [x] Persist board, score, direction, combo, and queue slots using libGDX Preferences.
 - [ ] Persist all remaining 4.11 run fields (shots, elapsed time, run stats, tools/charges, etc.) once their native systems exist.
 - [ ] Add complete menu flow: New Game / Continue / Settings.
+- [x] Add initial mode selector for Classic / Timed (90 seconds) / Challenge.
+- [x] Add timed countdown, challenge goal completion, and basic pause / resume / restart / return-to-menu controls.
 - [x] Replace the default ASCII-only bitmap font with a runtime-generated Android system font atlas covering Russian Cyrillic for HUD and overlays.
 - [x] Add emergency capacity recovery overlay, split-selection mode, and explicit end-run screen with restart.
 - [x] Add persistence regression tests for queue + board consistency after interrupted launches.
