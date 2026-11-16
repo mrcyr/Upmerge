@@ -102,6 +102,57 @@ public class BoardEngineTest {
         assertTrue(engine.cubes().stream().anyMatch(c -> c.value == 4));
     }
 
+    @Test public void sequentialMergeChainProducesNextTierAndAccumulatesScore() {
+        BoardEngine engine = new BoardEngine();
+
+        assertTrue(engine.launch(0, 2));
+        settle(engine);
+        assertTrue(engine.launch(1, 2));
+        settle(engine);
+        assertTrue(engine.isMergePending());
+        finishMerge(engine);
+
+        assertEquals(1, engine.cubes().size());
+        assertEquals(4, engine.cubes().get(0).value);
+        assertEquals(4, engine.score());
+
+        // A new 4 lands beside the previous result and starts the next merge.
+        assertTrue(engine.launch(0, 4));
+        settle(engine);
+        assertTrue(engine.isMergePending());
+        finishMerge(engine);
+
+        assertEquals(1, engine.cubes().size());
+        assertEquals(8, engine.cubes().get(0).value);
+        assertEquals(12, engine.score());
+    }
+
+    @Test public void changingGravityChangesTheNextLaunchEdge() {
+        BoardEngine engine = new BoardEngine();
+
+        assertTrue(engine.launch(2, 2));
+        settle(engine);
+        assertEquals(0, engine.cubes().get(0).row);
+
+        engine.setDirection(BoardEngine.Direction.DOWN);
+        assertTrue(engine.launch(2, 4));
+        settle(engine);
+        assertEquals(6, engine.cubes().stream()
+                .filter(c -> c.value == 4).findFirst().get().row);
+    }
+
+    @Test public void mergeEventIsConsumedOnlyOnce() {
+        BoardEngine engine = new BoardEngine();
+        assertTrue(engine.launch(0, 2));
+        settle(engine);
+        assertTrue(engine.launch(0, 2));
+        settle(engine);
+        finishMerge(engine);
+
+        assertNotNull(engine.consumeMergeEvent());
+        assertNull(engine.consumeMergeEvent());
+    }
+
     @Test public void clearResetsBoardAndScore() {
         BoardEngine engine = new BoardEngine();
         assertTrue(engine.launch(0, 2));
