@@ -802,6 +802,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         preferences.putLong("queueUpcoming", cubeQueue.upcoming());
         preferences.putString("gameMode", gameMode.name());
         preferences.putFloat("timeLeft", timeLeft);
+        preferences.putBoolean("gameOver", gameOver);
         preferences.putLong("bestScore", bestScore);
         preferences.flush();
     }
@@ -812,11 +813,12 @@ public final class UpMergeGame extends ApplicationAdapter {
         if (board.isEmpty() || !engine.loadState(board)) return;
         try { gameMode = GameMode.valueOf(preferences.getString("gameMode", "CLASSIC")); }
         catch (IllegalArgumentException ignored) { gameMode = GameMode.CLASSIC; }
-        timeLeft = preferences.getFloat("timeLeft", 90f);
+        timeLeft = MathUtils.clamp(preferences.getFloat("timeLeft", 90f), 0f, 90f);
+        gameOver = preferences.getBoolean("gameOver", false);
         long goal = preferences.getLong("queueGoal", 2048L);
         long current = preferences.getLong("queueCurrent", 2L);
         long upcoming = preferences.getLong("queueUpcoming", 2L);
-        splitCharges = preferences.getInteger("splitCharges", 2);
+        splitCharges = MathUtils.clamp(preferences.getInteger("splitCharges", 2), 0, 2);
         if (!cubeQueue.restore(goal, current, upcoming)) {
             engine.clear();
             preferences.remove("boardV1");
@@ -824,6 +826,8 @@ public final class UpMergeGame extends ApplicationAdapter {
             hasSavedGame = false;
             return;
         }
+        challengeGoal = cubeQueue.goalTarget();
+        if (gameMode == GameMode.TIMED && timeLeft <= 0f) gameOver = true;
         hasSavedGame = true;
     }
 
