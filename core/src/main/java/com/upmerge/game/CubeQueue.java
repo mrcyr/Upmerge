@@ -37,7 +37,7 @@ public final class CubeQueue {
     }
 
     private static boolean isAllowed(long target, long value) {
-        for (int candidate : valuesForGoal(target)) if (candidate == value) return true;
+        for (long candidate : valuesForGoal(target)) if (candidate == value) return true;
         return false;
     }
 
@@ -56,7 +56,8 @@ public final class CubeQueue {
     /** Mirrors 4.11: reaching the goal doubles it and rerolls both queue slots. */
     public boolean onMergedValue(long value) {
         if (value < goalTarget) return false;
-        goalTarget = Math.multiplyExact(goalTarget, 2);
+        if (goalTarget > Long.MAX_VALUE / 2L) return false;
+        goalTarget *= 2L;
         current = roll();
         upcoming = roll();
         return true;
@@ -79,8 +80,8 @@ public final class CubeQueue {
     }
 
     private static int levelStep(long target) {
-        int safeTarget = Math.max(BASE_GOAL, target);
-        return Math.max(0, Math.round((float) (Math.log((double) safeTarget / BASE_GOAL) / Math.log(2.0))));
+        long safeTarget = Math.max((long) BASE_GOAL, target);
+        return Math.min(56, Math.max(0, (int) Math.round(Math.log((double) safeTarget / BASE_GOAL) / Math.log(2.0))));
     }
 
     private int roll() {
