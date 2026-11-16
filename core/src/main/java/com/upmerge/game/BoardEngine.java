@@ -56,7 +56,7 @@ public final class BoardEngine {
     }
 
     public static final class MergeEvent {
-        public final int value;
+        public final long value;
         public final int count;
         public final int lane;
         public final int row;
@@ -276,7 +276,7 @@ public final class BoardEngine {
             combo = secondsSinceLastMerge < 1.7f ? Math.min(9, combo + 1) : 1;
             secondsSinceLastMerge = 0f;
             long points = result * combo;
-            score += points;
+            score = score > Long.MAX_VALUE - points ? Long.MAX_VALUE : score + points;
             lastMerge = new MergeEvent(result, count, lane, row, combo, points, sources);
         }
         pendingGroup = Collections.emptyList();
@@ -340,7 +340,7 @@ public final class BoardEngine {
         try {
             String[] parts = state.split("\\|");
             if (parts.length < 7 || !"UPM1".equals(parts[0])) return false;
-            int restoredScore = Integer.parseInt(parts[1]);
+            long restoredScore = Long.parseLong(parts[1]);
             Direction restoredDirection = Direction.valueOf(parts[2]);
             int restoredCombo = Integer.parseInt(parts[3]);
             float restoredComboAge = Float.parseFloat(parts[4]);
@@ -407,14 +407,14 @@ public final class BoardEngine {
         return lane(lane).size();
     }
 
-    public int entryEdgeValue(int lane) {
+    public long entryEdgeValue(int lane) {
         if (lane < 0 || lane >= COLUMNS) return 0;
         Cube edge = entryEdge(lane(lane));
         return edge == null ? 0 : edge.value;
     }
 
     /** True if at least one lane can accept this exact queued value right now. */
-    public boolean hasLegalLaunch(int value) {
+    public boolean hasLegalLaunch(long value) {
         if (!isPowerOfTwo(value) || isMergePending() || hasMovingCubes()) return false;
         for (int lane = 0; lane < COLUMNS; lane++) {
             List<Cube> stack = lane(lane);
