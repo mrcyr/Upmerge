@@ -153,6 +153,42 @@ public class BoardEngineTest {
         assertNull(engine.consumeMergeEvent());
     }
 
+    @Test public void gravitySwitchRepositionsEveryExistingCubeAcrossTheBoard() {
+        BoardEngine engine = new BoardEngine();
+        assertTrue(engine.launch(0, 2));
+        settle(engine);
+        assertTrue(engine.launch(0, 4));
+        settle(engine);
+
+        assertEquals(0, engine.cubes().stream()
+                .filter(c -> c.value == 2).findFirst().get().row);
+        assertEquals(1, engine.cubes().stream()
+                .filter(c -> c.value == 4).findFirst().get().row);
+
+        engine.setDirection(BoardEngine.Direction.DOWN);
+        assertEquals(BoardEngine.Direction.DOWN, engine.direction());
+        assertTrue("All existing cubes must animate to the opposite edge",
+                engine.cubes().stream().allMatch(c -> c.moving));
+
+        settle(engine);
+        assertEquals(6, engine.cubes().stream()
+                .filter(c -> c.value == 2).findFirst().get().row);
+        assertEquals(5, engine.cubes().stream()
+                .filter(c -> c.value == 4).findFirst().get().row);
+    }
+
+    @Test public void gravityChangeWaitsForCurrentCubeToLand() {
+        BoardEngine engine = new BoardEngine();
+        assertTrue(engine.launch(2, 2));
+        engine.setDirection(BoardEngine.Direction.DOWN);
+
+        // Direction is queued while a launched cube is still travelling.
+        assertEquals(BoardEngine.Direction.UP, engine.direction());
+        settle(engine);
+        assertEquals(BoardEngine.Direction.DOWN, engine.direction());
+        assertEquals(6, engine.cubes().get(0).row);
+    }
+
     @Test public void clearResetsBoardAndScore() {
         BoardEngine engine = new BoardEngine();
         assertTrue(engine.launch(0, 2));
