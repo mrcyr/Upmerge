@@ -29,6 +29,10 @@ public final class UpMergeGame extends ApplicationAdapter {
     private float headerHeight, footerHeight;
     private float uiScale = 1f;
     private int nextValue = 2;
+    private float mergeFlashTime;
+    private int mergeFlashLane = -1;
+    private int mergeFlashRow = -1;
+    private int mergeFlashValue;
 
     @Override public void create() {
         camera = new OrthographicCamera();
@@ -66,6 +70,14 @@ public final class UpMergeGame extends ApplicationAdapter {
     @Override public void render() {
         float dt = Math.min(Gdx.graphics.getDeltaTime(), 0.05f);
         engine.update(dt);
+        if (mergeFlashTime > 0f) mergeFlashTime = Math.max(0f, mergeFlashTime - dt);
+        BoardEngine.MergeEvent mergeEvent = engine.consumeMergeEvent();
+        if (mergeEvent != null) {
+            mergeFlashTime = 0.42f;
+            mergeFlashLane = mergeEvent.lane;
+            mergeFlashRow = mergeEvent.row;
+            mergeFlashValue = mergeEvent.value;
+        }
         handleInput();
 
         ScreenUtils.clear(0.025f, 0.038f, 0.060f, 1f);
@@ -141,6 +153,17 @@ public final class UpMergeGame extends ApplicationAdapter {
             float x = boardLeft + cube.lane * cell + cell * 0.075f;
             float y = boardBottom + (BoardEngine.ROWS - 1 - cube.visualRow) * cell + cell * 0.075f;
             float size = cell * 0.85f;
+            if (cube.mergePending) {
+                float pulse = 0.5f + 0.5f * MathUtils.sin(engine.mergeElapsedSeconds() * 18f);
+                size *= 1f + pulse * 0.075f;
+            } else if (mergeFlashTime > 0f && cube.value == mergeFlashValue
+                    && cube.lane == mergeFlashLane && cube.row == mergeFlashRow) {
+                float progress = 1f - mergeFlashTime / 0.42f;
+                size *= 1f + (1f - progress) * 0.18f;
+            }
+            float xOffset = (cell - size) * 0.5f;
+            x -= xOffset;
+            y -= xOffset;
             float hue = ((float) (Math.log(cube.value) / Math.log(2.0)) * 0.105f) % 1f;
             float red = 0.16f + 0.42f * hue;
             float green = 0.48f + 0.20f * (1f - hue);
@@ -158,6 +181,18 @@ public final class UpMergeGame extends ApplicationAdapter {
             shapes.rect(x + 3f, y + size - 5f, size - 6f, 2f);
         }
         shapes.end();
+
+        // A short expanding outline marks the result of a completed merge.
+        if (mergeFlashTime > 0f && mergeFlashLane >= 0 && mergeFlashRow >= 0) {
+            float progress = 1f - mergeFlashTime / 0.42f;
+            float centerX = boardLeft + (mergeFlashLane + 0.5f) * cell;
+            float centerY = boardBottom + (BoardEngine.ROWS - 0.5f - mergeFlashRow) * cell;
+            float radius = cell * (0.28f + progress * 0.48f);
+            shapes.begin(ShapeRenderer.ShapeType.Line);
+            shapes.setColor(0.45f, 0.90f, 1f, 1f - progress);
+            shapes.circle(centerX, centerY, radius, 32);
+            shapes.end();
+        }
     }
 
     private void drawText() {
