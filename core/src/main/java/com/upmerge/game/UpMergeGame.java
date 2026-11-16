@@ -69,6 +69,8 @@ public final class UpMergeGame extends ApplicationAdapter {
     private long mergeFlashValue;
     private float mergeFlightTime;
     private float levelUpTime;
+    private boolean levelUpVisible;
+    private long levelUpGoal = 2048L;
     private int mergeFlightTargetLane;
     private int mergeFlightTargetRow;
     private final List<BoardEngine.MergeSource> mergeFlightSources = new ArrayList<>();
@@ -152,7 +154,7 @@ public final class UpMergeGame extends ApplicationAdapter {
 
     @Override public void render() {
         float dt = Math.min(Gdx.graphics.getDeltaTime(), 0.05f);
-        if (!menuVisible && !paused && !gameOver && !emergencyDialog) {
+        if (!menuVisible && !paused && !gameOver && !emergencyDialog && !levelUpVisible) {
             if (gameMode == GameMode.TIMED) {
                 timeLeft = Math.max(0f, timeLeft - dt);
                 if (timeLeft <= 0f) gameOver = true;
@@ -188,7 +190,12 @@ public final class UpMergeGame extends ApplicationAdapter {
             awardAchievements();
             boolean reachedChallenge = gameMode == GameMode.CHALLENGE && mergeEvent.value >= challengeGoal;
             boolean advancedLevel = cubeQueue.onMergedValue(mergeEvent.value);
-            if (advancedLevel) levelUpTime = 2.0f;
+            if (advancedLevel) {
+                levelUpGoal = cubeQueue.goalTarget();
+                levelUpVisible = true;
+                levelUpTime = 3.2f;
+                saveGame();
+            }
             if (reachedChallenge) gameOver = true;
             bestScore = Math.max(bestScore, engine.score());
             economy.rewardForMerge(mergeEvent.points);
@@ -306,6 +313,12 @@ public final class UpMergeGame extends ApplicationAdapter {
         float x = Gdx.input.getX();
         float y = screenH - Gdx.input.getY();
 
+        if (levelUpVisible) {
+            levelUpVisible = false;
+            levelUpTime = 0f;
+            saveGame();
+            return;
+        }
         if (menuVisible) {
             if (achievementsVisible) {
                 if (y <= screenH * 0.14f) achievementsVisible = false;
@@ -428,6 +441,51 @@ public final class UpMergeGame extends ApplicationAdapter {
             font.getData().setScale(uiScale * MathUtils.clamp(screenW / 390f, 0.72f, 0.92f));
             font.setColor(1f, 1f, 1f, 1f);
             drawCentered("ВЫБЕРИ КУБИК", screenW * 0.5f, Math.max(24f, footerHeight * 0.58f));
+            batch.end();
+            return;
+        }
+        if (levelUpVisible) {
+            float pulse = 0.5f + 0.5f * MathUtils.sin((3.2f - levelUpTime) * 5.5f);
+            shapes.begin(ShapeRenderer.ShapeType.Filled);
+            shapes.setColor(0.015f, 0.025f, 0.055f, 0.90f);
+            shapes.rect(0, 0, screenW, screenH);
+            // Layered cyan/gold halos create a celebratory glow without external assets.
+            shapes.setColor(0.10f, 0.62f, 0.86f, 0.08f + pulse * 0.06f);
+            shapes.circle(screenW * 0.5f, screenH * 0.56f, screenW * 0.48f, 48);
+            shapes.setColor(0.98f, 0.72f, 0.24f, 0.10f + pulse * 0.08f);
+            shapes.circle(screenW * 0.5f, screenH * 0.56f, screenW * 0.31f, 48);
+            shapes.setColor(0.045f, 0.105f, 0.18f, 0.98f);
+            shapes.rect(screenW * 0.07f, screenH * 0.34f, screenW * 0.86f, screenH * 0.38f);
+            shapes.setColor(0.20f, 0.78f, 0.98f, 0.85f);
+            shapes.rect(screenW * 0.10f, screenH * 0.34f, screenW * 0.80f, 2.5f);
+            shapes.rect(screenW * 0.10f, screenH * 0.72f, screenW * 0.80f, 2.5f);
+            // Small celebratory rays around the new level value.
+            shapes.setColor(1f, 0.80f, 0.35f, 0.75f);
+            float cx = screenW * 0.5f, cy = screenH * 0.535f;
+            for (int i = 0; i < 12; i++) {
+                float a = i * MathUtils.PI2 / 12f;
+                float r1 = screenW * 0.20f, r2 = r1 + screenW * 0.035f;
+                shapes.rectLine(cx + MathUtils.cos(a) * r1, cy + MathUtils.sin(a) * r1,
+                        cx + MathUtils.cos(a) * r2, cy + MathUtils.sin(a) * r2, 2.5f);
+            }
+            shapes.end();
+            batch.begin();
+            font.setColor(0.48f, 0.88f, 1f, 1f);
+            font.getData().setScale(uiScale * MathUtils.clamp(screenW / 330f, 0.95f, 1.25f));
+            drawCentered("НОВЫЙ УРОВЕНЬ!", screenW * 0.5f, screenH * 0.665f);
+            font.setColor(1f, 0.86f, 0.48f, 1f);
+            font.getData().setScale(uiScale * MathUtils.clamp(screenW / 170f, 2.0f, 3.1f));
+            drawCentered(NumberFormatter.compact(levelUpGoal), screenW * 0.5f, screenH * 0.535f);
+            font.setColor(0.80f, 0.89f, 0.98f, 1f);
+            font.getData().setScale(uiScale * MathUtils.clamp(screenW / 390f, 0.72f, 0.95f));
+            drawCentered("ЦЕЛЬ ДОСТИГНУТА · ТЕПЕРЬ СЛЕДУЮЩАЯ", screenW * 0.5f, screenH * 0.435f);
+            shapes.begin(ShapeRenderer.ShapeType.Filled);
+            shapes.setColor(0.20f, 0.72f, 0.96f, 1f);
+            shapes.rect(screenW * 0.17f, screenH * 0.365f, screenW * 0.66f, screenH * 0.065f);
+            shapes.end();
+            font.setColor(0.02f, 0.09f, 0.16f, 1f);
+            font.getData().setScale(uiScale * MathUtils.clamp(screenW / 390f, 0.82f, 1.05f));
+            drawCentered("ПРОДОЛЖИТЬ", screenW * 0.5f, screenH * 0.388f);
             batch.end();
             return;
         }
@@ -683,7 +741,7 @@ public final class UpMergeGame extends ApplicationAdapter {
             drawCentered(value, centerX, centerY + font.getCapHeight() * 0.35f);
         }
         batch.end();
-        if (levelUpTime > 0f && !menuVisible && !paused) {
+        if (levelUpTime > 0f && !menuVisible && !paused && !levelUpVisible) {
             shapes.begin(ShapeRenderer.ShapeType.Filled);
             shapes.setColor(0.08f, 0.38f, 0.48f, 0.94f);
             float bannerW = screenW * 0.72f;
