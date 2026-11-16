@@ -37,6 +37,9 @@ public class BoardEngineTest {
         assertEquals(0, BoardEngine.mergeValue(3, 2));
         assertEquals(0, BoardEngine.mergeValue(2, 1));
         assertEquals(0, BoardEngine.mergeValue(1, 2));
+        assertEquals(1L << 40, BoardEngine.mergeValue(1L << 39, 2));
+        assertEquals(1L << 50, BoardEngine.mergeValue(1L << 49, 2));
+        assertEquals(1L << 60, BoardEngine.mergeValue(1L << 59, 2));
     }
 
     @Test public void rejectsInvalidLaunches() {
