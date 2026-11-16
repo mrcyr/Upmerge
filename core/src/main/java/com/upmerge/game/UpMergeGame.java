@@ -254,6 +254,28 @@ public final class UpMergeGame extends ApplicationAdapter {
     }
 
     private void handleInput() {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.BACK)) {
+            if (menuVisible) {
+                if (settingsVisible) settingsVisible = false;
+                else if (modeSelectionVisible) modeSelectionVisible = false;
+            } else if (paused) {
+                paused = false;
+            } else if (!gameOver && !emergencyDialog && !splitSelecting) {
+                paused = true;
+                saveGame();
+            } else if (splitSelecting) {
+                splitSelecting = false;
+            } else if (emergencyDialog) {
+                emergencyDialog = false;
+                gameOver = true;
+                saveGame();
+            } else {
+                menuVisible = true;
+                gameOver = false;
+                saveGame();
+            }
+            return;
+        }
         if (!Gdx.input.justTouched()) return;
         float x = Gdx.input.getX();
         float y = screenH - Gdx.input.getY();
