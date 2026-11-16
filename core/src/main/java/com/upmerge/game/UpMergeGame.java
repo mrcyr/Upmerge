@@ -404,13 +404,14 @@ public final class UpMergeGame extends ApplicationAdapter {
                     preferences.putString("menuDirection", menuSelectedDirection.name());
                     preferences.flush();
                     break;
+                case THEMES: settingsVisible = true; break;
+                case DAILY: tasksVisible = true; break;
                 case CONTINUE: menuVisible = false; paused = false; break;
                 case NEW_GAME: startMode(menuSelectedMode, true); break;
-                case SETTINGS: settingsVisible = true; break;
                 case SHOP: shopVisible = true; break;
-                case TASKS: tasksVisible = true; break;
                 case ACHIEVEMENTS: achievementsVisible = true; break;
                 case STATISTICS: statsVisible = true; break;
+                case TASKS: tasksVisible = true; break;
                 case NONE: break;
             }
             return;
@@ -807,7 +808,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         for (int i = 0; i < tools.length; i++) {
             font.setColor(.88f, .94f, 1f, 1f);
             font.getData().setScale(uiScale * MathUtils.clamp(screenW / 520f, .48f, .60f));
-            drawCenteredFit(tools[i] + "\\n" + charges[i], (i + .5f) * toolW,
+            drawCenteredFit(tools[i] + "\n" + charges[i], (i + .5f) * toolW,
                     39f, toolW - 4f, uiScale * MathUtils.clamp(screenW / 520f, .48f, .60f));
         }
 
@@ -900,25 +901,35 @@ public final class UpMergeGame extends ApplicationAdapter {
         drawMenuChoice("СВЕРХУ ВНИЗ ↓", directionCards[1].centerX(), directionCards[1].centerY(), directionCards[1].width, directionCards[1].height,
                 menuSelectedDirection == BoardEngine.Direction.DOWN);
 
+        MainMenuLayout.Rect[] actionCards = mainMenuLayout.menuActions;
+        drawMenuChoice("ТЕМЫ", actionCards[0].centerX(), actionCards[0].centerY(),
+                actionCards[0].width, actionCards[0].height, false);
+        drawMenuChoice("ЕЖЕДНЕВНО", actionCards[1].centerX(), actionCards[1].centerY(),
+                actionCards[1].width, actionCards[1].height, false);
+
         if (hasSavedGame) {
-            drawMenuButton("ПРОДОЛЖИТЬ ИГРУ", mainMenuLayout.continueButton.centerY(), .078f, false);
-            drawMenuButton("НОВАЯ ИГРА", mainMenuLayout.newGameButton.centerY(), .085f, true);
+            drawMenuButton("ПРОДОЛЖИТЬ ИГРУ", mainMenuLayout.continueButton.centerY(), .070f, false);
+            drawMenuButton("НОВАЯ ИГРА", mainMenuLayout.newGameButton.centerY(), .075f, true);
         } else {
-            drawMenuButton("НАЧАТЬ ИГРУ", mainMenuLayout.newGameButton.centerY(), .09f, true);
+            drawMenuButton("НОВАЯ ИГРА", mainMenuLayout.newGameButton.centerY(), .075f, true);
         }
 
         MainMenuLayout.Rect[][] utilityCards = mainMenuLayout.utilities;
-        drawMenuChoice("НАСТРОЙКИ", utilityCards[0][0].centerX(), utilityCards[0][0].centerY(), utilityCards[0][0].width, utilityCards[0][0].height, false);
-        drawMenuChoice("МАГАЗИН · " + NumberFormatter.compact(economy.coins()), utilityCards[0][1].centerX(), utilityCards[0][1].centerY(), utilityCards[0][1].width, utilityCards[0][1].height, false);
-        drawMenuChoice("ЗАДАНИЯ", utilityCards[1][0].centerX(), utilityCards[1][0].centerY(), utilityCards[1][0].width, utilityCards[1][0].height, false);
-        drawMenuChoice("ДОСТИЖЕНИЯ", utilityCards[1][1].centerX(), utilityCards[1][1].centerY(), utilityCards[1][1].width, utilityCards[1][1].height, false);
+        drawMenuChoice("МАГАЗИН · " + NumberFormatter.compact(economy.coins()),
+                utilityCards[0][0].centerX(), utilityCards[0][0].centerY(),
+                utilityCards[0][0].width, utilityCards[0][0].height, false);
+        drawMenuChoice("ДОСТИЖЕНИЯ", utilityCards[0][1].centerX(), utilityCards[0][1].centerY(),
+                utilityCards[0][1].width, utilityCards[0][1].height, false);
+        drawMenuChoice("СТАТИСТИКА", utilityCards[1][0].centerX(), utilityCards[1][0].centerY(),
+                utilityCards[1][0].width, utilityCards[1][0].height, false);
+        drawMenuChoice("ЗАДАНИЯ", utilityCards[1][1].centerX(), utilityCards[1][1].centerY(),
+                utilityCards[1][1].width, utilityCards[1][1].height, false);
 
         batch.begin();
         font.setColor(.58f, .69f, .82f, 1f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 450f, .60f, .76f));
-        drawCentered("РЕКОРД  " + NumberFormatter.compact(bestScore)
-                        + "     ·     СТАТИСТИКА",
-                mainMenuLayout.statistics.centerX(), mainMenuLayout.statistics.centerY());
+        drawCentered("ЦЕЛЬ РАСТЁТ ВДВОЕ ПОСЛЕ КАЖДОГО ДОСТИЖЕНИЯ · K / M / B / T",
+                center, screenH * .045f);
         batch.end();
     }
 
