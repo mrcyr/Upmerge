@@ -175,6 +175,7 @@ public final class BoardEngine {
         incoming.forcedMergeTarget = forcedTarget;
         incoming.forcedMergeIncoming = forcedTarget != null;
         cubes.add(incoming);
+        pendingMovementHaptics++;
         return true;
     }
 
