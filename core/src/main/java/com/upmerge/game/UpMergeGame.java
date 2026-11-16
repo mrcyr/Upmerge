@@ -645,17 +645,17 @@ public final class UpMergeGame extends ApplicationAdapter {
             roundedRectInBatch(i * toolW + 2f, 31f * uiScale, toolW - 4f, 55f * uiScale, 11f * uiScale);
         }
         // Queue cards mirror the HTML flex row: label on the left, colored cube on the right.
-        float queueY = footerHeight - 49f * uiScale;
-        float queueW = 108f * uiScale, queueH = 35f * uiScale, queueGap = 12f * uiScale;
+        float queueY = footerHeight - 54f * uiScale;
+        float queueW = 112f * uiScale, queueH = 46f * uiScale, queueGap = 12f * uiScale;
         float queueLeft = (screenW - queueW * 2f - queueGap) * .5f;
         shapes.setColor(.065f, .095f, .14f, 1f);
         roundedRectInBatch(queueLeft, queueY, queueW, queueH, 10f * uiScale);
         shapes.setColor(.065f, .095f, .14f, 1f);
         roundedRectInBatch(queueLeft + queueW + queueGap, queueY, queueW, queueH, 10f * uiScale);
-        float cubePreview = 27f * uiScale;
+        float cubePreview = 34f * uiScale;
         setCubeFaceColor(cubeQueue.current(), 1f);
         roundedRectInBatch(queueLeft + queueW - cubePreview - 5f * uiScale,
-                queueY + 4f * uiScale, cubePreview, cubePreview, 6f * uiScale);
+                queueY + 6f * uiScale, cubePreview, cubePreview, 6f * uiScale);
         setCubeFaceColor(cubeQueue.upcoming(), 1f);
         roundedRectInBatch(queueLeft + queueW + queueGap + queueW - cubePreview - 5f * uiScale,
                 queueY + 4f * uiScale, cubePreview, cubePreview, 6f * uiScale);
@@ -844,8 +844,8 @@ public final class UpMergeGame extends ApplicationAdapter {
                 pad + pillW + gap + pillW - 52f * uiScale, pillY + 13f * uiScale);
 
         // Queue labels sit beside their cube previews, not above them.
-        float queueY = footerHeight - 49f * uiScale;
-        float queueW = 108f * uiScale, queueGap = 12f * uiScale;
+        float queueY = footerHeight - 54f * uiScale;
+        float queueW = 112f * uiScale, queueGap = 12f * uiScale;
         float queueLeft = (screenW - queueW * 2f - queueGap) * .5f;
         font.setColor(.62f, .72f, .84f, 1f);
         font.getData().setScale(uiScale * (9f / 24f));
@@ -855,10 +855,10 @@ public final class UpMergeGame extends ApplicationAdapter {
         font.setColor(.035f, .10f, .17f, 1f);
         font.getData().setScale(uiScale * (11f / 24f));
         drawCentered(NumberFormatter.compact(cubeQueue.current()),
-                queueLeft + queueW - 18.5f * uiScale, queueY + 13f * uiScale);
+                queueLeft + queueW - 22f * uiScale, queueY + 17f * uiScale);
         drawCentered(NumberFormatter.compact(cubeQueue.upcoming()),
-                queueLeft + queueW + queueGap + queueW - 18.5f * uiScale,
-                queueY + 13f * uiScale);
+                queueLeft + queueW + queueGap + queueW - 22f * uiScale,
+                queueY + 17f * uiScale);
 
         // Footer follows the reference order: queue, power tools, instruction.
         String[] icons = {"↶", "✹", "✂", "↗", "⇄"};
