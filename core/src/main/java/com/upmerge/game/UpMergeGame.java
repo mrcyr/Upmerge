@@ -29,6 +29,12 @@ public final class UpMergeGame extends ApplicationAdapter {
     private boolean emergencyDialog;
     private boolean splitSelecting;
     private boolean gameOver;
+    private boolean menuVisible = true;
+    private boolean paused;
+    private GameMode gameMode = GameMode.CLASSIC;
+    private float timeLeft = 90f;
+    private int challengeGoal = 2048;
+    private enum GameMode { CLASSIC, TIMED, CHALLENGE }
 
     private OrthographicCamera camera;
     private ShapeRenderer shapes;
@@ -57,6 +63,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         bestScore = preferences.getInteger("bestScore", 0);
         splitCharges = preferences.getInteger("splitCharges", 2);
         restoreGame();
+        menuVisible = true;
         font.setColor(0.94f, 0.97f, 1f, 1f);
         Gdx.input.setCatchKey(Input.Keys.BACK, true);
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -120,7 +127,13 @@ public final class UpMergeGame extends ApplicationAdapter {
 
     @Override public void render() {
         float dt = Math.min(Gdx.graphics.getDeltaTime(), 0.05f);
-        engine.update(dt);
+        if (!menuVisible && !paused && !gameOver && !emergencyDialog) {
+            if (gameMode == GameMode.TIMED) {
+                timeLeft = Math.max(0f, timeLeft - dt);
+                if (timeLeft <= 0f) gameOver = true;
+            }
+            engine.update(dt);
+        }
         saveTimer += dt;
         if (saveTimer >= 0.8f) {
             saveTimer = 0f;
@@ -146,7 +159,7 @@ public final class UpMergeGame extends ApplicationAdapter {
             preferences.flush();
             saveGame();
         }
-        checkBoardCapacity();
+        if (!menuVisible && !paused) checkBoardCapacity();
         handleInput();
 
         ScreenUtils.clear(0.025f, 0.038f, 0.060f, 1f);
@@ -156,6 +169,8 @@ public final class UpMergeGame extends ApplicationAdapter {
         drawMergeFlights();
         drawText();
         drawOverlays();
+        if (menuVisible) drawModeMenu();
+        else if (paused) drawPauseMenu();
     }
 
     private void handleInput() {
@@ -163,8 +178,21 @@ public final class UpMergeGame extends ApplicationAdapter {
         float x = Gdx.input.getX();
         float y = screenH - Gdx.input.getY();
 
+        if (menuVisible) {
+            if (y > screenH * 0.52f && y < screenH * 0.72f) startMode(GameMode.CLASSIC);
+            else if (y > screenH * 0.34f && y <= screenH * 0.52f) startMode(GameMode.TIMED);
+            else if (y > screenH * 0.16f && y <= screenH * 0.34f) startMode(GameMode.CHALLENGE);
+            return;
+        }
+        if (paused) {
+            if (y > screenH * 0.56f) paused = false;
+            else if (y > screenH * 0.36f) startMode(gameMode);
+            else { paused = false; menuVisible = true; saveGame(); }
+            return;
+        }
         if (gameOver) {
-            if (y >= screenH * 0.36f && y <= screenH * 0.58f) startNewRun();
+            if (y >= screenH * 0.36f && y <= screenH * 0.58f) startMode(gameMode);
+            else if (y < screenH * 0.36f) { menuVisible = true; gameOver = false; }
             return;
         }
         if (emergencyDialog) {
