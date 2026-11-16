@@ -64,12 +64,12 @@ final class MainMenuLayout {
         menuActions[1] = centered(center + (actionW + actionGap) * .5f,
                 actionsY, actionW, actionH);
         continueButton = hasSavedGame
-                ? centered(center, screenH * (compact ? .415f : .43f), contentWidth, 48f * this.density) : null;
-        newGameButton = centered(center, screenH * (hasSavedGame ? (compact ? .33f : .36f) : (compact ? .415f : .43f)),
+                ? centered(center, screenH * (compact ? .405f : .43f), contentWidth, 48f * this.density) : null;
+        newGameButton = centered(center, screenH * (hasSavedGame ? (compact ? .315f : .36f) : (compact ? .405f : .43f)),
                 contentWidth, 48f * this.density);
         float utilityGap = 8f * this.density;
         float utilityW = (contentWidth - utilityGap) * .5f, utilityH = 40f * this.density;
-        float[] ys = compact ? new float[]{screenH * .245f, screenH * .16f}
+        float[] ys = compact ? new float[]{screenH * .235f, screenH * .16f}
                 : new float[]{screenH * .28f, screenH * .20f};
         for (int row = 0; row < 2; row++) for (int col = 0; col < 2; col++) {
             float cx = center + (col == 0 ? -1f : 1f) * (utilityW + utilityGap) * .5f;
