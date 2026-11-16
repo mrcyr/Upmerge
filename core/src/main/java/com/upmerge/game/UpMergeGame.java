@@ -17,6 +17,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
  */
 public final class UpMergeGame extends ApplicationAdapter {
     private final BoardEngine engine = new BoardEngine();
+    private final CubeQueue cubeQueue = new CubeQueue();
     private final GlyphLayout textLayout = new GlyphLayout();
 
     private OrthographicCamera camera;
@@ -28,7 +29,6 @@ public final class UpMergeGame extends ApplicationAdapter {
     private float cell, boardLeft, boardBottom, boardTop;
     private float headerHeight, footerHeight;
     private float uiScale = 1f;
-    private int nextValue = 2;
     private float mergeFlashTime;
     private int mergeFlashLane = -1;
     private int mergeFlashRow = -1;
@@ -77,6 +77,7 @@ public final class UpMergeGame extends ApplicationAdapter {
             mergeFlashLane = mergeEvent.lane;
             mergeFlashRow = mergeEvent.row;
             mergeFlashValue = mergeEvent.value;
+            cubeQueue.onMergedValue(mergeEvent.value);
         }
         handleInput();
 
@@ -101,8 +102,8 @@ public final class UpMergeGame extends ApplicationAdapter {
 
         if (y >= boardBottom && y <= boardTop) {
             int lane = MathUtils.clamp((int) ((x - boardLeft) / cell), 0, BoardEngine.COLUMNS - 1);
-            if (engine.launch(lane, nextValue)) {
-                nextValue = nextValue >= 128 ? 2 : nextValue * 2;
+            if (engine.launch(lane, cubeQueue.current())) {
+                cubeQueue.advance();
             }
         }
     }
@@ -213,7 +214,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 245f, 1.25f, 1.75f));
         font.setColor(0.96f, 0.98f, 1f, 1f);
         font.draw(batch, Integer.toString(engine.score()), pad + 10f, cardY + cardH * 0.48f);
-        font.draw(batch, Integer.toString(nextValue), pad + cardW + cardGap + 10f,
+        font.draw(batch, Integer.toString(cubeQueue.upcoming()), pad + cardW + cardGap + 10f,
                 cardY + cardH * 0.48f);
 
         font.getData().setScale(uiScale * MathUtils.clamp(cell / 39f, 0.90f, 1.35f));
