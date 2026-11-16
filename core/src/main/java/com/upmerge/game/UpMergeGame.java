@@ -286,7 +286,11 @@ public final class UpMergeGame extends ApplicationAdapter {
 
     private void handleInput() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.BACK)) {
-            if (menuVisible) {
+            if (levelUpVisible) {
+                levelUpVisible = false;
+                levelUpTime = 0f;
+                saveGame();
+            } else if (menuVisible) {
                 if (settingsVisible) settingsVisible = false;
                 else if (shopVisible) shopVisible = false;
                 else if (achievementsVisible) achievementsVisible = false;
@@ -1067,6 +1071,8 @@ public final class UpMergeGame extends ApplicationAdapter {
         hasSavedGame = true;
         mergeFlashTime = 0f;
         mergeFlightTime = 0f;
+        levelUpVisible = false;
+        levelUpTime = 0f;
         mergeFlightSources.clear();
         persistToolBalances();
         saveGame();
