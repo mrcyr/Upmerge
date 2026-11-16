@@ -161,9 +161,10 @@ public final class UpMergeGame extends ApplicationAdapter {
                 float progress = 1f - mergeFlashTime / 0.42f;
                 size *= 1f + (1f - progress) * 0.18f;
             }
-            float xOffset = (cell - size) * 0.5f;
-            x -= xOffset;
-            y -= xOffset;
+            // Keep the animated cube centered in its cell while it pulses.
+            float centeredOffset = (cell - size) * 0.5f;
+            x = boardLeft + cube.lane * cell + centeredOffset;
+            y = boardBottom + (BoardEngine.ROWS - 1 - cube.visualRow) * cell + centeredOffset;
             float hue = ((float) (Math.log(cube.value) / Math.log(2.0)) * 0.105f) % 1f;
             float red = 0.16f + 0.42f * hue;
             float green = 0.48f + 0.20f * (1f - hue);
