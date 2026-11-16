@@ -275,7 +275,7 @@ public final class BoardEngine {
             // 4.11 chains merges made within 1.7 seconds, up to x9.
             combo = secondsSinceLastMerge < 1.7f ? Math.min(9, combo + 1) : 1;
             secondsSinceLastMerge = 0f;
-            long points = result * combo;
+            long points = result > Long.MAX_VALUE / combo ? Long.MAX_VALUE : result * combo;
             score = score > Long.MAX_VALUE - points ? Long.MAX_VALUE : score + points;
             lastMerge = new MergeEvent(result, count, lane, row, combo, points, sources);
         }
