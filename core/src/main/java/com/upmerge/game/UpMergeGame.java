@@ -644,11 +644,21 @@ public final class UpMergeGame extends ApplicationAdapter {
                     selected ? .48f : available ? .17f : .09f, 1f);
             roundedRectInBatch(i * toolW + 2f, 31f * uiScale, toolW - 4f, 55f * uiScale, 11f * uiScale);
         }
-        // Current and upcoming cube previews are grouped above the hint.
-        shapes.setColor(.055f, .085f, .12f, 1f);
-        roundedRectInBatch(screenW * .5f - 91f * uiScale, footerHeight - 49f * uiScale, 86f * uiScale, 35f * uiScale, 10f * uiScale);
-        shapes.setColor(.055f, .085f, .12f, 1f);
-        roundedRectInBatch(screenW * .5f + 5f * uiScale, footerHeight - 49f * uiScale, 86f * uiScale, 35f * uiScale, 10f * uiScale);
+        // Queue cards mirror the HTML flex row: label on the left, colored cube on the right.
+        float queueY = footerHeight - 49f * uiScale;
+        float queueW = 108f * uiScale, queueH = 35f * uiScale, queueGap = 12f * uiScale;
+        float queueLeft = (screenW - queueW * 2f - queueGap) * .5f;
+        shapes.setColor(.065f, .095f, .14f, 1f);
+        roundedRectInBatch(queueLeft, queueY, queueW, queueH, 10f * uiScale);
+        shapes.setColor(.065f, .095f, .14f, 1f);
+        roundedRectInBatch(queueLeft + queueW + queueGap, queueY, queueW, queueH, 10f * uiScale);
+        float cubePreview = 27f * uiScale;
+        setCubeFaceColor(cubeQueue.current(), 1f);
+        roundedRectInBatch(queueLeft + queueW - cubePreview - 5f * uiScale,
+                queueY + 4f * uiScale, cubePreview, cubePreview, 6f * uiScale);
+        setCubeFaceColor(cubeQueue.upcoming(), 1f);
+        roundedRectInBatch(queueLeft + queueW + queueGap + queueW - cubePreview - 5f * uiScale,
+                queueY + 4f * uiScale, cubePreview, cubePreview, 6f * uiScale);
         shapes.end();
     }
 
@@ -742,6 +752,21 @@ public final class UpMergeGame extends ApplicationAdapter {
     }
 
     /** Rounded rectangle primitive that can be drawn inside an active ShapeRenderer batch. */
+    private void setCubeFaceColor(long value, float alpha) {
+        switch ((int) value) {
+            case 2: shapes.setColor(.392f, .851f, 1f, alpha); break;
+            case 4: shapes.setColor(.376f, .898f, .769f, alpha); break;
+            case 8: shapes.setColor(.561f, .890f, .431f, alpha); break;
+            case 16: shapes.setColor(1f, .859f, .412f, alpha); break;
+            case 32: shapes.setColor(1f, .608f, .341f, alpha); break;
+            case 64: shapes.setColor(1f, .396f, .490f, alpha); break;
+            case 128: shapes.setColor(.733f, .525f, 1f, alpha); break;
+            case 256: shapes.setColor(.510f, .573f, 1f, alpha); break;
+            case 512: shapes.setColor(1f, .459f, .784f, alpha); break;
+            default: shapes.setColor(.96f, .96f, 1f, alpha); break;
+        }
+    }
+
     private void roundedRectInBatch(float x, float y, float width, float height, float radius) {
         float r = Math.max(0f, Math.min(radius, Math.min(width, height) * .5f));
         if (r <= .5f) { shapes.rect(x, y, width, height); return; }
@@ -818,17 +843,24 @@ public final class UpMergeGame extends ApplicationAdapter {
         font.draw(batch, NumberFormatter.compact(cubeQueue.goalTarget()),
                 pad + pillW + gap + pillW - 52f * uiScale, pillY + 13f * uiScale);
 
-        // Queue preview, instruction, then the five equal-width power cells.
-        float queueY = footerHeight - 25f * uiScale;
+        // Queue labels sit beside their cube previews, not above them.
+        float queueY = footerHeight - 49f * uiScale;
+        float queueW = 108f * uiScale, queueGap = 12f * uiScale;
+        float queueLeft = (screenW - queueW * 2f - queueGap) * .5f;
         font.setColor(.62f, .72f, .84f, 1f);
-        font.getData().setScale(uiScale * .48f);
-        drawCentered("СЕЙЧАС", screenW * .5f - 62f * uiScale, queueY + 6f * uiScale);
-        drawCentered("СЛЕДУЮЩИЙ", screenW * .5f + 48f * uiScale, queueY + 6f * uiScale);
-        font.setColor(.42f, .86f, 1f, 1f);
-        font.getData().setScale(uiScale * .95f);
-        drawCentered(NumberFormatter.compact(cubeQueue.current()), screenW * .5f - 20f * uiScale, queueY - 12f * uiScale);
-        drawCentered(NumberFormatter.compact(cubeQueue.upcoming()), screenW * .5f + 91f * uiScale, queueY - 12f * uiScale);
+        font.getData().setScale(uiScale * (9f / 24f));
+        font.draw(batch, "СЕЙЧАС", queueLeft + 7f * uiScale, queueY + 21f * uiScale);
+        font.draw(batch, "СЛЕДУЮЩИЙ", queueLeft + queueW + queueGap + 7f * uiScale,
+                queueY + 21f * uiScale);
+        font.setColor(.035f, .10f, .17f, 1f);
+        font.getData().setScale(uiScale * (11f / 24f));
+        drawCentered(NumberFormatter.compact(cubeQueue.current()),
+                queueLeft + queueW - 18.5f * uiScale, queueY + 13f * uiScale);
+        drawCentered(NumberFormatter.compact(cubeQueue.upcoming()),
+                queueLeft + queueW + queueGap + queueW - 18.5f * uiScale,
+                queueY + 13f * uiScale);
 
+        // Footer follows the reference order: queue, power tools, instruction.
         String[] icons = {"↶", "✹", "✂", "↗", "⇄"};
         String[] toolLabels = {"ОТМЕНА", "БОМБА ×" + bombCharges,
                 "УДАЛИТЬ ×" + splitCharges, "ПЕРЕМЕСТИТЬ ×" + moveCharges,
