@@ -385,7 +385,7 @@ public final class UpMergeGame extends ApplicationAdapter {
             return;
         }
         if (menuVisible) {
-            mainMenuLayout = new MainMenuLayout(screenW, screenH, hasSavedGame);
+            mainMenuLayout = new MainMenuLayout(screenW, screenH, hasSavedGame, uiScale);
             if (tasksVisible) {
                 if (y <= screenH * 0.14f) tasksVisible = false;
                 else if (y >= screenH * 0.24f && y <= screenH * 0.33f) claimDailyTask();
@@ -1420,7 +1420,7 @@ public final class UpMergeGame extends ApplicationAdapter {
 
     private void drawMenuButton(String label, float centerY, float heightRatio, boolean highlighted) {
         float width = mainMenuLayout != null ? mainMenuLayout.contentWidth : screenW * 0.76f;
-        float height = Math.min(screenH * heightRatio, 52f * uiScale);
+        float height = Math.min(screenH * heightRatio, 48f * uiScale);
         float left = (screenW - width) * 0.5f;
         float bottom = centerY - height * 0.5f;
         float radius = Math.min(16f, height * .30f);
