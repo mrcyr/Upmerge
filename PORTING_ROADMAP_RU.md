@@ -17,6 +17,7 @@ Reference: original Android/WebView build 4.11 (`app/src/main/assets/index.html`
 - [x] Add matching in-game tool buttons: Разбить, Переместить, Обмен, Бомба, Отмена.
 - [x] Port board operations for moving a cube, swapping two cubes, and a 3×3 bomb removal.
 - [x] Add one-step undo for the last launch, restoring the settled board and queue.
+- [x] Add persistent native achievements with one-time coin rewards and a dedicated screen.
 
 ## Queue parity — original 4.11
 
@@ -35,7 +36,7 @@ Reference: original Android/WebView build 4.11 (`app/src/main/assets/index.html`
 - [x] Board snapshot serialization/restoration for settled states.
 - [x] Persist board, score, direction, combo, and queue slots using libGDX Preferences.
 - [x] Restore the challenge target and terminal run state; clamp restored timer and split charges to valid ranges.
-- [x] Persist balances for split, move, swap, bomb, and undo tool charges.
+- [x] Persist balances for split, move, swap, bomb, and undo tool charges across new runs and app restarts.
 - [ ] Persist all remaining 4.11 run fields (shots, elapsed time, run stats, etc.) once their native systems exist.
 - [x] Add complete menu flow: New Game / Continue / Settings (including a persistent merge-haptics toggle).
 - [x] Add initial mode selector for Classic / Timed (90 seconds) / Challenge.
