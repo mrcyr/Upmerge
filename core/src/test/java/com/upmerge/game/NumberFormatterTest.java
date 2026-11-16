@@ -11,8 +11,8 @@ public class NumberFormatterTest {
 
     @Test public void advancesSuffixAtPowersOf1024() {
         assertEquals("512T", NumberFormatter.compact(512L << 40));
-        assertEquals("1Q", NumberFormatter.compact(1L << 50));
-        assertEquals("512Q", NumberFormatter.compact(512L << 50));
+        assertEquals("1Qa", NumberFormatter.compact(1L << 50));
+        assertEquals("512Qa", NumberFormatter.compact(512L << 50));
         assertEquals("1Qi", NumberFormatter.compact(1L << 60));
     }
 
