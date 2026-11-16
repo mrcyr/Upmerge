@@ -218,7 +218,7 @@ public final class UpMergeGame extends ApplicationAdapter {
 
         font.getData().setScale(uiScale * MathUtils.clamp(cell / 39f, 0.90f, 1.35f));
         font.setColor(0.68f, 0.80f, 0.91f, 1f);
-        String direction = engine.direction() == BoardEngine.Direction.UP ? "GRAVITY  ↑" : "GRAVITY  ↓";
+        String direction = engine.direction() == BoardEngine.Direction.UP ? "GRAVITY: UP" : "GRAVITY: DOWN";
         drawCentered(direction, screenW * 0.5f, screenH - headerHeight + 5f);
 
         font.setColor(0.58f, 0.68f, 0.78f, 1f);
