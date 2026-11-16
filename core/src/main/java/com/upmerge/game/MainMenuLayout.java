@@ -45,8 +45,8 @@ final class MainMenuLayout {
             directions[i] = new Rect(cx - dirW * .5f, screenH * .49f - dirH * .5f, dirW, dirH);
         }
         continueButton = hasSavedGame
-                ? centered(screenW, screenH * .425f, screenW * .76f, screenH * .078f) : null;
-        newGameButton = centered(screenW, screenH * (hasSavedGame ? .325f : .39f),
+                ? centered(screenW * .5f, screenH * .425f, screenW * .76f, screenH * .078f) : null;
+        newGameButton = centered(screenW * .5f, screenH * (hasSavedGame ? .325f : .39f),
                 screenW * .76f, screenH * (hasSavedGame ? .085f : .09f));
         float utilityW = screenW * .385f, utilityH = screenH * .065f;
         float[] ys = {screenH * .225f, screenH * .145f};
