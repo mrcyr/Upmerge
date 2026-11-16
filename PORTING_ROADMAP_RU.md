@@ -10,7 +10,7 @@ Reference: original Android/WebView build 4.11 (`app/src/main/assets/index.html`
 - [ ] A full column with a mismatching value rejects the launch. Show the 4.11-style feedback: `МАКСИМУМ 7 — НУЖЕН <value>`.
 - [ ] A column with a moving/falling cube rejects another launch until the motion settles.
 - [ ] After every merge, compact each lane toward gravity without changing the relative order of cubes.
-- [ ] When no lane can legally accept the current value, run the board-capacity check. If a split charge is available, offer emergency split; otherwise end the run. Do not silently allow an impossible move.
+- [x] When no lane can legally accept the current value, run the board-capacity check; offer emergency split when charged and expose an explicit end-run action.
 - [x] Emergency split consumes a saved charge and asks the player to select one cube to remove; then resume and re-check board capacity.
 - [x] Engine exposes a stable-id removal operation and compacts the affected lane.
 - [ ] Add coin payment when the native economy/shop is ported; current emergency flow uses stored split charges only.
@@ -28,5 +28,5 @@ Reference: original Android/WebView build 4.11 (`app/src/main/assets/index.html`
 - [x] Persist board, score, direction, combo, and queue slots using libGDX Preferences.
 - [ ] Persist all remaining 4.11 run fields (shots, elapsed time, run stats, tools/charges, etc.) once their native systems exist.
 - [ ] Add complete menu flow: New Game / Continue / Settings.
-- [ ] Add emergency capacity recovery UI and split-selection mode.
+- [x] Add emergency capacity recovery overlay, split-selection mode, and explicit end-run screen with restart.
 - [ ] Add persistence regression tests for queue + board consistency after interrupted launches.
