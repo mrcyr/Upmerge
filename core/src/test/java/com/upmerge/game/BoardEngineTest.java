@@ -491,6 +491,33 @@ public class BoardEngineTest {
         assertEquals(2, engine.consumeLandingHaptics());
     }
 
+
+    @Test public void emergencyRemovalEmitsMovementAndLandingEventsForCompactedCubes() {
+        BoardEngine engine = new BoardEngine();
+        assertTrue(engine.launch(0, 2));
+        settle(engine);
+        assertTrue(engine.launch(0, 4));
+        settle(engine);
+        assertTrue(engine.launch(0, 8));
+        settle(engine);
+        engine.consumeMovementHaptics();
+        engine.consumeLandingHaptics();
+
+        long middleCubeId = engine.cubes().stream()
+                .filter(cube -> cube.value == 4).findFirst().get().id;
+        assertTrue(engine.removeCube(middleCubeId));
+
+        // Only the cube above the removed cell changes its logical row.
+        assertEquals(1, engine.consumeMovementHaptics());
+        assertEquals(0, engine.consumeMovementHaptics());
+        assertEquals(0, engine.consumeLandingHaptics());
+
+        settle(engine);
+        assertEquals(1, engine.consumeLandingHaptics());
+        assertEquals(0, engine.consumeLandingHaptics());
+        assertEquals(2, engine.cubesInLane(0));
+    }
+
     @Test public void clearResetsBoardAndScore() {
         BoardEngine engine = new BoardEngine();
         assertTrue(engine.launch(0, 2));
