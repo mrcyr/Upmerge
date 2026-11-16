@@ -22,7 +22,7 @@ final class MainMenuLayout {
         }
     }
 
-    final float screenW, screenH;
+    final float screenW, screenH, density, contentWidth;
     final Rect[] modes = new Rect[3];
     final Rect[] directions = new Rect[2];
     final Rect[] menuActions = new Rect[2];
@@ -30,31 +30,46 @@ final class MainMenuLayout {
     final Rect[][] utilities = new Rect[2][2];
 
     MainMenuLayout(float width, float height, boolean hasSavedGame) {
+        this(width, height, hasSavedGame, 1f);
+    }
+
+    MainMenuLayout(float width, float height, boolean hasSavedGame, float density) {
         screenW = Math.max(1f, width);
         screenH = Math.max(1f, height);
+        this.density = Math.max(.75f, density);
+        float panelWidth = Math.min(390f * this.density, screenW - 44f * this.density);
+        contentWidth = Math.max(120f * this.density, panelWidth - 44f * this.density);
         float center = screenW * .5f;
-        float modeW = screenW * .255f, modeGap = screenW * .025f;
-        float modeY = screenH * .615f - screenH * .075f * .5f;
+        float modeGap = 7f * this.density;
+        float modeW = (contentWidth - modeGap * 2f) / 3f;
+        float modeH = 40f * this.density;
+        float modeY = screenH * .615f - modeH * .5f;
         for (int i = 0; i < 3; i++) {
             float cx = center + (i - 1) * (modeW + modeGap);
-            modes[i] = new Rect(cx - modeW * .5f, modeY, modeW, screenH * .075f);
+            modes[i] = new Rect(cx - modeW * .5f, modeY, modeW, modeH);
         }
-        float dirW = screenW * .37f, dirH = screenH * .064f;
+        float dirGap = 7f * this.density;
+        float dirW = (contentWidth - dirGap) * .5f, dirH = 40f * this.density;
         for (int i = 0; i < 2; i++) {
-            float cx = center + (i == 0 ? -1f : 1f) * dirW * .52f;
-            directions[i] = new Rect(cx - dirW * .5f, screenH * .49f - dirH * .5f, dirW, dirH);
+            float cx = center + (i == 0 ? -1f : 1f) * (dirW + dirGap) * .5f;
+            directions[i] = new Rect(cx - dirW * .5f,
+                    screenH * .49f - dirH * .5f, dirW, dirH);
         }
-        float actionW = screenW * .385f, actionH = screenH * .060f;
-        menuActions[0] = centered(screenW * .295f, screenH * .425f, actionW, actionH);
-        menuActions[1] = centered(screenW * .705f, screenH * .425f, actionW, actionH);
+        float actionGap = 8f * this.density;
+        float actionW = (contentWidth - actionGap) * .5f, actionH = 40f * this.density;
+        menuActions[0] = centered(center - (actionW + actionGap) * .5f,
+                screenH * .425f, actionW, actionH);
+        menuActions[1] = centered(center + (actionW + actionGap) * .5f,
+                screenH * .425f, actionW, actionH);
         continueButton = hasSavedGame
-                ? centered(screenW * .5f, screenH * .355f, screenW * .76f, screenH * .070f) : null;
-        newGameButton = centered(screenW * .5f, screenH * (hasSavedGame ? .275f : .345f),
-                screenW * .76f, screenH * .075f);
-        float utilityW = screenW * .385f, utilityH = screenH * .060f;
+                ? centered(center, screenH * .355f, contentWidth, 48f * this.density) : null;
+        newGameButton = centered(center, screenH * (hasSavedGame ? .275f : .345f),
+                contentWidth, 48f * this.density);
+        float utilityGap = 8f * this.density;
+        float utilityW = (contentWidth - utilityGap) * .5f, utilityH = 40f * this.density;
         float[] ys = {screenH * .185f, screenH * .105f};
         for (int row = 0; row < 2; row++) for (int col = 0; col < 2; col++) {
-            float cx = center + (col == 0 ? -1f : 1f) * screenW * .205f;
+            float cx = center + (col == 0 ? -1f : 1f) * (utilityW + utilityGap) * .5f;
             utilities[row][col] = centered(cx, ys[row], utilityW, utilityH);
         }
     }
