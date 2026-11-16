@@ -29,6 +29,8 @@ public final class BoardEngine {
         public float visualRow;
         public boolean moving;
         public boolean mergePending;
+        /** True only for an incoming cube that hits a full lane's entry-edge cube. */
+        public boolean forcedMergeIncoming;
         private Cube forcedMergeTarget;
 
         private Cube(long id, int lane, int row, int value, float visualRow) {
@@ -153,6 +155,7 @@ public final class BoardEngine {
         float spawnRow = direction == Direction.UP ? ROWS + 0.62f : -0.62f;
         Cube incoming = new Cube(nextId++, lane, targetRow, value, spawnRow);
         incoming.forcedMergeTarget = forcedTarget;
+        incoming.forcedMergeIncoming = forcedTarget != null;
         cubes.add(incoming);
         return true;
     }
