@@ -181,19 +181,19 @@ public final class UpMergeGame extends ApplicationAdapter {
         float y = screenH - Gdx.input.getY();
 
         if (menuVisible) {
-            if (y > screenH * 0.52f && y < screenH * 0.72f) startMode(GameMode.CLASSIC);
-            else if (y > screenH * 0.34f && y <= screenH * 0.52f) startMode(GameMode.TIMED);
-            else if (y > screenH * 0.16f && y <= screenH * 0.34f) startMode(GameMode.CHALLENGE);
+            if (y > screenH * 0.52f && y < screenH * 0.72f) startMode(GameMode.CLASSIC, true);
+            else if (y > screenH * 0.34f && y <= screenH * 0.52f) startMode(GameMode.TIMED, true);
+            else if (y > screenH * 0.16f && y <= screenH * 0.34f) startMode(GameMode.CHALLENGE, true);
             return;
         }
         if (paused) {
             if (y > screenH * 0.56f) paused = false;
-            else if (y > screenH * 0.36f) startMode(gameMode);
+            else if (y > screenH * 0.36f) startMode(gameMode, false);
             else { paused = false; menuVisible = true; saveGame(); }
             return;
         }
         if (gameOver) {
-            if (y >= screenH * 0.36f && y <= screenH * 0.58f) startMode(gameMode);
+            if (y >= screenH * 0.36f && y <= screenH * 0.58f) startMode(gameMode, true);
             else if (y < screenH * 0.36f) { menuVisible = true; gameOver = false; }
             return;
         }
@@ -500,12 +500,12 @@ public final class UpMergeGame extends ApplicationAdapter {
 
 
 
-    private void startMode(GameMode mode) {
+    private void startMode(GameMode mode, boolean resetProgress) {
         gameMode = mode;
         timeLeft = 90f;
         menuVisible = false;
         paused = false;
-        startNewRun();
+        startNewRun(resetProgress);
     }
 
     private void drawModeMenu() {
@@ -542,8 +542,8 @@ public final class UpMergeGame extends ApplicationAdapter {
         batch.end();
     }
 
-    private void startNewRun() {
-        long savedGoal = cubeQueue.goalTarget();
+    private void startNewRun(boolean resetProgress) {
+        long savedGoal = resetProgress ? 2048L : cubeQueue.goalTarget();
         engine.clear();
         engine.setDirection(BoardEngine.Direction.UP);
         cubeQueue.reset(savedGoal);
