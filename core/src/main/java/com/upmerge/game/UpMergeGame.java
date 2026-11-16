@@ -69,6 +69,7 @@ public final class UpMergeGame extends ApplicationAdapter {
     private BitmapFont font;
 
     private float screenW, screenH;
+    private MainMenuLayout mainMenuLayout;
     private float cell, boardLeft, boardBottom, boardTop;
     private float headerHeight, footerHeight;
     private float uiScale = 1f;
@@ -152,6 +153,7 @@ public final class UpMergeGame extends ApplicationAdapter {
     @Override public void resize(int width, int height) {
         screenW = Math.max(1, width);
         screenH = Math.max(1, height);
+        mainMenuLayout = new MainMenuLayout(screenW, screenH, hasSavedGame);
         // libGDX renders in physical pixels on Android; the built-in BitmapFont
         // is small in pixel terms, so scale UI typography with device density.
         uiScale = Math.max(1f, Gdx.graphics.getDensity());
@@ -383,37 +385,30 @@ public final class UpMergeGame extends ApplicationAdapter {
                 }
                 return;
             }
-            if (y >= screenH * .565f && y <= screenH * .665f) {
-                int choice = menuModeAt(x);
-                if (choice == 0) menuSelectedMode = GameMode.CLASSIC;
-                else if (choice == 1) menuSelectedMode = GameMode.TIMED;
-                else if (choice == 2) menuSelectedMode = GameMode.CHALLENGE;
-            } else if (y >= screenH * .475f && y < screenH * .555f) {
-                menuSelectedDirection = x < screenW * .5f
-                        ? BoardEngine.Direction.UP : BoardEngine.Direction.DOWN;
-                preferences.putString("menuDirection", menuSelectedDirection.name());
-                preferences.flush();
-            } else if (hasSavedGame && y >= screenH * .385f && y < screenH * .465f) {
-                menuVisible = false;
-                paused = false;
-                return;
-            } else if (y >= screenH * (hasSavedGame ? .285f : .345f)
-                    && y < screenH * (hasSavedGame ? .375f : .435f)) {
-                startMode(menuSelectedMode, true);
-            } else if (y >= screenH * .185f && y < screenH * .265f) {
-                int action = menuUtilityAt(x, y);
-                if (action == 0) settingsVisible = true;
-                else if (action == 1) shopVisible = true;
-                else if (action == 2) achievementsVisible = true;
-                else if (action == 3) statsVisible = true;
-            } else if (y >= screenH * .105f && y < screenH * .185f) {
-                int action = menuUtilityAt(x, y);
-                if (action == 0) tasksVisible = true;
-                else if (action == 1) shopVisible = true;
-                else if (action == 2) statsVisible = true;
-                else if (action == 3) achievementsVisible = true;
+            MainMenuLayout.Target target = mainMenuLayout.hit(x, y);
+            switch (target) {
+                case MODE_CLASSIC: menuSelectedMode = GameMode.CLASSIC; break;
+                case MODE_TIMED: menuSelectedMode = GameMode.TIMED; break;
+                case MODE_CHALLENGE: menuSelectedMode = GameMode.CHALLENGE; break;
+                case DIRECTION_UP:
+                    menuSelectedDirection = BoardEngine.Direction.UP;
+                    preferences.putString("menuDirection", menuSelectedDirection.name());
+                    preferences.flush();
+                    break;
+                case DIRECTION_DOWN:
+                    menuSelectedDirection = BoardEngine.Direction.DOWN;
+                    preferences.putString("menuDirection", menuSelectedDirection.name());
+                    preferences.flush();
+                    break;
+                case CONTINUE: menuVisible = false; paused = false; break;
+                case NEW_GAME: startMode(menuSelectedMode, true); break;
+                case SETTINGS: settingsVisible = true; break;
+                case SHOP: shopVisible = true; break;
+                case TASKS: tasksVisible = true; break;
+                case ACHIEVEMENTS: achievementsVisible = true; break;
+                case STATISTICS: statsVisible = true; break;
+                case NONE: break;
             }
-            else if (y < screenH * .105f) statsVisible = true;
             return;
         }
         if (paused) {
@@ -873,15 +868,12 @@ public final class UpMergeGame extends ApplicationAdapter {
         drawCentered("ВЫБЕРИ РЕЖИМ", center, screenH * .715f);
         batch.end();
 
-        float cardGap = screenW * .025f;
-        float cardW = screenW * .255f;
-        float cardH = screenH * .075f;
-        float cardY = screenH * .615f;
-        drawMenuChoice("КЛАССИКА", center - cardW - cardGap, cardY, cardW, cardH,
+        MainMenuLayout.Rect[] modeCards = mainMenuLayout.modes;
+        drawMenuChoice("КЛАССИКА", modeCards[0].centerX(), modeCards[0].centerY(), modeCards[0].width, modeCards[0].height,
                 menuSelectedMode == GameMode.CLASSIC);
-        drawMenuChoice("90 СЕК", center, cardY, cardW, cardH,
+        drawMenuChoice("90 СЕК", modeCards[1].centerX(), modeCards[1].centerY(), modeCards[1].width, modeCards[1].height,
                 menuSelectedMode == GameMode.TIMED);
-        drawMenuChoice("ВЫЗОВ", center + cardW + cardGap, cardY, cardW, cardH,
+        drawMenuChoice("ВЫЗОВ", modeCards[2].centerX(), modeCards[2].centerY(), modeCards[2].width, modeCards[2].height,
                 menuSelectedMode == GameMode.CHALLENGE);
 
         batch.begin();
@@ -889,35 +881,31 @@ public final class UpMergeGame extends ApplicationAdapter {
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 420f, .62f, .78f));
         drawCentered("НАПРАВЛЕНИЕ", center, screenH * .535f);
         batch.end();
-        float dirW = screenW * .37f, dirH = screenH * .064f, dirY = screenH * .49f;
-        drawMenuChoice("СНИЗУ ВВЕРХ ↑", center - dirW * .52f, dirY, dirW, dirH,
+        MainMenuLayout.Rect[] directionCards = mainMenuLayout.directions;
+        drawMenuChoice("СНИЗУ ВВЕРХ ↑", directionCards[0].centerX(), directionCards[0].centerY(), directionCards[0].width, directionCards[0].height,
                 menuSelectedDirection == BoardEngine.Direction.UP);
-        drawMenuChoice("СВЕРХУ ВНИЗ ↓", center + dirW * .52f, dirY, dirW, dirH,
+        drawMenuChoice("СВЕРХУ ВНИЗ ↓", directionCards[1].centerX(), directionCards[1].centerY(), directionCards[1].width, directionCards[1].height,
                 menuSelectedDirection == BoardEngine.Direction.DOWN);
 
         if (hasSavedGame) {
-            drawMenuButton("ПРОДОЛЖИТЬ ИГРУ", screenH * .425f, .078f, false);
-            drawMenuButton("НОВАЯ ИГРА", screenH * .325f, .085f, true);
+            drawMenuButton("ПРОДОЛЖИТЬ ИГРУ", mainMenuLayout.continueButton.centerY(), .078f, false);
+            drawMenuButton("НОВАЯ ИГРА", mainMenuLayout.newGameButton.centerY(), .085f, true);
         } else {
-            drawMenuButton("НАЧАТЬ ИГРУ", screenH * .39f, .09f, true);
+            drawMenuButton("НАЧАТЬ ИГРУ", mainMenuLayout.newGameButton.centerY(), .09f, true);
         }
 
-        float utilityY1 = screenH * .225f;
-        float utilityY2 = screenH * .145f;
-        float utilityW = screenW * .385f;
-        float utilityH = screenH * .065f;
-        drawMenuChoice("НАСТРОЙКИ", center - screenW * .205f, utilityY1, utilityW, utilityH, false);
-        drawMenuChoice("МАГАЗИН · " + NumberFormatter.compact(economy.coins()),
-                center + screenW * .205f, utilityY1, utilityW, utilityH, false);
-        drawMenuChoice("ЗАДАНИЯ", center - screenW * .205f, utilityY2, utilityW, utilityH, false);
-        drawMenuChoice("ДОСТИЖЕНИЯ", center + screenW * .205f, utilityY2, utilityW, utilityH, false);
+        MainMenuLayout.Rect[][] utilityCards = mainMenuLayout.utilities;
+        drawMenuChoice("НАСТРОЙКИ", utilityCards[0][0].centerX(), utilityCards[0][0].centerY(), utilityCards[0][0].width, utilityCards[0][0].height, false);
+        drawMenuChoice("МАГАЗИН · " + NumberFormatter.compact(economy.coins()), utilityCards[0][1].centerX(), utilityCards[0][1].centerY(), utilityCards[0][1].width, utilityCards[0][1].height, false);
+        drawMenuChoice("ЗАДАНИЯ", utilityCards[1][0].centerX(), utilityCards[1][0].centerY(), utilityCards[1][0].width, utilityCards[1][0].height, false);
+        drawMenuChoice("ДОСТИЖЕНИЯ", utilityCards[1][1].centerX(), utilityCards[1][1].centerY(), utilityCards[1][1].width, utilityCards[1][1].height, false);
 
         batch.begin();
         font.setColor(.58f, .69f, .82f, 1f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 450f, .60f, .76f));
         drawCentered("РЕКОРД  " + NumberFormatter.compact(bestScore)
                         + "     ·     СТАТИСТИКА",
-                center, screenH * .075f);
+                mainMenuLayout.statistics.centerX(), mainMenuLayout.statistics.centerY());
         batch.end();
     }
 
