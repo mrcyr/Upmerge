@@ -294,6 +294,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         if (gameOver) {
             drawCentered("СЧЁТ: " + engine.score() + "   РЕКОРД: " + bestScore, screenW * 0.5f, screenH * 0.49f);
             drawCentered("НОВАЯ ИГРА", screenW * 0.5f, screenH * 0.435f);
+            drawCentered("В ГЛАВНОЕ МЕНЮ", screenW * 0.5f, screenH * 0.365f);
         } else if (emergencyDialog) {
             drawCentered(splitCharges > 0 ? "РАЗБИТЬ КУБИК · ЗАРЯД " + splitCharges
                     : "НЕТ ЗАРЯДОВ", screenW * 0.5f, screenH * 0.47f);
@@ -496,7 +497,6 @@ public final class UpMergeGame extends ApplicationAdapter {
     private void startMode(GameMode mode) {
         gameMode = mode;
         timeLeft = 90f;
-        challengeGoal = cubeQueue.goalTarget();
         menuVisible = false;
         paused = false;
         startNewRun();
@@ -540,6 +540,8 @@ public final class UpMergeGame extends ApplicationAdapter {
         engine.clear();
         engine.setDirection(BoardEngine.Direction.UP);
         cubeQueue.reset(2048);
+        challengeGoal = cubeQueue.goalTarget();
+        timeLeft = 90f;
         splitCharges = 2;
         emergencyDialog = false;
         splitSelecting = false;
