@@ -26,6 +26,8 @@ public final class UpMergeGame extends ApplicationAdapter {
     private float saveTimer;
     private long bestScore;
     private int splitCharges = 2;
+    private GameEconomy economy;
+    private boolean shopVisible;
     private boolean emergencyDialog;
     private boolean splitSelecting;
     private boolean gameOver;
@@ -70,6 +72,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         preferences = Gdx.app.getPreferences("UpMergeNative");
         bestScore = preferences.getLong("bestScore", 0L);
         splitCharges = preferences.getInteger("splitCharges", 2);
+        economy = new GameEconomy(preferences.getLong("coins", 0L));
         hapticsEnabled = preferences.getBoolean("hapticsEnabled", true);
         restoreGame();
         menuVisible = true;
@@ -171,7 +174,9 @@ public final class UpMergeGame extends ApplicationAdapter {
             if (advancedLevel) levelUpTime = 2.0f;
             if (reachedChallenge) gameOver = true;
             bestScore = Math.max(bestScore, engine.score());
+            economy.rewardForMerge(mergeEvent.points);
             preferences.putLong("bestScore", bestScore);
+            preferences.putLong("coins", economy.coins());
         preferences.putInteger("splitCharges", splitCharges);
             preferences.flush();
             saveGame();
@@ -188,6 +193,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         drawOverlays();
         if (menuVisible) {
             if (settingsVisible) drawSettingsMenu();
+            else if (shopVisible) drawShopMenu();
             else if (modeSelectionVisible) drawModeMenu();
             else drawMainMenu();
         } else if (paused) drawPauseMenu();
@@ -257,6 +263,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         if (Gdx.input.isKeyJustPressed(Input.Keys.BACK)) {
             if (menuVisible) {
                 if (settingsVisible) settingsVisible = false;
+                else if (shopVisible) shopVisible = false;
                 else if (modeSelectionVisible) modeSelectionVisible = false;
             } else if (paused) {
                 paused = false;
@@ -281,6 +288,17 @@ public final class UpMergeGame extends ApplicationAdapter {
         float y = screenH - Gdx.input.getY();
 
         if (menuVisible) {
+            if (shopVisible) {
+                if (y > screenH * 0.36f && y <= screenH * 0.56f) {
+                    if (economy.buySplitChargePack()) {
+                        splitCharges += GameEconomy.SPLIT_CHARGE_PACK_SIZE;
+                        preferences.putLong("coins", economy.coins());
+                        preferences.putInteger("splitCharges", splitCharges);
+                        preferences.flush();
+                    }
+                } else if (y <= screenH * 0.30f) shopVisible = false;
+                return;
+            }
             if (settingsVisible) {
                 if (y > screenH * 0.40f && y <= screenH * 0.62f) {
                     hapticsEnabled = !hapticsEnabled;
@@ -298,6 +316,7 @@ public final class UpMergeGame extends ApplicationAdapter {
                 }
                 if (y > screenH * 0.32f && y <= screenH * 0.47f) modeSelectionVisible = true;
                 else if (y > screenH * 0.17f && y <= screenH * 0.29f) settingsVisible = true;
+                else if (y > screenH * 0.05f && y <= screenH * 0.16f) shopVisible = true;
             } else {
                 if (y > screenH * 0.51f && y <= screenH * 0.68f) startMode(GameMode.CLASSIC, true);
                 else if (y > screenH * 0.34f && y <= screenH * 0.51f) startMode(GameMode.TIMED, true);
@@ -684,12 +703,14 @@ public final class UpMergeGame extends ApplicationAdapter {
         if (hasSavedGame) drawMenuButton("ПРОДОЛЖИТЬ", screenH * 0.535f, 0.12f, true);
         drawMenuButton("НОВАЯ ИГРА", screenH * 0.385f, 0.13f, true);
         drawMenuButton("НАСТРОЙКИ", screenH * 0.23f, 0.11f, false);
+        drawMenuButton("МАГАЗИН · " + NumberFormatter.compact(economy.coins()) + " МОНЕТ",
+                screenH * 0.105f, 0.09f, false);
 
         batch.begin();
         font.setColor(0.60f, 0.70f, 0.82f, 1f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 420f, 0.75f, 0.92f));
         drawCentered("РЕКОРД: " + NumberFormatter.compact(bestScore),
-                screenW * 0.5f, screenH * 0.115f);
+                screenW * 0.5f, screenH * 0.035f);
         batch.end();
     }
 
@@ -706,6 +727,27 @@ public final class UpMergeGame extends ApplicationAdapter {
         drawMenuButton("НА ВРЕМЯ · 90 СЕКУНД", screenH * 0.425f, 0.14f, true);
         drawMenuButton("ИСПЫТАНИЕ", screenH * 0.255f, 0.14f, true);
         drawMenuButton("НАЗАД", screenH * 0.105f, 0.10f, false);
+    }
+
+    private void drawShopMenu() {
+        drawMenuBackdrop();
+        batch.begin();
+        font.setColor(0.35f, 0.82f, 1f, 1f);
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 240f, 1.25f, 1.65f));
+        drawCentered("МАГАЗИН", screenW * 0.5f, screenH * 0.79f);
+        font.setColor(1f, 0.82f, 0.38f, 1f);
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 330f, 0.95f, 1.2f));
+        drawCentered("МОНЕТЫ: " + NumberFormatter.compact(economy.coins()),
+                screenW * 0.5f, screenH * 0.65f);
+        font.setColor(0.72f, 0.82f, 0.92f, 1f);
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 390f, 0.75f, 0.92f));
+        drawCenteredFit("ЗАРЯДЫ ПОМОГУТ СПАСТИ ПОЛЕ, КОГДА НЕ ОСТАНЕТСЯ ХОДОВ.",
+                screenW * 0.5f, screenH * 0.56f, screenW * 0.82f,
+                uiScale * MathUtils.clamp(screenW / 390f, 0.62f, 0.82f));
+        batch.end();
+        drawMenuButton("КУПИТЬ 3 ЗАРЯДА · 35 МОНЕТ",
+                screenH * 0.43f, 0.15f, economy.coins() >= GameEconomy.SPLIT_CHARGE_PACK_PRICE);
+        drawMenuButton("НАЗАД", screenH * 0.20f, 0.11f, false);
     }
 
     private void drawSettingsMenu() {
@@ -789,6 +831,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         mergeFlightTime = 0f;
         mergeFlightSources.clear();
         preferences.putInteger("splitCharges", splitCharges);
+        preferences.putLong("coins", economy.coins());
         saveGame();
     }
 
@@ -804,6 +847,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         preferences.putFloat("timeLeft", timeLeft);
         preferences.putBoolean("gameOver", gameOver);
         preferences.putLong("bestScore", bestScore);
+        preferences.putLong("coins", economy.coins());
         preferences.flush();
     }
 
