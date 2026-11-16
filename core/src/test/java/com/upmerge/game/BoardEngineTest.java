@@ -395,6 +395,22 @@ public class BoardEngineTest {
         assertEquals(before, engine.cubes().size());
     }
 
+    @Test public void launchNeverOverflowsStableCubeIds() {
+        BoardEngine exhausted = new BoardEngine();
+        assertTrue(exhausted.loadState("UPM1|0|UP|1|0|9223372036854775807|0"));
+        String exhaustedSnapshot = exhausted.saveState();
+        assertFalse(exhausted.launch(0, 2));
+        assertEquals(exhaustedSnapshot, exhausted.saveState());
+
+        BoardEngine lastAvailable = new BoardEngine();
+        assertTrue(lastAvailable.loadState("UPM1|0|UP|1|0|9223372036854775806|0"));
+        assertTrue(lastAvailable.launch(0, 2));
+        assertEquals(9223372036854775806L, lastAvailable.cubes().get(0).id);
+        settle(lastAvailable);
+        assertFalse(lastAvailable.launch(1, 4));
+        assertEquals(1, lastAvailable.cubes().size());
+    }
+
     @Test public void snapshotRejectsDuplicateCubeIdsWithoutMutation() {
         BoardEngine engine = new BoardEngine();
         assertTrue(engine.launch(1, 16));
