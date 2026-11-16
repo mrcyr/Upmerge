@@ -6,7 +6,7 @@ import static org.junit.Assert.*;
 
 public class CubeQueueTest {
     @Test public void baseLevelUsesSixConsecutivePowersWithOriginalWeights() {
-        assertArrayEquals(new int[]{2, 4, 8, 16, 32, 64}, CubeQueue.valuesForGoal(2048));
+        assertArrayEquals(new long[]{2, 4, 8, 16, 32, 64}, CubeQueue.valuesForGoal(2048));
         assertEquals(5, CubeQueue.weightForIndex(0));
         assertEquals(4, CubeQueue.weightForIndex(1));
         assertEquals(3, CubeQueue.weightForIndex(2));
@@ -16,8 +16,8 @@ public class CubeQueueTest {
     }
 
     @Test public void nextLevelShiftsTheRangeUpByOnePower() {
-        assertArrayEquals(new int[]{4, 8, 16, 32, 64, 128}, CubeQueue.valuesForGoal(4096));
-        assertArrayEquals(new int[]{8, 16, 32, 64, 128, 256}, CubeQueue.valuesForGoal(8192));
+        assertArrayEquals(new long[]{4, 8, 16, 32, 64, 128}, CubeQueue.valuesForGoal(4096));
+        assertArrayEquals(new long[]{8, 16, 32, 64, 128, 256}, CubeQueue.valuesForGoal(8192));
     }
 
     @Test public void queueAdvancesOnlyWhenSuccessfulLaunchConsumesCurrent() {
@@ -59,8 +59,8 @@ public class CubeQueueTest {
         assertFalse(queue.restore(4096, 8, 256));
     }
 
-    private static boolean isAllowed(int value, int goal) {
-        for (int candidate : CubeQueue.valuesForGoal(goal)) if (candidate == value) return true;
+    private static boolean isAllowed(long value, long goal) {
+        for (long candidate : CubeQueue.valuesForGoal(goal)) if (candidate == value) return true;
         return false;
     }
 }
