@@ -58,13 +58,17 @@ public final class BoardEngine {
         public final int count;
         public final int lane;
         public final int row;
+        public final int combo;
+        public final int points;
         public final List<MergeSource> sources;
 
-        private MergeEvent(int value, int count, int lane, int row, List<MergeSource> sources) {
+        private MergeEvent(int value, int count, int lane, int row, int combo, int points, List<MergeSource> sources) {
             this.value = value;
             this.count = count;
             this.lane = lane;
             this.row = row;
+            this.combo = combo;
+            this.points = points;
             this.sources = Collections.unmodifiableList(sources);
         }
     }
@@ -78,6 +82,8 @@ public final class BoardEngine {
     private Cube pendingAnchor;
     private MergeEvent lastMerge;
     private int score;
+    private int combo = 1;
+    private float secondsSinceLastMerge = Float.MAX_VALUE;
 
     public List<Cube> cubes() { return Collections.unmodifiableList(cubes); }
     public Direction direction() { return direction; }
@@ -102,6 +108,7 @@ public final class BoardEngine {
         compactAllLanes();
     }
     public int score() { return score; }
+    public int combo() { return combo; }
     public boolean isMergePending() { return !pendingGroup.isEmpty(); }
     public float mergeElapsedSeconds() { return pendingTime; }
 
@@ -119,6 +126,8 @@ public final class BoardEngine {
         requestedDirection = null;
         direction = Direction.UP;
         score = 0;
+        combo = 1;
+        secondsSinceLastMerge = Float.MAX_VALUE;
         lastMerge = null;
         nextId = 1;
     }
@@ -175,6 +184,7 @@ public final class BoardEngine {
         if (deltaSeconds <= 0) return;
         applyRequestedDirectionIfReady();
         float dt = Math.min(deltaSeconds, 0.05f);
+        secondsSinceLastMerge = Math.min(Float.MAX_VALUE, secondsSinceLastMerge + dt);
 
         for (Cube cube : new ArrayList<>(cubes)) {
             if (!cube.moving) continue;
@@ -259,8 +269,12 @@ public final class BoardEngine {
             Cube made = new Cube(nextId++, lane, row, result, row);
             made.moving = false;
             cubes.add(made);
-            score += result;
-            lastMerge = new MergeEvent(result, count, lane, row, sources);
+            // 4.11 chains merges made within 1.7 seconds, up to x9.
+            combo = secondsSinceLastMerge < 1.7f ? Math.min(9, combo + 1) : 1;
+            secondsSinceLastMerge = 0f;
+            int points = result * combo;
+            score += points;
+            lastMerge = new MergeEvent(result, count, lane, row, combo, points, sources);
         }
         pendingGroup = Collections.emptyList();
         pendingAnchor = null;
