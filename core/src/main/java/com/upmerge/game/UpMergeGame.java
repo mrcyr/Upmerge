@@ -477,17 +477,14 @@ public final class UpMergeGame extends ApplicationAdapter {
         }
 
         // The direction control is an intentional, large hit target in the header.
-        if (y <= footerHeight) { handleToolBarInput(x, y); return; }
-        if (y >= screenH - headerHeight && x >= screenW * 0.78f) {
+        if (y <= 70f * uiScale) { handleToolBarInput(x, y); return; }
+        if (y >= screenH - 48f * uiScale && x >= screenW * .78f) {
             paused = true;
             saveGame();
             return;
         }
-        if (y >= screenH - headerHeight) {
-            engine.setDirection(engine.direction() == BoardEngine.Direction.UP
-                    ? BoardEngine.Direction.DOWN : BoardEngine.Direction.UP);
-            return;
-        }
+        // The score cards and level pills are informational, not gravity controls.
+        if (y >= screenH - headerHeight) return;
 
         if (y >= boardBottom && y <= boardTop) {
             if (activeTool != Tool.NONE) { handleToolBoardInput(x, y); return; }
@@ -639,11 +636,13 @@ public final class UpMergeGame extends ApplicationAdapter {
 
         float toolW = screenW / 5f;
         for (int i = 0; i < 5; i++) {
-            boolean selected = (i == 0 && activeTool == Tool.SPLIT)
-                    || (i == 1 && activeTool == Tool.MOVE)
-                    || (i == 2 && activeTool == Tool.SWAP)
-                    || (i == 3 && activeTool == Tool.BOMB);
-            boolean available = i == 4 ? undoCharges > 0 && undoBoardState != null : toolCharges(i) > 0;
+            boolean selected = (i == 2 && activeTool == Tool.SPLIT)
+                    || (i == 3 && activeTool == Tool.MOVE)
+                    || (i == 4 && activeTool == Tool.SWAP)
+                    || (i == 1 && activeTool == Tool.BOMB);
+            boolean available = i == 0 ? undoCharges > 0 && undoBoardState != null
+                    : i == 1 ? bombCharges > 0 : i == 2 ? splitCharges > 0
+                    : i == 3 ? moveCharges > 0 : swapCharges > 0;
             shapes.setColor(selected ? .12f : available ? .075f : .045f,
                     selected ? .38f : available ? .12f : .065f,
                     selected ? .48f : available ? .17f : .09f, 1f);
@@ -839,8 +838,8 @@ public final class UpMergeGame extends ApplicationAdapter {
         drawCenteredFit("НАЖМИ НА СТОЛБЕЦ, ЧТОБЫ БРОСИТЬ КУБИК",
                 screenW * .5f, footerHeight - 69f, screenW * .94f,
                 uiScale * MathUtils.clamp(screenW / 500f, .50f, .62f));
-        String[] tools = {"РАЗБИТЬ", "ПЕРЕНЕСТИ", "ОБМЕН", "БОМБА", "ОТМЕНА"};
-        int[] charges = {splitCharges, moveCharges, swapCharges, bombCharges, undoCharges};
+        String[] tools = {"↶ ОТМЕНА", "БОМБА", "✂ УДАЛИТЬ", "↗ ПЕРЕМЕСТИТЬ", "⇄ ОБМЕН"};
+        int[] charges = {undoCharges, bombCharges, splitCharges, moveCharges, swapCharges};
         float toolW = screenW / 5f;
         for (int i = 0; i < tools.length; i++) {
             font.setColor(.88f, .94f, 1f, 1f);
@@ -1329,7 +1328,7 @@ public final class UpMergeGame extends ApplicationAdapter {
     }
     private void handleToolBarInput(float x, float y) {
         int i = MathUtils.clamp((int) (x / (screenW / 5f)), 0, 4);
-        if (i == 4) {
+        if (i == 0) {
             if (undoCharges > 0 && undoBoardState != null
                     && engine.loadState(undoBoardState)
                     && cubeQueue.restore(undoQueueGoal, undoQueueCurrent, undoQueueUpcoming)) {
@@ -1337,8 +1336,10 @@ public final class UpMergeGame extends ApplicationAdapter {
             }
             return;
         }
-        if (toolCharges(i) <= 0) return;
-        activeTool = new Tool[]{Tool.SPLIT, Tool.MOVE, Tool.SWAP, Tool.BOMB}[i];
+        Tool[] toolbarTools = {Tool.NONE, Tool.BOMB, Tool.SPLIT, Tool.MOVE, Tool.SWAP};
+        if (i == 0 || (i == 1 ? bombCharges : i == 2 ? splitCharges
+                : i == 3 ? moveCharges : swapCharges) <= 0) return;
+        activeTool = toolbarTools[i];
         selectedToolCubeId = -1L;
     }
     private void handleToolBoardInput(float x, float y) {
