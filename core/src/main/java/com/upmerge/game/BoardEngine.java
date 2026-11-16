@@ -86,6 +86,8 @@ public final class BoardEngine {
     private long score;
     private int combo = 1;
     private float secondsSinceLastMerge = Float.MAX_VALUE;
+    private int pendingLandingHaptics;
+    private int pendingMovementHaptics;
 
     public List<Cube> cubes() { return Collections.unmodifiableList(cubes); }
     public Direction direction() { return direction; }
@@ -114,6 +116,20 @@ public final class BoardEngine {
     public boolean isMergePending() { return !pendingGroup.isEmpty(); }
     public float mergeElapsedSeconds() { return pendingTime; }
 
+    /** Number of cubes that reached their target cell since the previous poll. */
+    public int consumeLandingHaptics() {
+        int count = pendingLandingHaptics;
+        pendingLandingHaptics = 0;
+        return count;
+    }
+
+    /** Number of cubes that started a gravity/compaction movement since the previous poll. */
+    public int consumeMovementHaptics() {
+        int count = pendingMovementHaptics;
+        pendingMovementHaptics = 0;
+        return count;
+    }
+
     public MergeEvent consumeMergeEvent() {
         MergeEvent event = lastMerge;
         lastMerge = null;
@@ -131,6 +147,8 @@ public final class BoardEngine {
         combo = 1;
         secondsSinceLastMerge = Float.MAX_VALUE;
         lastMerge = null;
+        pendingLandingHaptics = 0;
+        pendingMovementHaptics = 0;
         nextId = 1;
     }
 
@@ -196,6 +214,7 @@ public final class BoardEngine {
             if (Math.abs(distance) <= step) {
                 cube.visualRow = cube.row;
                 cube.moving = false;
+                pendingLandingHaptics++;
                 if (cube.forcedMergeTarget != null && cubes.contains(cube.forcedMergeTarget)) {
                     List<Cube> group = connectedGroup(cube.forcedMergeTarget);
                     if (!group.contains(cube)) group.add(0, cube);
@@ -316,6 +335,7 @@ public final class BoardEngine {
             if (cube.row != targetRow) {
                 cube.row = targetRow;
                 cube.moving = true;
+                pendingMovementHaptics++;
             }
         }
     }
@@ -383,6 +403,8 @@ public final class BoardEngine {
             pendingAnchor = null;
             pendingTime = 0;
             lastMerge = null;
+            pendingLandingHaptics = 0;
+            pendingMovementHaptics = 0;
             return true;
         } catch (RuntimeException invalid) {
             return false;
