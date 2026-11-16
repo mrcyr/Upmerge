@@ -10,9 +10,9 @@ import java.util.Random;
 public final class CubeQueue {
     private static final int BASE_GOAL = 2048;
     private final Random random;
-    private int goalTarget = BASE_GOAL;
-    private int current;
-    private int upcoming;
+    private long goalTarget = BASE_GOAL;
+    private long current;
+    private long upcoming;
 
     public CubeQueue() {
         this(new Random());
@@ -24,11 +24,11 @@ public final class CubeQueue {
         reset(BASE_GOAL);
     }
 
-    public int current() { return current; }
-    public int upcoming() { return upcoming; }
-    public int goalTarget() { return goalTarget; }
+    public long current() { return current; }
+    public long upcoming() { return upcoming; }
+    public long goalTarget() { return goalTarget; }
 
-    public boolean restore(int target, int currentValue, int upcomingValue) {
+    public boolean restore(long target, long currentValue, long upcomingValue) {
         if (!isAllowed(target, currentValue) || !isAllowed(target, upcomingValue)) return false;
         goalTarget = target;
         current = currentValue;
@@ -36,12 +36,12 @@ public final class CubeQueue {
         return true;
     }
 
-    private static boolean isAllowed(int target, int value) {
+    private static boolean isAllowed(long target, long value) {
         for (int candidate : valuesForGoal(target)) if (candidate == value) return true;
         return false;
     }
 
-    public void reset(int target) {
+    public void reset(long target) {
         goalTarget = Math.max(BASE_GOAL, target);
         current = roll();
         upcoming = roll();
@@ -54,7 +54,7 @@ public final class CubeQueue {
     }
 
     /** Mirrors 4.11: reaching the goal doubles it and rerolls both queue slots. */
-    public boolean onMergedValue(int value) {
+    public boolean onMergedValue(long value) {
         if (value < goalTarget) return false;
         goalTarget = Math.multiplyExact(goalTarget, 2);
         current = roll();
@@ -62,15 +62,15 @@ public final class CubeQueue {
         return true;
     }
 
-    public static int[] valuesForGoal(int target) {
+    public static long[] valuesForGoal(long target) {
         int step = levelStep(target);
-        int min = 2 * (1 << step);
-        int max = min * 32;
+        long min = 2L << step;
+        long max = min * 32L;
         int count = 0;
-        for (int v = min; v <= max; v *= 2) count++;
-        int[] values = new int[count];
+        for (long v = min; v <= max; v *= 2L) count++;
+        long[] values = new long[count];
         int index = 0;
-        for (int v = min; v <= max; v *= 2) values[index++] = v;
+        for (long v = min; v <= max; v *= 2L) values[index++] = v;
         return values;
     }
 
@@ -78,13 +78,13 @@ public final class CubeQueue {
         return Math.max(1, 5 - index);
     }
 
-    private static int levelStep(int target) {
+    private static int levelStep(long target) {
         int safeTarget = Math.max(BASE_GOAL, target);
         return Math.max(0, Math.round((float) (Math.log((double) safeTarget / BASE_GOAL) / Math.log(2.0))));
     }
 
     private int roll() {
-        int[] values = valuesForGoal(goalTarget);
+        long[] values = valuesForGoal(goalTarget);
         int totalWeight = 0;
         for (int i = 0; i < values.length; i++) totalWeight += weightForIndex(i);
         int roll = random.nextInt(totalWeight);
