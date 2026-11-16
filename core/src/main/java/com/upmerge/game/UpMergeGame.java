@@ -656,9 +656,10 @@ public final class UpMergeGame extends ApplicationAdapter {
         setCubeFaceColor(cubeQueue.current(), 1f);
         roundedRectInBatch(queueLeft + queueW - cubePreview - 5f * uiScale,
                 queueY + 6f * uiScale, cubePreview, cubePreview, 6f * uiScale);
+        float nextPreview = 32f * uiScale;
         setCubeFaceColor(cubeQueue.upcoming(), 1f);
-        roundedRectInBatch(queueLeft + queueW + queueGap + queueW - cubePreview - 5f * uiScale,
-                queueY + 4f * uiScale, cubePreview, cubePreview, 6f * uiScale);
+        roundedRectInBatch(queueLeft + queueW + queueGap + queueW - nextPreview - 5f * uiScale,
+                queueY + 7f * uiScale, nextPreview, nextPreview, 6f * uiScale);
         shapes.end();
     }
 
@@ -945,9 +946,9 @@ public final class UpMergeGame extends ApplicationAdapter {
         logoFont.draw(batch, "MERGE", logoLeft + upWidth, screenH * .855f);
         font.setColor(.66f, .76f, .89f, 1f);
         font.getData().setScale(uiScale * (13f / 24f));
-        drawCentered("ЗАПУСКАЙ КУБИКИ ВВЕРХ.", center, screenH * .79f);
-        drawCentered("ОБЪЕДИНЯЙ ОДИНАКОВЫЕ ЧИСЛА", center, screenH * .765f);
-        drawCentered("И СОЗДАВАЙ ЦЕПНЫЕ РЕАКЦИИ.", center, screenH * .74f);
+        drawCentered("Запускай кубики вверх.", center, screenH * .79f);
+        drawCentered("Объединяй одинаковые числа", center, screenH * .765f);
+        drawCentered("и создавай цепные реакции.", center, screenH * .74f);
         batch.end();
 
         MainMenuLayout.Rect[] modeCards = mainMenuLayout.modes;
