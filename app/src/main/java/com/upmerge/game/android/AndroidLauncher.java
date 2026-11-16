@@ -10,7 +10,18 @@ public final class AndroidLauncher extends AndroidApplication {
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
-        config.useAccelerometer = false; config.useCompass = false; config.useWakelock = false; config.numSamples = 0;
+
+        // Request a full 32-bit color buffer instead of the Android backend's
+        // low-color default, and 4x MSAA for smoother cube and panel edges.
+        config.r = 8;
+        config.g = 8;
+        config.b = 8;
+        config.a = 8;
+        config.numSamples = 4;
+
+        config.useAccelerometer = false;
+        config.useCompass = false;
+        config.useWakelock = false;
         View gameView = initializeForView(new UpMergeGame(), config);
         setContentView(gameView); applyImmersiveMode();
     }
