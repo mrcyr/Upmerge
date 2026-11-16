@@ -265,7 +265,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         if (!menuVisible && !paused) checkBoardCapacity();
         handleInput();
 
-        ScreenUtils.clear(0.025f, 0.038f, 0.060f, 1f);
+        ScreenUtils.clear(0.035f, 0.055f, 0.090f, 1f);
         drawPanels();
         drawBoard();
         drawCubes();
@@ -624,15 +624,15 @@ public final class UpMergeGame extends ApplicationAdapter {
         float statW = (screenW - topPad * 2f - statGap * 2f) / 3f;
         for (int i = 0; i < 3; i++) {
             shapes.setColor(.075f, .105f, .145f, 1f);
-            shapes.rect(topPad + i * (statW + statGap), statY, statW, statH);
+            roundedRectInBatch(topPad + i * (statW + statGap), statY, statW, statH, 14f * uiScale);
         }
         float pillY = screenH - 165f;
         float pillGap = 7f;
         float pillW = (screenW - topPad * 2f - pillGap) * .5f;
         shapes.setColor(.065f, .095f, .14f, 1f);
-        shapes.rect(topPad, pillY, pillW, 38f);
+        roundedRectInBatch(topPad, pillY, pillW, 38f * uiScale, 11f * uiScale);
         shapes.setColor(.065f, .095f, .14f, 1f);
-        shapes.rect(topPad + pillW + pillGap, pillY, pillW, 38f);
+        roundedRectInBatch(topPad + pillW + pillGap, pillY, pillW, 38f * uiScale, 11f * uiScale);
 
         float toolW = screenW / 5f;
         for (int i = 0; i < 5; i++) {
@@ -646,13 +646,13 @@ public final class UpMergeGame extends ApplicationAdapter {
             shapes.setColor(selected ? .12f : available ? .075f : .045f,
                     selected ? .38f : available ? .12f : .065f,
                     selected ? .48f : available ? .17f : .09f, 1f);
-            shapes.rect(i * toolW + 2f, 8f, toolW - 4f, 55f);
+            roundedRectInBatch(i * toolW + 2f, 8f, toolW - 4f, 55f * uiScale, 11f * uiScale);
         }
         // Current and upcoming cube previews are grouped above the hint.
         shapes.setColor(.055f, .085f, .12f, 1f);
-        shapes.rect(screenW * .5f - 91f, footerHeight - 49f, 86f, 35f);
+        roundedRectInBatch(screenW * .5f - 91f * uiScale, footerHeight - 49f * uiScale, 86f * uiScale, 35f * uiScale, 10f * uiScale);
         shapes.setColor(.055f, .085f, .12f, 1f);
-        shapes.rect(screenW * .5f + 5f, footerHeight - 49f, 86f, 35f);
+        roundedRectInBatch(screenW * .5f + 5f * uiScale, footerHeight - 49f * uiScale, 86f * uiScale, 35f * uiScale, 10f * uiScale);
         shapes.end();
     }
 
@@ -786,7 +786,7 @@ public final class UpMergeGame extends ApplicationAdapter {
 
         // Brand row, matching the reference's compact header.
         font.setColor(.42f, .86f, 1f, 1f);
-        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 360f, .92f, 1.10f));
+        font.getData().setScale(uiScale * (19f / 24f));
         font.draw(batch, "UP", pad, screenH - 27f);
         font.setColor(.91f, .96f, 1f, 1f);
         font.draw(batch, "MERGE", pad + 27f * uiScale, screenH - 27f);
@@ -800,19 +800,19 @@ public final class UpMergeGame extends ApplicationAdapter {
         for (int i = 0; i < 3; i++) {
             float x = pad + i * (statW + gap);
             font.setColor(.58f, .70f, .82f, 1f);
-            font.getData().setScale(uiScale * MathUtils.clamp(screenW / 520f, .58f, .72f));
+            font.getData().setScale(uiScale * (10f / 24f));
             font.draw(batch, labels[i], x + 8f, statY + statH - 10f);
             font.setColor(.96f, .98f, 1f, 1f);
-            font.getData().setScale(uiScale * MathUtils.clamp(screenW / 280f, .95f, 1.18f));
+            font.getData().setScale(uiScale * (22f / 24f));
             font.draw(batch, values[i], x + 8f, statY + 25f);
         }
 
         float pillY = screenH - 165f, pillW = (screenW - pad * 2f - gap) * .5f;
         font.setColor(.58f, .70f, .82f, 1f);
-        font.getData().setScale(uiScale * .58f);
+        font.getData().setScale(uiScale * (10f / 24f));
         font.draw(batch, "МОНЕТЫ", pad + 8f, pillY + 25f);
         font.setColor(.94f, .97f, 1f, 1f);
-        font.getData().setScale(uiScale * .80f);
+        font.getData().setScale(uiScale * (16f / 24f));
         font.draw(batch, NumberFormatter.compact(economy.coins()), pad + pillW - 42f, pillY + 13f);
         font.setColor(.58f, .70f, .82f, 1f);
         font.getData().setScale(uiScale * .58f);
@@ -834,23 +834,24 @@ public final class UpMergeGame extends ApplicationAdapter {
         drawCentered(NumberFormatter.compact(cubeQueue.upcoming()), screenW * .5f + 91f, queueY - 12f);
 
         font.setColor(.58f, .68f, .78f, 1f);
-        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 520f, .55f, .68f));
+        font.getData().setScale(uiScale * (11f / 24f));
         drawCenteredFit("НАЖМИ НА СТОЛБЕЦ, ЧТОБЫ БРОСИТЬ КУБИК",
                 screenW * .5f, footerHeight - 69f, screenW * .94f,
-                uiScale * MathUtils.clamp(screenW / 500f, .50f, .62f));
+                uiScale * (11f / 24f));
         String[] tools = {"↶ ОТМЕНА", "БОМБА", "✂ УДАЛИТЬ", "↗ ПЕРЕМЕСТИТЬ", "⇄ ОБМЕН"};
         int[] charges = {undoCharges, bombCharges, splitCharges, moveCharges, swapCharges};
         float toolW = screenW / 5f;
         for (int i = 0; i < tools.length; i++) {
             font.setColor(.88f, .94f, 1f, 1f);
-            font.getData().setScale(uiScale * MathUtils.clamp(screenW / 520f, .48f, .60f));
+            font.getData().setScale(uiScale * (8f / 24f));
             drawCenteredFit(tools[i] + "\n" + charges[i], (i + .5f) * toolW,
-                    39f, toolW - 4f, uiScale * MathUtils.clamp(screenW / 520f, .48f, .60f));
+                    39f, toolW - 4f, uiScale * (8f / 24f));
         }
 
         for (BoardEngine.Cube cube : engine.cubes()) {
             String value = NumberFormatter.compact(cube.value);
-            float baseScale = uiScale * MathUtils.clamp(cell / 42f, 0.95f, 1.50f);
+            float fontPixels = cube.value >= 1000 ? cell * .29f : cube.value >= 100 ? cell * .34f : cell * .42f;
+            float baseScale = uiScale * fontPixels / 24f;
             font.getData().setScale(baseScale);
             textLayout.setText(font, value);
             float maxLabelWidth = cell * 0.76f;
