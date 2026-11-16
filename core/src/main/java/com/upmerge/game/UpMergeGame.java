@@ -868,10 +868,10 @@ public final class UpMergeGame extends ApplicationAdapter {
     private void drawAchievementsMenu() {
         drawMenuBackdrop();
         batch.begin();
-        font.setColor(.35f, .82f, 1f);
+        font.setColor(.35f, .82f, 1f, 1f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 250f, 1.15f, 1.45f));
         drawCentered("ДОСТИЖЕНИЯ", screenW * .5f, screenH * .84f);
-        font.setColor(1f, .82f, .38f);
+        font.setColor(1f, .82f, .38f, 1f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 350f, .82f, 1f));
         drawCentered("НАГРАДЫ ЗА ИГРОВЫЕ ЦЕЛИ", screenW * .5f, screenH * .75f);
         batch.end();
@@ -894,13 +894,13 @@ public final class UpMergeGame extends ApplicationAdapter {
     private void drawShopMenu() {
         drawMenuBackdrop();
         batch.begin();
-        font.setColor(.35f, .82f, 1f);
+        font.setColor(.35f, .82f, 1f, 1f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 240f, 1.2f, 1.55f));
         drawCentered("МАГАЗИН", screenW * .5f, screenH * .84f);
-        font.setColor(1f, .82f, .38f);
+        font.setColor(1f, .82f, .38f, 1f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 330f, .9f, 1.1f));
         drawCentered("МОНЕТЫ: " + NumberFormatter.compact(economy.coins()), screenW * .5f, screenH * .75f);
-        font.setColor(.72f, .82f, .92f);
+        font.setColor(.72f, .82f, .92f, 1f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 390f, .68f, .84f));
         drawCentered("ПОКУПАЙ ЗАРЯДЫ ДЛЯ ИНСТРУМЕНТОВ", screenW * .5f, screenH * .68f);
         batch.end();
