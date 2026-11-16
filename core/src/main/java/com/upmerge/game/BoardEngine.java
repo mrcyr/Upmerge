@@ -1,104 +1,266 @@
 package com.upmerge.game;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
-/** Deterministic 5x7 lane engine ported from the 4.11 rules. Coordinates are integer cells. */
+/**
+ * Deterministic 5x7 lane engine. Cells are integer grid positions; there is no
+ * free-body physics or collision solver. The rules mirror the direct-board
+ * implementation in the 4.11 reference.
+ */
 public final class BoardEngine {
-    public static final int COLUMNS = 5, ROWS = 7;
-    public static final float MERGE_DELAY_SECONDS = .460f;
-    private static final float MOVE_CELLS_PER_SECOND = 19.6f;
+    public static final int COLUMNS = 5;
+    public static final int ROWS = 7;
+    public static final float MERGE_DELAY_SECONDS = 0.460f;
+    private static final float FALL_CELLS_PER_SECOND = 19.6f;
+
     public enum Direction { UP, DOWN }
+
     public static final class Cube {
         public final long id;
-        public int lane, row;
         public final int value;
+        public int lane;
+        public int row;
         public float visualRow;
-        public boolean moving, mergePending;
-        Cube(long id, int lane, int row, int value, boolean moving, float spawnRow) {
-            this.id=id; this.lane=lane; this.row=row; this.value=value; this.visualRow=spawnRow; this.moving=moving;
+        public boolean moving;
+        public boolean mergePending;
+        private Cube forcedMergeTarget;
+
+        private Cube(long id, int lane, int row, int value, float visualRow) {
+            this.id = id;
+            this.lane = lane;
+            this.row = row;
+            this.value = value;
+            this.visualRow = visualRow;
+            this.moving = true;
         }
     }
+
     public static final class MergeEvent {
-        public final int value, count, lane, row;
-        MergeEvent(int value,int count,int lane,int row){this.value=value;this.count=count;this.lane=lane;this.row=row;}
+        public final int value;
+        public final int count;
+        public final int lane;
+        public final int row;
+
+        private MergeEvent(int value, int count, int lane, int row) {
+            this.value = value;
+            this.count = count;
+            this.lane = lane;
+            this.row = row;
+        }
     }
+
     private final ArrayList<Cube> cubes = new ArrayList<>();
-    private long nextId=1;
-    private Direction direction=Direction.UP;
+    private long nextId = 1;
+    private Direction direction = Direction.UP;
     private float pendingTime;
-    private List<Cube> pendingGroup=List.of();
+    private List<Cube> pendingGroup = Collections.emptyList();
     private Cube pendingAnchor;
     private MergeEvent lastMerge;
     private int score;
 
-    public List<Cube> cubes(){ return Collections.unmodifiableList(cubes); }
-    public Direction direction(){return direction;}
-    public void setDirection(Direction d){direction=Objects.requireNonNull(d);}
-    public int score(){return score;}
-    public MergeEvent consumeMergeEvent(){MergeEvent e=lastMerge;lastMerge=null;return e;}
-    public void clear(){cubes.clear();pendingGroup=List.of();pendingAnchor=null;pendingTime=0;score=0;lastMerge=null;}
+    public List<Cube> cubes() { return Collections.unmodifiableList(cubes); }
+    public Direction direction() { return direction; }
+    public void setDirection(Direction value) { direction = Objects.requireNonNull(value); }
+    public int score() { return score; }
+    public boolean isMergePending() { return !pendingGroup.isEmpty(); }
+    public float mergeElapsedSeconds() { return pendingTime; }
 
-    /** @return false when this lane is busy/full/illegal. */
-    public boolean launch(int lane,int value){
-        if(lane<0||lane>=COLUMNS||!isPowerOfTwo(value)||!pendingGroup.isEmpty())return false;
-        List<Cube> stack=lane(lane);
-        if(stack.stream().anyMatch(c->c.moving))return false;
-        int row=firstEmptyRow(stack);
-        boolean forced=false;
-        if(row<0){
-            Cube edge=entryEdge(stack);
-            if(edge==null||edge.value!=value)return false;
-            row=edgeRow(stack); forced=true;
+    public MergeEvent consumeMergeEvent() {
+        MergeEvent event = lastMerge;
+        lastMerge = null;
+        return event;
+    }
+
+    public void clear() {
+        cubes.clear();
+        pendingGroup = Collections.emptyList();
+        pendingAnchor = null;
+        pendingTime = 0;
+        score = 0;
+        lastMerge = null;
+        nextId = 1;
+    }
+
+    /**
+     * Launches into the first free cell from the active gravity edge.
+     * A completely full lane accepts only a cube matching the entry-edge cube;
+     * it falls into that occupied cell and merges after the normal anticipation.
+     */
+    public boolean launch(int lane, int value) {
+        if (lane < 0 || lane >= COLUMNS || !isPowerOfTwo(value) || isMergePending()) return false;
+        List<Cube> stack = lane(lane);
+        for (Cube cube : stack) if (cube.moving) return false;
+
+        int targetRow = firstEmptyRow(stack);
+        Cube forcedTarget = null;
+        if (targetRow < 0) {
+            forcedTarget = entryEdge(stack);
+            if (forcedTarget == null || forcedTarget.value != value) return false;
+            targetRow = forcedTarget.row;
         }
-        float spawnRow=direction==Direction.UP?ROWS+.7f:-.7f;
-        Cube incoming=new Cube(nextId++,lane,row,value,true,spawnRow);
-        if(forced){incoming.visualRow=row;Cube edge=entryEdge(stack);if(edge!=null){beginMerge(incoming,edge);return true;}}
+
+        float spawnRow = direction == Direction.UP ? ROWS + 0.62f : -0.62f;
+        Cube incoming = new Cube(nextId++, lane, targetRow, value, spawnRow);
+        incoming.forcedMergeTarget = forcedTarget;
         cubes.add(incoming);
         return true;
     }
-    private int firstEmptyRow(List<Cube> stack){
-        boolean[] used=new boolean[ROWS];for(Cube c:stack)if(c.row>=0&&c.row<ROWS)used[c.row]=true;
-        if(direction==Direction.UP){for(int r=0;r<ROWS;r++)if(!used[r])return r;}
-        else{for(int r=ROWS-1;r>=0;r--)if(!used[r])return r;}
+
+    private int firstEmptyRow(List<Cube> stack) {
+        boolean[] occupied = new boolean[ROWS];
+        for (Cube cube : stack) if (cube.row >= 0 && cube.row < ROWS) occupied[cube.row] = true;
+        if (direction == Direction.UP) {
+            for (int row = 0; row < ROWS; row++) if (!occupied[row]) return row;
+        } else {
+            for (int row = ROWS - 1; row >= 0; row--) if (!occupied[row]) return row;
+        }
         return -1;
     }
-    private int edgeRow(List<Cube> stack){Cube edge=entryEdge(stack);return edge==null?0:edge.row;}
-    private Cube entryEdge(List<Cube> stack){int r=direction==Direction.UP?ROWS-1:0;for(Cube c:stack)if(c.row==r)return c;return null;}
-    private List<Cube> lane(int lane){ArrayList<Cube> out=new ArrayList<>();for(Cube c:cubes)if(c.lane==lane)out.add(c);return out;}
 
-    public void update(float dt){
-        if(dt<=0)return;dt=Math.min(dt,.05f);
-        boolean moved=false;
-        for(Cube c:cubes){if(!c.moving)continue;float target=c.row;float delta=target-c.visualRow;float step=MOVE_CELLS_PER_SECOND*dt;if(Math.abs(delta)<=step){c.visualRow=target;c.moving=false;}else c.visualRow+=Math.signum(delta)*step;moved=true;}
-        if(moved){for(int lane=0;lane<COLUMNS;lane++)compactLane(lane);}
-        if(!pendingGroup.isEmpty()){
-            pendingTime+=dt;
-            if(pendingTime>=MERGE_DELAY_SECONDS)finishMerge();
+    private Cube entryEdge(List<Cube> stack) {
+        int edgeRow = direction == Direction.UP ? ROWS - 1 : 0;
+        for (Cube cube : stack) if (cube.row == edgeRow) return cube;
+        return null;
+    }
+
+    private List<Cube> lane(int lane) {
+        ArrayList<Cube> result = new ArrayList<>();
+        for (Cube cube : cubes) if (cube.lane == lane) result.add(cube);
+        return result;
+    }
+
+    public void update(float deltaSeconds) {
+        if (deltaSeconds <= 0) return;
+        float dt = Math.min(deltaSeconds, 0.05f);
+
+        for (Cube cube : new ArrayList<>(cubes)) {
+            if (!cube.moving) continue;
+            float distance = cube.row - cube.visualRow;
+            float step = FALL_CELLS_PER_SECOND * dt;
+            if (Math.abs(distance) <= step) {
+                cube.visualRow = cube.row;
+                cube.moving = false;
+                if (cube.forcedMergeTarget != null && cubes.contains(cube.forcedMergeTarget)) {
+                    List<Cube> group = connectedGroup(cube.forcedMergeTarget);
+                    if (!group.contains(cube)) group.add(0, cube);
+                    beginMerge(group, cube);
+                    return;
+                }
+                cube.forcedMergeTarget = null;
+            } else {
+                cube.visualRow += Math.signum(distance) * step;
+            }
+        }
+
+        if (isMergePending()) {
+            pendingTime += dt;
+            if (pendingTime + 0.000001f >= MERGE_DELAY_SECONDS) finishMerge();
             return;
         }
-        ArrayList<Cube> scan=new ArrayList<>(cubes);scan.sort((a,b)->Long.compare(b.id,a.id));
-        for(Cube c:scan){if(c.moving)continue;List<Cube> group=connectedGroup(c);if(group.size()>1){beginMerge(group,c);return;}}
+
+        // Never resolve a contact while any cube in the board is still moving.
+        for (Cube cube : cubes) if (cube.moving) return;
+
+        // The most recently landed cube is the merge anchor, as in 4.11.
+        ArrayList<Cube> candidates = new ArrayList<>(cubes);
+        candidates.sort((a, b) -> Long.compare(b.id, a.id));
+        for (Cube candidate : candidates) {
+            List<Cube> group = connectedGroup(candidate);
+            if (group.size() > 1) {
+                beginMerge(group, candidate);
+                return;
+            }
+        }
     }
-    private void compactLane(int lane){
-        List<Cube> stack=lane(lane);stack.sort(Comparator.comparingInt(c->c.row));
-        if(direction==Direction.DOWN)Collections.reverse(stack);
-        for(int i=0;i<stack.size();i++){Cube c=stack.get(i);int target=direction==Direction.UP?i:ROWS-1-i;if(c.row!=target){c.row=target;c.moving=true;}}
-    }
-    private List<Cube> connectedGroup(Cube anchor){
-        ArrayList<Cube> group=new ArrayList<>();HashSet<Long> seen=new HashSet<>();group.add(anchor);seen.add(anchor.id);
-        for(int i=0;i<group.size();i++){Cube a=group.get(i);for(Cube b:cubes){if(seen.contains(b.id)||b.moving||b.value!=anchor.value)continue;if(Math.abs(a.lane-b.lane)+Math.abs(a.row-b.row)==1){seen.add(b.id);group.add(b);}}}
+
+    private List<Cube> connectedGroup(Cube anchor) {
+        ArrayList<Cube> group = new ArrayList<>();
+        Set<Long> seen = new HashSet<>();
+        group.add(anchor);
+        seen.add(anchor.id);
+        for (int cursor = 0; cursor < group.size(); cursor++) {
+            Cube current = group.get(cursor);
+            for (Cube other : cubes) {
+                if (seen.contains(other.id) || other.moving || other.value != anchor.value) continue;
+                if (Math.abs(current.lane - other.lane) + Math.abs(current.row - other.row) == 1) {
+                    seen.add(other.id);
+                    group.add(other);
+                }
+            }
+        }
         return group;
     }
-    private void beginMerge(List<Cube> group){beginMerge(group,group.get(0));}
-    private void beginMerge(Cube incoming,Cube edge){ArrayList<Cube> group=new ArrayList<>();group.add(incoming);group.addAll(connectedGroup(edge));beginMerge(group,incoming);}
-    private void beginMerge(List<Cube> group,Cube anchor){pendingGroup=List.copyOf(group);pendingAnchor=anchor;pendingTime=0;for(Cube c:pendingGroup)c.mergePending=true;}
-    private void finishMerge(){
-        int count=pendingGroup.size(),base=pendingGroup.get(0).value;int result=mergeValue(base,count);
-        if(result>0){int lane=pendingAnchor.lane,row=pendingAnchor.row;for(Cube c:pendingGroup)cubes.remove(c);Cube made=new Cube(nextId++,lane,row,result,false,row);cubes.add(made);score+=result;lastMerge=new MergeEvent(result,count,lane,row);}
-        pendingGroup=List.of();pendingAnchor=null;pendingTime=0;
-        for(int lane=0;lane<COLUMNS;lane++)compactLane(lane);
+
+    private void beginMerge(List<Cube> group, Cube anchor) {
+        if (group.size() < 2 || isMergePending()) return;
+        pendingGroup = Collections.unmodifiableList(new ArrayList<>(group));
+        pendingAnchor = anchor;
+        pendingTime = 0;
+        for (Cube cube : pendingGroup) cube.mergePending = true;
     }
-    public static int mergeValue(int value,int count){if(!isPowerOfTwo(value)||count<2)return 0;long total=(long)value*count;if(total>Integer.MAX_VALUE)return 0;long v=1;while(v<total)v<<=1;return v>Integer.MAX_VALUE?0:(int)v;}
-    private static boolean isPowerOfTwo(int n){return n>=2&&(n&(n-1))==0;}
-    public boolean isFull(){for(int l=0;l<COLUMNS;l++)if(firstEmptyRow(lane(l))>=0)return false;return true;}
+
+    private void finishMerge() {
+        int count = pendingGroup.size();
+        int baseValue = pendingGroup.get(0).value;
+        int result = mergeValue(baseValue, count);
+        if (result > 0) {
+            int lane = pendingAnchor.lane;
+            int row = pendingAnchor.row;
+            for (Cube cube : pendingGroup) cubes.remove(cube);
+            Cube made = new Cube(nextId++, lane, row, result, row);
+            made.moving = false;
+            cubes.add(made);
+            score += result;
+            lastMerge = new MergeEvent(result, count, lane, row);
+        }
+        pendingGroup = Collections.emptyList();
+        pendingAnchor = null;
+        pendingTime = 0;
+        compactAllLanes();
+    }
+
+    /** Returns the smallest power of two greater than or equal to value * count. */
+    public static int mergeValue(int value, int count) {
+        if (!isPowerOfTwo(value) || count < 2) return 0;
+        long total = (long) value * count;
+        if (total > Integer.MAX_VALUE) return 0;
+        long result = 1;
+        while (result < total) result <<= 1;
+        return result > Integer.MAX_VALUE ? 0 : (int) result;
+    }
+
+    private static boolean isPowerOfTwo(int value) {
+        return value >= 2 && (value & (value - 1)) == 0;
+    }
+
+    private void compactAllLanes() {
+        for (int lane = 0; lane < COLUMNS; lane++) compactLane(lane);
+    }
+
+    private void compactLane(int lane) {
+        List<Cube> stack = lane(lane);
+        stack.sort(Comparator.comparingInt(cube -> cube.row));
+        if (direction == Direction.DOWN) Collections.reverse(stack);
+        for (int index = 0; index < stack.size(); index++) {
+            Cube cube = stack.get(index);
+            int targetRow = direction == Direction.UP ? index : ROWS - 1 - index;
+            if (cube.row != targetRow) {
+                cube.row = targetRow;
+                cube.moving = true;
+            }
+        }
+    }
+
+    public boolean isFull() {
+        for (int lane = 0; lane < COLUMNS; lane++) {
+            if (firstEmptyRow(lane(lane)) >= 0) return false;
+        }
+        return true;
+    }
 }
