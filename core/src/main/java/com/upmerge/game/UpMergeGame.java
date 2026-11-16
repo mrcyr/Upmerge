@@ -30,6 +30,9 @@ public final class UpMergeGame extends ApplicationAdapter {
     private boolean shopVisible;
     private boolean achievementsVisible;
     private boolean statsVisible;
+    private boolean tasksVisible;
+    private long taskDay = -1L, taskProgress, taskScore, taskMerges;
+    private boolean taskClaimed;
     private boolean statsRecorded;
     private long lifetimeGames, lifetimeMerges, lifetimeShots, lifetimeBestCombo = 1L, lifetimeBestBlock = 2L;
     private int runMerges, runMaxCombo = 1;
@@ -90,6 +93,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         lifetimeShots = preferences.getLong("statsShots", 0L);
         lifetimeBestCombo = preferences.getLong("statsBestCombo", 1L);
         lifetimeBestBlock = preferences.getLong("statsBestBlock", 2L);
+        restoreDailyTask();
         splitCharges = preferences.getInteger("splitCharges", 2);
         moveCharges = preferences.getInteger("moveCharges", 2);
         swapCharges = preferences.getInteger("swapCharges", 2);
@@ -194,6 +198,7 @@ public final class UpMergeGame extends ApplicationAdapter {
             mergeFlightSources.addAll(mergeEvent.sources);
             runMerges += Math.max(1, mergeEvent.count - 1);
             lifetimeMerges += Math.max(1, mergeEvent.count - 1);
+            updateDailyTaskMerge(Math.max(1, mergeEvent.count - 1), mergeEvent.points);
             lifetimeBestCombo = Math.max(lifetimeBestCombo, mergeEvent.combo);
             lifetimeBestBlock = Math.max(lifetimeBestBlock, mergeEvent.value);
             runMaxCombo = Math.max(runMaxCombo, mergeEvent.combo);
@@ -233,6 +238,7 @@ public final class UpMergeGame extends ApplicationAdapter {
             else if (shopVisible) drawShopMenu();
             else if (achievementsVisible) drawAchievementsMenu();
             else if (statsVisible) drawStatsMenu();
+            else if (tasksVisible) drawTasksMenu();
             else if (modeSelectionVisible) drawModeMenu();
             else drawMainMenu();
         } else if (paused) drawPauseMenu();
@@ -309,6 +315,7 @@ public final class UpMergeGame extends ApplicationAdapter {
                 else if (shopVisible) shopVisible = false;
                 else if (achievementsVisible) achievementsVisible = false;
                 else if (statsVisible) statsVisible = false;
+                else if (tasksVisible) tasksVisible = false;
                 else if (modeSelectionVisible) modeSelectionVisible = false;
             } else if (paused) {
                 paused = false;
@@ -339,6 +346,11 @@ public final class UpMergeGame extends ApplicationAdapter {
             return;
         }
         if (menuVisible) {
+            if (tasksVisible) {
+                if (y <= screenH * 0.14f) tasksVisible = false;
+                else if (y >= screenH * 0.34f && y <= screenH * 0.52f) claimDailyTask();
+                return;
+            }
             if (statsVisible) {
                 if (y <= screenH * 0.14f) statsVisible = false;
                 return;
@@ -371,8 +383,9 @@ public final class UpMergeGame extends ApplicationAdapter {
                 if (y > screenH * 0.39f && y <= screenH * 0.51f) modeSelectionVisible = true;
                 else if (y > screenH * 0.27f && y <= screenH * 0.36f) settingsVisible = true;
                 else if (y > screenH * 0.15f && y <= screenH * 0.24f) shopVisible = true;
-                else if (y > screenH * 0.075f && y <= screenH * 0.13f) statsVisible = true;
-                else if (y > screenH * 0.005f && y <= screenH * 0.06f) achievementsVisible = true;
+                else if (y > screenH * 0.115f && y <= screenH * 0.15f) statsVisible = true;
+                else if (y > screenH * 0.065f && y <= screenH * 0.11f) tasksVisible = true;
+                else if (y > screenH * 0.005f && y <= screenH * 0.055f) achievementsVisible = true;
             } else {
                 if (y > screenH * 0.51f && y <= screenH * 0.68f) startMode(GameMode.CLASSIC, true);
                 else if (y > screenH * 0.34f && y <= screenH * 0.51f) startMode(GameMode.TIMED, true);
@@ -435,6 +448,7 @@ public final class UpMergeGame extends ApplicationAdapter {
             if (engine.launch(lane, cubeQueue.current())) {
                 cubeQueue.advance();
                 lifetimeShots++;
+                updateDailyTaskShot();
                 persistLifetimeStats();
             }
             else undoBoardState = null;
@@ -830,8 +844,9 @@ public final class UpMergeGame extends ApplicationAdapter {
         drawMenuButton("НАСТРОЙКИ", screenH * 0.315f, 0.085f, false);
         drawMenuButton("МАГАЗИН · " + NumberFormatter.compact(economy.coins()) + " МОНЕТ",
                 screenH * 0.195f, 0.075f, false);
-        drawMenuButton("СТАТИСТИКА", screenH * 0.105f, 0.055f, false);
-        drawMenuButton("ДОСТИЖЕНИЯ", screenH * 0.035f, 0.05f, false);
+        drawMenuButton("СТАТИСТИКА", screenH * 0.132f, 0.045f, false);
+        drawMenuButton("ЗАДАНИЯ", screenH * 0.087f, 0.04f, false);
+        drawMenuButton("ДОСТИЖЕНИЯ", screenH * 0.032f, 0.04f, false);
 
         batch.begin();
         font.setColor(0.60f, 0.70f, 0.82f, 1f);
@@ -909,6 +924,112 @@ public final class UpMergeGame extends ApplicationAdapter {
         preferences.putLong("statsHistoryScore0", engine.score());
         preferences.putInteger("statsHistoryCount", Math.min(6, count + 1));
         persistLifetimeStats();
+    }
+
+    private long currentTaskDay() {
+        return System.currentTimeMillis() / 86400000L;
+    }
+
+    private void restoreDailyTask() {
+        taskDay = preferences.getLong("taskDay", -1L);
+        if (taskDay != currentTaskDay()) {
+            taskDay = currentTaskDay();
+            taskProgress = taskScore = taskMerges = 0L;
+            taskClaimed = false;
+            persistDailyTask();
+        } else {
+            taskProgress = preferences.getLong("taskProgress", 0L);
+            taskScore = preferences.getLong("taskScore", 0L);
+            taskMerges = preferences.getLong("taskMerges", 0L);
+            taskClaimed = preferences.getBoolean("taskClaimed", false);
+        }
+    }
+
+    private void persistDailyTask() {
+        preferences.putLong("taskDay", taskDay);
+        preferences.putLong("taskProgress", taskProgress);
+        preferences.putLong("taskScore", taskScore);
+        preferences.putLong("taskMerges", taskMerges);
+        preferences.putBoolean("taskClaimed", taskClaimed);
+        preferences.flush();
+    }
+
+    private int dailyTaskType() {
+        return (int) Math.floorMod(taskDay, 3L);
+    }
+
+    private long dailyTaskGoal() {
+        int type = dailyTaskType();
+        return type == 0 ? 10L : type == 1 ? 5L : 2000L;
+    }
+
+    private long dailyTaskCurrent() {
+        int type = dailyTaskType();
+        return type == 0 ? taskProgress : type == 1 ? taskMerges : taskScore;
+    }
+
+    private long dailyTaskReward() {
+        int type = dailyTaskType();
+        return type == 0 ? 35L : type == 1 ? 50L : 60L;
+    }
+
+    private void updateDailyTaskShot() {
+        if (taskDay != currentTaskDay()) restoreDailyTask();
+        taskProgress++;
+        persistDailyTask();
+    }
+
+    private void updateDailyTaskMerge(long count, long points) {
+        if (taskDay != currentTaskDay()) restoreDailyTask();
+        taskMerges += count;
+        taskScore += Math.max(0L, points);
+        persistDailyTask();
+    }
+
+    private void claimDailyTask() {
+        if (taskClaimed || dailyTaskCurrent() < dailyTaskGoal()) return;
+        taskClaimed = true;
+        economy.grantCoins(dailyTaskReward());
+        persistDailyTask();
+        persistToolBalances();
+    }
+
+    private void drawTasksMenu() {
+        drawMenuBackdrop();
+        int type = dailyTaskType();
+        String task = type == 0 ? "СДЕЛАЙ 10 ЗАПУСКОВ"
+                : type == 1 ? "СЛЕЙ 5 ГРУПП КУБИКОВ" : "НАБЕРИ 2 000 ОЧКОВ";
+        long current = dailyTaskCurrent(), goal = dailyTaskGoal();
+        float progress = MathUtils.clamp((float) current / goal, 0f, 1f);
+        batch.begin();
+        font.setColor(.94f, .97f, 1f, 1f);
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 245f, 1.25f, 1.65f));
+        drawCentered("ЗАДАНИЯ", screenW * .5f, screenH * .76f);
+        font.setColor(.66f, .76f, .89f, 1f);
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 390f, .78f, .98f));
+        drawCentered("ЕЖЕДНЕВНОЕ ИСПЫТАНИЕ", screenW * .5f, screenH * .66f);
+        font.setColor(1f, 1f, 1f, 1f);
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 330f, .88f, 1.1f));
+        drawCenteredFit(task, screenW * .5f, screenH * .55f, screenW * .86f,
+                uiScale * MathUtils.clamp(screenW / 360f, .72f, .92f));
+        font.setColor(.48f, .88f, 1f, 1f);
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 300f, .95f, 1.2f));
+        drawCentered(current + " / " + goal, screenW * .5f, screenH * .46f);
+        font.setColor(1f, .82f, .38f, 1f);
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 360f, .78f, .95f));
+        drawCentered("НАГРАДА: " + dailyTaskReward() + " МОНЕТ", screenW * .5f, screenH * .40f);
+        batch.end();
+
+        shapes.begin(ShapeRenderer.ShapeType.Filled);
+        shapes.setColor(.075f, .12f, .18f, 1f);
+        shapes.rect(screenW * .12f, screenH * .35f, screenW * .76f, screenH * .025f);
+        shapes.setColor(.30f, .78f, .96f, 1f);
+        shapes.rect(screenW * .12f, screenH * .35f, screenW * .76f * progress, screenH * .025f);
+        shapes.end();
+        drawMenuButton(taskClaimed ? "НАГРАДА ПОЛУЧЕНА"
+                : current >= goal ? "ЗАБРАТЬ НАГРАДУ" : "ВЫПОЛНИ ЗАДАНИЕ",
+                screenH * .285f, .075f, current >= goal && !taskClaimed);
+        drawMenuButton("ЗАКРЫТЬ", screenH * .10f, .07f, false);
     }
 
     private void drawStatsMenu() {
