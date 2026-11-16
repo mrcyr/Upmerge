@@ -463,8 +463,10 @@ public final class UpMergeGame extends ApplicationAdapter {
                     || (i == 1 && activeTool == Tool.MOVE)
                     || (i == 2 && activeTool == Tool.SWAP)
                     || (i == 3 && activeTool == Tool.BOMB);
-            shapes.setColor(selected ? 0.12f : 0.075f, selected ? 0.38f : 0.12f,
-                    selected ? 0.48f : 0.17f, 1f);
+            boolean available = i == 4 ? undoCharges > 0 && undoBoardState != null : toolCharges(i) > 0;
+            shapes.setColor(selected ? 0.12f : available ? 0.075f : 0.045f,
+                    selected ? 0.38f : available ? 0.12f : 0.065f,
+                    selected ? 0.48f : available ? 0.17f : 0.09f, 1f);
             shapes.rect(i * toolW + 2f, 8f, toolW - 4f, footerHeight * 0.56f);
         }
 
@@ -640,13 +642,15 @@ public final class UpMergeGame extends ApplicationAdapter {
         drawCenteredFit("НАЖМИ НА СТОЛБЕЦ, ЧТОБЫ БРОСИТЬ КУБИК",
                 screenW * 0.5f, footerHeight * 0.62f, screenW * 0.94f,
                 uiScale * MathUtils.clamp(screenW / 330f, 0.55f, 0.78f));
-        String[] labels = {"✂ " + splitCharges, "↗ " + moveCharges,
-                "⇄ " + swapCharges, "✹ " + bombCharges, "↶ " + undoCharges};
+        String[] labels = {"✂ РАЗБИТЬ\n" + splitCharges, "↗ ПЕРЕНЕСТИ\n" + moveCharges,
+                "⇄ ОБМЕН\n" + swapCharges, "✹ БОМБА\n" + bombCharges, "↶ ОТМЕНА\n" + undoCharges};
         float toolW = screenW / 5f;
-        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 390f, .58f, .76f));
         font.setColor(.88f, .94f, 1f, 1f);
-        for (int i = 0; i < 5; i++) drawCentered(labels[i],
-                (i + .5f) * toolW, footerHeight * .39f);
+        for (int i = 0; i < 5; i++) {
+            font.getData().setScale(uiScale * MathUtils.clamp(screenW / 480f, .50f, .66f));
+            drawCenteredFit(labels[i], (i + .5f) * toolW, footerHeight * .36f,
+                    toolW - 5f, uiScale * MathUtils.clamp(screenW / 500f, .46f, .60f));
+        }
         // Center each value in its cube, with a scale that remains readable for large numbers.
         for (BoardEngine.Cube cube : engine.cubes()) {
             String value = NumberFormatter.compact(cube.value);
