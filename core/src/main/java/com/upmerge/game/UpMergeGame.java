@@ -476,12 +476,18 @@ public final class UpMergeGame extends ApplicationAdapter {
         // Center each value in its cube, with a scale that remains readable for large numbers.
         for (BoardEngine.Cube cube : engine.cubes()) {
             String value = NumberFormatter.compact(cube.value);
-            float sizeScale = value.length() >= 5 ? 0.58f : value.length() >= 4 ? 0.68f
-                    : value.length() >= 3 ? 0.78f : 0.94f;
-            font.getData().setScale(uiScale * MathUtils.clamp(cell / 42f, 0.95f, 1.50f) * sizeScale);
+            float baseScale = uiScale * MathUtils.clamp(cell / 42f, 0.95f, 1.50f);
+            font.getData().setScale(baseScale);
+            textLayout.setText(font, value);
+            float maxLabelWidth = cell * 0.76f;
+            if (textLayout.width > maxLabelWidth && textLayout.width > 0f) {
+                baseScale *= maxLabelWidth / textLayout.width;
+                font.getData().setScale(baseScale);
+            }
             font.setColor(1f, 1f, 1f, 1f);
             float centerX = boardLeft + (cube.lane + 0.5f) * cell;
             float centerY = boardBottom + (BoardEngine.ROWS - 0.5f - cube.visualRow) * cell;
+            textLayout.setText(font, value);
             drawCentered(value, centerX, centerY + font.getCapHeight() * 0.35f);
         }
         batch.end();
