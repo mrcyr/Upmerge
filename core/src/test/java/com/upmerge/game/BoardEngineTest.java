@@ -92,7 +92,8 @@ public class BoardEngineTest {
             assertTrue(engine.launch(0, value));
             settle(engine);
         }
-        assertTrue(engine.isFull());
+        // isFull() describes the whole board, not a single full lane.
+        assertFalse(engine.isFull());
         assertFalse(engine.launch(0, 4));
         assertTrue(engine.launch(0, 2));
         settle(engine);
@@ -135,6 +136,7 @@ public class BoardEngineTest {
         assertEquals(0, engine.cubes().get(0).row);
 
         engine.setDirection(BoardEngine.Direction.DOWN);
+        assertEquals(BoardEngine.Direction.DOWN, engine.direction());
         settle(engine); // Existing cubes must finish moving before another launch.
         assertEquals(6, engine.cubes().get(0).row);
         assertTrue(engine.launch(2, 4));
