@@ -270,10 +270,10 @@ public final class BoardEngine {
 
     private void compactLane(int lane) {
         List<Cube> stack = lane(lane);
-        // Preserve the order cubes had before the gravity flip. Sorting by
-        // their previous row works for both directions; only destination rows
-        // change when gravity changes.
+        // Preserve the same top-to-bottom visual order when gravity flips.
+        // For DOWN, pack the reversed list from the bottom edge, as in 4.11.
         stack.sort(Comparator.comparingInt(cube -> cube.row));
+        if (direction == Direction.DOWN) Collections.reverse(stack);
         for (int index = 0; index < stack.size(); index++) {
             Cube cube = stack.get(index);
             int targetRow = direction == Direction.UP ? index : ROWS - 1 - index;
