@@ -29,6 +29,9 @@ public final class UpMergeGame extends ApplicationAdapter {
     private GameEconomy economy;
     private boolean shopVisible;
     private boolean achievementsVisible;
+    private boolean statsVisible;
+    private boolean statsRecorded;
+    private long lifetimeGames, lifetimeMerges, lifetimeShots, lifetimeBestCombo = 1L, lifetimeBestBlock = 2L;
     private int runMerges, runMaxCombo = 1;
     private long runMaxBlock = 2L;
     private Tool activeTool = Tool.NONE;
@@ -82,6 +85,11 @@ public final class UpMergeGame extends ApplicationAdapter {
         font = createCyrillicFont();
         preferences = Gdx.app.getPreferences("UpMergeNative");
         bestScore = preferences.getLong("bestScore", 0L);
+        lifetimeGames = preferences.getLong("statsGames", 0L);
+        lifetimeMerges = preferences.getLong("statsMerges", 0L);
+        lifetimeShots = preferences.getLong("statsShots", 0L);
+        lifetimeBestCombo = preferences.getLong("statsBestCombo", 1L);
+        lifetimeBestBlock = preferences.getLong("statsBestBlock", 2L);
         splitCharges = preferences.getInteger("splitCharges", 2);
         moveCharges = preferences.getInteger("moveCharges", 2);
         swapCharges = preferences.getInteger("swapCharges", 2);
@@ -185,6 +193,9 @@ public final class UpMergeGame extends ApplicationAdapter {
             mergeFlightSources.clear();
             mergeFlightSources.addAll(mergeEvent.sources);
             runMerges += Math.max(1, mergeEvent.count - 1);
+            lifetimeMerges += Math.max(1, mergeEvent.count - 1);
+            lifetimeBestCombo = Math.max(lifetimeBestCombo, mergeEvent.combo);
+            lifetimeBestBlock = Math.max(lifetimeBestBlock, mergeEvent.value);
             runMaxCombo = Math.max(runMaxCombo, mergeEvent.combo);
             runMaxBlock = Math.max(runMaxBlock, mergeEvent.value);
             awardAchievements();
@@ -200,11 +211,13 @@ public final class UpMergeGame extends ApplicationAdapter {
             bestScore = Math.max(bestScore, engine.score());
             economy.rewardForMerge(mergeEvent.points);
             preferences.putLong("bestScore", bestScore);
+            persistLifetimeStats();
             preferences.putLong("coins", economy.coins());
         preferences.putInteger("splitCharges", splitCharges);
             preferences.flush();
             saveGame();
         }
+        if (gameOver && !statsRecorded) recordCompletedRun();
         if (!menuVisible && !paused) checkBoardCapacity();
         handleInput();
 
@@ -219,6 +232,7 @@ public final class UpMergeGame extends ApplicationAdapter {
             if (settingsVisible) drawSettingsMenu();
             else if (shopVisible) drawShopMenu();
             else if (achievementsVisible) drawAchievementsMenu();
+            else if (statsVisible) drawStatsMenu();
             else if (modeSelectionVisible) drawModeMenu();
             else drawMainMenu();
         } else if (paused) drawPauseMenu();
@@ -294,6 +308,7 @@ public final class UpMergeGame extends ApplicationAdapter {
                 if (settingsVisible) settingsVisible = false;
                 else if (shopVisible) shopVisible = false;
                 else if (achievementsVisible) achievementsVisible = false;
+                else if (statsVisible) statsVisible = false;
                 else if (modeSelectionVisible) modeSelectionVisible = false;
             } else if (paused) {
                 paused = false;
@@ -324,6 +339,10 @@ public final class UpMergeGame extends ApplicationAdapter {
             return;
         }
         if (menuVisible) {
+            if (statsVisible) {
+                if (y <= screenH * 0.14f) statsVisible = false;
+                return;
+            }
             if (achievementsVisible) {
                 if (y <= screenH * 0.14f) achievementsVisible = false;
                 return;
@@ -345,14 +364,15 @@ public final class UpMergeGame extends ApplicationAdapter {
                 return;
             }
             if (!modeSelectionVisible) {
-                if (hasSavedGame && y > screenH * 0.48f && y <= screenH * 0.61f) {
+                if (hasSavedGame && y > screenH * 0.54f && y <= screenH * 0.64f) {
                     menuVisible = false;
                     return;
                 }
-                if (y > screenH * 0.32f && y <= screenH * 0.47f) modeSelectionVisible = true;
-                else if (y > screenH * 0.17f && y <= screenH * 0.29f) settingsVisible = true;
-                else if (y > screenH * 0.05f && y <= screenH * 0.16f) shopVisible = true;
-                else if (y > screenH * 0.005f && y <= screenH * 0.045f) achievementsVisible = true;
+                if (y > screenH * 0.39f && y <= screenH * 0.51f) modeSelectionVisible = true;
+                else if (y > screenH * 0.27f && y <= screenH * 0.36f) settingsVisible = true;
+                else if (y > screenH * 0.15f && y <= screenH * 0.24f) shopVisible = true;
+                else if (y > screenH * 0.075f && y <= screenH * 0.13f) statsVisible = true;
+                else if (y > screenH * 0.005f && y <= screenH * 0.06f) achievementsVisible = true;
             } else {
                 if (y > screenH * 0.51f && y <= screenH * 0.68f) startMode(GameMode.CLASSIC, true);
                 else if (y > screenH * 0.34f && y <= screenH * 0.51f) startMode(GameMode.TIMED, true);
@@ -412,7 +432,11 @@ public final class UpMergeGame extends ApplicationAdapter {
             if (activeTool != Tool.NONE) { handleToolBoardInput(x, y); return; }
             int lane = MathUtils.clamp((int) ((x - boardLeft) / cell), 0, BoardEngine.COLUMNS - 1);
             captureUndoSnapshot();
-            if (engine.launch(lane, cubeQueue.current())) cubeQueue.advance();
+            if (engine.launch(lane, cubeQueue.current())) {
+                cubeQueue.advance();
+                lifetimeShots++;
+                persistLifetimeStats();
+            }
             else undoBoardState = null;
         }
     }
@@ -801,12 +825,13 @@ public final class UpMergeGame extends ApplicationAdapter {
                 uiScale * MathUtils.clamp(screenW / 390f, 0.62f, 0.82f));
         batch.end();
 
-        if (hasSavedGame) drawMenuButton("ПРОДОЛЖИТЬ", screenH * 0.535f, 0.12f, true);
-        drawMenuButton("НОВАЯ ИГРА", screenH * 0.385f, 0.13f, true);
-        drawMenuButton("НАСТРОЙКИ", screenH * 0.23f, 0.11f, false);
+        if (hasSavedGame) drawMenuButton("ПРОДОЛЖИТЬ", screenH * 0.59f, 0.09f, true);
+        drawMenuButton("НОВАЯ ИГРА", screenH * 0.45f, 0.10f, true);
+        drawMenuButton("НАСТРОЙКИ", screenH * 0.315f, 0.085f, false);
         drawMenuButton("МАГАЗИН · " + NumberFormatter.compact(economy.coins()) + " МОНЕТ",
-                screenH * 0.105f, 0.09f, false);
-        drawMenuButton("ДОСТИЖЕНИЯ", screenH * 0.025f, 0.045f, false);
+                screenH * 0.195f, 0.075f, false);
+        drawMenuButton("СТАТИСТИКА", screenH * 0.105f, 0.055f, false);
+        drawMenuButton("ДОСТИЖЕНИЯ", screenH * 0.035f, 0.05f, false);
 
         batch.begin();
         font.setColor(0.60f, 0.70f, 0.82f, 1f);
@@ -863,6 +888,83 @@ public final class UpMergeGame extends ApplicationAdapter {
             }
         }
         if (changed) persistToolBalances();
+    }
+
+    private void persistLifetimeStats() {
+        preferences.putLong("statsGames", lifetimeGames);
+        preferences.putLong("statsMerges", lifetimeMerges);
+        preferences.putLong("statsShots", lifetimeShots);
+        preferences.putLong("statsBestCombo", lifetimeBestCombo);
+        preferences.putLong("statsBestBlock", lifetimeBestBlock);
+        preferences.flush();
+    }
+
+    private void recordCompletedRun() {
+        statsRecorded = true;
+        int count = Math.min(6, preferences.getInteger("statsHistoryCount", 0));
+        for (int i = Math.min(5, count); i > 0; i--) {
+            preferences.putLong("statsHistoryScore" + i,
+                    preferences.getLong("statsHistoryScore" + (i - 1), 0L));
+        }
+        preferences.putLong("statsHistoryScore0", engine.score());
+        preferences.putInteger("statsHistoryCount", Math.min(6, count + 1));
+        persistLifetimeStats();
+    }
+
+    private void drawStatsMenu() {
+        drawMenuBackdrop();
+        batch.begin();
+        font.setColor(0.94f, 0.97f, 1f, 1f);
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 245f, 1.25f, 1.65f));
+        drawCentered("СТАТИСТИКА", screenW * .5f, screenH * .84f);
+        batch.end();
+
+        String[] labels = {"СЫГРАНО ПАРТИЙ", "РЕКОРД", "ВСЕГО СЛИЯНИЙ",
+                "ВСЕГО ЗАПУСКОВ", "ЛУЧШЕЕ КОМБО", "МАКСИМАЛЬНЫЙ КУБИК"};
+        String[] values = {String.valueOf(lifetimeGames), NumberFormatter.compact(bestScore),
+                String.valueOf(lifetimeMerges), String.valueOf(lifetimeShots),
+                "×" + lifetimeBestCombo, NumberFormatter.compact(lifetimeBestBlock)};
+        float gap = screenH * .012f;
+        float cardW = screenW * .40f;
+        float cardH = screenH * .105f;
+        float left = screenW * .08f;
+        float top = screenH * .70f;
+        for (int i = 0; i < 6; i++) {
+            int col = i % 2, row = i / 2;
+            float x = left + col * (cardW + screenW * .04f);
+            float y = top - row * (cardH + gap);
+            shapes.begin(ShapeRenderer.ShapeType.Filled);
+            shapes.setColor(.075f, .105f, .155f, 1f);
+            shapes.rect(x, y, cardW, cardH);
+            shapes.end();
+            batch.begin();
+            font.setColor(.58f, .68f, .80f, 1f);
+            font.getData().setScale(uiScale * MathUtils.clamp(screenW / 520f, .48f, .62f));
+            drawCenteredFit(labels[i], x + cardW * .5f, y + cardH * .72f,
+                    cardW * .90f, uiScale * MathUtils.clamp(screenW / 520f, .45f, .58f));
+            font.setColor(.94f, .97f, 1f, 1f);
+            font.getData().setScale(uiScale * MathUtils.clamp(screenW / 300f, .90f, 1.2f));
+            drawCentered(values[i], x + cardW * .5f, y + cardH * .25f);
+            batch.end();
+        }
+        batch.begin();
+        font.setColor(.86f, .92f, 1f, 1f);
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 390f, .72f, .9f));
+        drawCentered("ПОСЛЕДНИЕ РЕЗУЛЬТАТЫ", screenW * .5f, screenH * .265f);
+        int count = Math.min(6, preferences.getInteger("statsHistoryCount", 0));
+        for (int i = 0; i < count; i++) {
+            long score = preferences.getLong("statsHistoryScore" + i, 0L);
+            drawCentered((i + 1) + ".  " + NumberFormatter.compact(score),
+                    screenW * .5f, screenH * (.225f - i * .027f));
+        }
+        if (count == 0) {
+            font.setColor(.58f, .68f, .80f, 1f);
+            drawCenteredFit("СЫГРАЙ ПАРТИЮ, ЧТОБЫ ПОЯВИЛАСЬ ИСТОРИЯ",
+                    screenW * .5f, screenH * .20f, screenW * .84f,
+                    uiScale * MathUtils.clamp(screenW / 500f, .50f, .62f));
+        }
+        batch.end();
+        drawMenuButton("ЗАКРЫТЬ", screenH * .07f, .07f, true);
     }
 
     private void drawAchievementsMenu() {
@@ -1059,6 +1161,11 @@ public final class UpMergeGame extends ApplicationAdapter {
         timeLeft = 90f;
         runMerges = 0;
         runMaxCombo = 1;
+        statsRecorded = false;
+        if (resetProgress) {
+            lifetimeGames++;
+            persistLifetimeStats();
+        }
         runMaxBlock = 2L;
         undoBoardState = null;
         activeTool = Tool.NONE;
