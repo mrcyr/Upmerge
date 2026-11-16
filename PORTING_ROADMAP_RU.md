@@ -32,7 +32,7 @@ Reference: original Android/WebView build 4.11 (`app/src/main/assets/index.html`
 - [x] Board snapshot serialization/restoration for settled states.
 - [x] Persist board, score, direction, combo, and queue slots using libGDX Preferences.
 - [ ] Persist all remaining 4.11 run fields (shots, elapsed time, run stats, tools/charges, etc.) once their native systems exist.
-- [ ] Add complete menu flow: New Game / Continue / Settings.
+- [x] Add complete menu flow: New Game / Continue / Settings (including a persistent merge-haptics toggle).
 - [x] Add initial mode selector for Classic / Timed (90 seconds) / Challenge.
 - [x] Add timed countdown, visible timer HUD, challenge goal completion, and basic pause / resume / restart / return-to-menu controls.
 - [x] Show current level goal in the HUD and brief feedback when the goal advances.
