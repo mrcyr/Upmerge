@@ -14,7 +14,7 @@ public class NumberFormatterTest {
         assertEquals("1Qa", NumberFormatter.compact(1L << 50));
         assertEquals("512Qa", NumberFormatter.compact(512L << 50));
         assertEquals("1Qi", NumberFormatter.compact(1L << 60));
-        assertEquals("512Qi", NumberFormatter.compact(512L << 60));
+        assertEquals("7Qi", NumberFormatter.compact(Long.MAX_VALUE));
     }
 
     @Test public void suffixBoundariesAdvanceOnlyAtNextPowerOf1024() {
