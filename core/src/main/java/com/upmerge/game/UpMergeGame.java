@@ -50,6 +50,7 @@ public final class UpMergeGame extends ApplicationAdapter {
     private int mergeFlashRow = -1;
     private long mergeFlashValue;
     private float mergeFlightTime;
+    private float levelUpTime;
     private int mergeFlightTargetLane;
     private int mergeFlightTargetRow;
     private final List<BoardEngine.MergeSource> mergeFlightSources = new ArrayList<>();
@@ -140,6 +141,7 @@ public final class UpMergeGame extends ApplicationAdapter {
             saveGame();
         }
         if (mergeFlashTime > 0f) mergeFlashTime = Math.max(0f, mergeFlashTime - dt);
+        if (levelUpTime > 0f) levelUpTime = Math.max(0f, levelUpTime - dt);
         if (mergeFlightTime > 0f) mergeFlightTime = Math.max(0f, mergeFlightTime - dt);
         BoardEngine.MergeEvent mergeEvent = engine.consumeMergeEvent();
         if (mergeEvent != null) {
@@ -153,7 +155,8 @@ public final class UpMergeGame extends ApplicationAdapter {
             mergeFlightSources.clear();
             mergeFlightSources.addAll(mergeEvent.sources);
             boolean reachedChallenge = gameMode == GameMode.CHALLENGE && mergeEvent.value >= challengeGoal;
-            cubeQueue.onMergedValue(mergeEvent.value);
+            boolean advancedLevel = cubeQueue.onMergedValue(mergeEvent.value);
+            if (advancedLevel) levelUpTime = 2.0f;
             if (reachedChallenge) gameOver = true;
             bestScore = Math.max(bestScore, engine.score());
             preferences.putLong("bestScore", bestScore);
@@ -453,6 +456,12 @@ public final class UpMergeGame extends ApplicationAdapter {
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 245f, 1.25f, 1.75f));
         font.setColor(0.96f, 0.98f, 1f, 1f);
         font.draw(batch, NumberFormatter.compact(engine.score()), pad + 10f, cardY + cardH * 0.48f);
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 390f, 0.72f, 0.90f));
+        font.setColor(0.45f, 0.82f, 1f, 1f);
+        font.draw(batch, "ЦЕЛЬ: " + NumberFormatter.compact(cubeQueue.goalTarget()),
+                pad + 10f, cardY + 12f);
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 245f, 1.25f, 1.75f));
+        font.setColor(0.96f, 0.98f, 1f, 1f);
         font.draw(batch, NumberFormatter.compact(cubeQueue.current()), pad + cardW + cardGap + 10f,
                 cardY + cardH * 0.48f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 390f, 0.78f, 0.95f));
@@ -491,6 +500,20 @@ public final class UpMergeGame extends ApplicationAdapter {
             drawCentered(value, centerX, centerY + font.getCapHeight() * 0.35f);
         }
         batch.end();
+        if (levelUpTime > 0f && !menuVisible && !paused) {
+            shapes.begin(ShapeRenderer.ShapeType.Filled);
+            shapes.setColor(0.08f, 0.38f, 0.48f, 0.94f);
+            float bannerW = screenW * 0.72f;
+            shapes.rect((screenW - bannerW) * 0.5f, boardTop - cell * 0.68f,
+                    bannerW, cell * 0.52f);
+            shapes.end();
+            batch.begin();
+            font.getData().setScale(uiScale * MathUtils.clamp(screenW / 360f, 0.85f, 1.05f));
+            font.setColor(1f, 1f, 1f, 1f);
+            drawCentered("НОВАЯ ЦЕЛЬ: " + NumberFormatter.compact(cubeQueue.goalTarget()),
+                    screenW * 0.5f, boardTop - cell * 0.34f);
+            batch.end();
+        }
     }
 
     private void drawCentered(String value, float centerX, float baselineY) {
