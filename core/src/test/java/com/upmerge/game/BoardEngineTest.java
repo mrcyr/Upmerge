@@ -395,6 +395,20 @@ public class BoardEngineTest {
         assertEquals(before, engine.cubes().size());
     }
 
+    @Test public void snapshotRejectsGapsAgainstActiveGravityEdgeWithoutMutation() {
+        BoardEngine engine = new BoardEngine();
+        assertTrue(engine.launch(2, 8));
+        settle(engine);
+        long originalScore = engine.score();
+        String original = engine.saveState();
+
+        assertFalse(engine.loadState("UPM1|0|UP|1|0|3|2|1,0,0,2|2,0,2,4"));
+        assertFalse(engine.loadState("UPM1|0|DOWN|1|0|3|2|1,0,6,2|2,0,3,4"));
+
+        assertEquals(originalScore, engine.score());
+        assertEquals(original, engine.saveState());
+    }
+
     @Test public void sevenCubeLaneRejectsDifferentValueButAcceptsMatchingEdgeValue() {
         BoardEngine engine = new BoardEngine();
         int[] values = {2, 4, 8, 16, 32, 64, 128};
