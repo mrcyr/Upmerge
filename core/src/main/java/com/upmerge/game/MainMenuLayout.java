@@ -55,19 +55,21 @@ final class MainMenuLayout {
             directions[i] = new Rect(cx - dirW * .5f,
                     screenH * .49f - dirH * .5f, dirW, dirH);
         }
+        boolean compact = screenH / this.density < 680f;
         float actionGap = 8f * this.density;
         float actionW = (contentWidth - actionGap) * .5f, actionH = 40f * this.density;
         menuActions[0] = centered(center - (actionW + actionGap) * .5f,
-                screenH * .45f, actionW, actionH);
+                screenH * (compact ? .415f : .425f), actionW, actionH);
         menuActions[1] = centered(center + (actionW + actionGap) * .5f,
                 screenH * .45f, actionW, actionH);
         continueButton = hasSavedGame
-                ? centered(center, screenH * .37f, contentWidth, 48f * this.density) : null;
-        newGameButton = centered(center, screenH * (hasSavedGame ? .30f : .37f),
+                ? centered(center, screenH * (compact ? .33f : .36f), contentWidth, 48f * this.density) : null;
+        newGameButton = centered(center, screenH * (hasSavedGame ? (compact ? .245f : .29f) : (compact ? .33f : .36f)),
                 contentWidth, 48f * this.density);
         float utilityGap = 8f * this.density;
         float utilityW = (contentWidth - utilityGap) * .5f, utilityH = 40f * this.density;
-        float[] ys = {screenH * .20f, screenH * .12f};
+        float[] ys = compact ? new float[]{screenH * .16f, screenH * .085f}
+                : new float[]{screenH * .20f, screenH * .12f};
         for (int row = 0; row < 2; row++) for (int col = 0; col < 2; col++) {
             float cx = center + (col == 0 ? -1f : 1f) * (utilityW + utilityGap) * .5f;
             utilities[row][col] = centered(cx, ys[row], utilityW, utilityH);
