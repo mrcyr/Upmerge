@@ -135,9 +135,11 @@ public class BoardEngineTest {
         assertEquals(0, engine.cubes().get(0).row);
 
         engine.setDirection(BoardEngine.Direction.DOWN);
+        settle(engine); // Existing cubes must finish moving before another launch.
+        assertEquals(6, engine.cubes().get(0).row);
         assertTrue(engine.launch(2, 4));
         settle(engine);
-        assertEquals(6, engine.cubes().stream()
+        assertEquals(5, engine.cubes().stream()
                 .filter(c -> c.value == 4).findFirst().get().row);
     }
 
