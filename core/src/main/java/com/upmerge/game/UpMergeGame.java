@@ -623,9 +623,10 @@ public final class UpMergeGame extends ApplicationAdapter {
         drawCenteredFit("НАЖМИ НА СТОЛБЕЦ, ЧТОБЫ БРОСИТЬ КУБИК",
                 screenW * 0.5f, footerHeight * 0.62f, screenW * 0.94f,
                 uiScale * MathUtils.clamp(screenW / 330f, 0.55f, 0.78f));
-        drawCenteredFit("ВЕРХНЯЯ ПАНЕЛЬ МЕНЯЕТ НАПРАВЛЕНИЕ",
+        drawCenteredFit("МОНЕТЫ: " + NumberFormatter.compact(economy.coins())
+                        + "  ·  ВЕРХНЯЯ ПАНЕЛЬ МЕНЯЕТ НАПРАВЛЕНИЕ",
                 screenW * 0.5f, footerHeight * 0.28f, screenW * 0.94f,
-                uiScale * MathUtils.clamp(screenW / 330f, 0.55f, 0.78f));
+                uiScale * MathUtils.clamp(screenW / 330f, 0.50f, 0.72f));
         // Center each value in its cube, with a scale that remains readable for large numbers.
         for (BoardEngine.Cube cube : engine.cubes()) {
             String value = NumberFormatter.compact(cube.value);
