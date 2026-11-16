@@ -98,7 +98,13 @@ public class BoardEngineTest {
         assertTrue(engine.launch(0, 2));
         settle(engine);
         assertTrue(engine.isMergePending());
+        assertTrue("The incoming full-lane cube must be identified for its absorb animation",
+                engine.cubes().stream().anyMatch(c -> c.mergePending && c.forcedMergeIncoming));
         finishMerge(engine);
+        BoardEngine.MergeEvent event = engine.consumeMergeEvent();
+        assertNotNull(event);
+        assertEquals(4, event.value);
+        assertEquals(2, event.count);
         assertEquals(7, engine.cubes().size());
         assertTrue(engine.cubes().stream().anyMatch(c -> c.value == 4));
     }
