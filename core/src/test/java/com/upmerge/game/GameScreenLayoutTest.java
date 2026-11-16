@@ -23,7 +23,9 @@ public class GameScreenLayoutTest {
         for (float[] device : new float[][] {{320,568,1}, {384,828,1}, {1080,2400,3}}) {
             GameScreenLayout layout = new GameScreenLayout(device[0], device[1], device[2]);
             assertTrue(layout.toolbarHitHeight < layout.boardBottom);
-            assertEquals(0, layout.toolbarIndex(layout.screenW * .1f, layout.toolbarHitHeight * .5f));
+            assertEquals(-1, layout.toolbarIndex(layout.screenW * .5f, layout.toolbarHitBottom - 1f));
+            assertEquals(0, layout.toolbarIndex(layout.screenW * .1f,
+                    (layout.toolbarHitBottom + layout.toolbarHitHeight) * .5f));
             assertEquals(4, layout.toolbarIndex(layout.screenW * .9f, layout.toolbarHitHeight * .5f));
             assertEquals(-1, layout.toolbarIndex(layout.screenW * .5f, layout.toolbarHitHeight + 1f));
         }
