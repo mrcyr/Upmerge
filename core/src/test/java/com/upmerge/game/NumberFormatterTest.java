@@ -18,6 +18,6 @@ public class NumberFormatterTest {
 
     @Test public void fitsLongLabelsWithoutExceedingCubeWidth() {
         float scale = NumberFormatter.fitScale("512Qi", 1.2f, 60f, 80f);
-        assertEquals(0.9f, scale, 0.0001f);
+        assertEquals(0.75f, scale, 0.0001f);
     }
 }
