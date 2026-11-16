@@ -158,7 +158,8 @@ public final class BoardEngine {
      * it falls into that occupied cell and merges after the normal anticipation.
      */
     public boolean launch(int lane, long value) {
-        if (lane < 0 || lane >= COLUMNS || !isPowerOfTwo(value) || isMergePending()) return false;
+        if (lane < 0 || lane >= COLUMNS || !isPowerOfTwo(value)
+                || isMergePending() || nextId == Long.MAX_VALUE) return false;
         List<Cube> stack = lane(lane);
         for (Cube cube : stack) if (cube.moving) return false;
 
