@@ -39,5 +39,6 @@ Reference: original Android/WebView build 4.11 (`app/src/main/assets/index.html`
 - [x] Show current level goal in the HUD and brief feedback when the goal advances.
 - [x] Replace the default ASCII-only bitmap font with a runtime-generated Android system font atlas covering Russian Cyrillic for HUD and overlays.
 - [x] Add emergency capacity recovery overlay, split-selection mode, and explicit end-run screen with restart.
-- [x] Add separate haptic pulses for each cube starting gravity movement, each landing, and every completed merge.
+- [x] Add separate haptic pulses for each cube starting gravity movement (including a newly launched cube), each landing, and every completed merge.
+- [x] Add engine regression tests for launch, landing, and gravity-repack haptic event counts.
 - [x] Add persistence regression tests for queue + board consistency after interrupted launches.
