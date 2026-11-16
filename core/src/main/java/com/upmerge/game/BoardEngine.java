@@ -58,6 +58,7 @@ public final class BoardEngine {
     private final ArrayList<Cube> cubes = new ArrayList<>();
     private long nextId = 1;
     private Direction direction = Direction.UP;
+    private Direction requestedDirection;
     private float pendingTime;
     private List<Cube> pendingGroup = Collections.emptyList();
     private Cube pendingAnchor;
@@ -66,7 +67,26 @@ public final class BoardEngine {
 
     public List<Cube> cubes() { return Collections.unmodifiableList(cubes); }
     public Direction direction() { return direction; }
-    public void setDirection(Direction value) { direction = Objects.requireNonNull(value); }
+    public void setDirection(Direction value) {
+        requestedDirection = Objects.requireNonNull(value);
+        applyRequestedDirectionIfReady();
+    }
+
+    private boolean hasMovingCubes() {
+        for (Cube cube : cubes) if (cube.moving) return true;
+        return false;
+    }
+
+    private void applyRequestedDirectionIfReady() {
+        if (requestedDirection == null || isMergePending() || hasMovingCubes()) return;
+        Direction next = requestedDirection;
+        requestedDirection = null;
+        if (next == direction) return;
+        direction = next;
+        // Repack every lane toward the newly selected gravity edge. The logical
+        // target rows change now; visualRow animates every cube across the board.
+        compactAllLanes();
+    }
     public int score() { return score; }
     public boolean isMergePending() { return !pendingGroup.isEmpty(); }
     public float mergeElapsedSeconds() { return pendingTime; }
@@ -82,6 +102,8 @@ public final class BoardEngine {
         pendingGroup = Collections.emptyList();
         pendingAnchor = null;
         pendingTime = 0;
+        requestedDirection = null;
+        direction = Direction.UP;
         score = 0;
         lastMerge = null;
         nextId = 1;
@@ -137,6 +159,7 @@ public final class BoardEngine {
 
     public void update(float deltaSeconds) {
         if (deltaSeconds <= 0) return;
+        applyRequestedDirectionIfReady();
         float dt = Math.min(deltaSeconds, 0.05f);
 
         for (Cube cube : new ArrayList<>(cubes)) {
@@ -164,8 +187,10 @@ public final class BoardEngine {
             return;
         }
 
-        // Never resolve a contact while any cube in the board is still moving.
+        // Never resolve a contact or reverse gravity while any cube is still moving.
         for (Cube cube : cubes) if (cube.moving) return;
+        applyRequestedDirectionIfReady();
+        if (hasMovingCubes()) return;
 
         // The most recently landed cube is the merge anchor, as in 4.11.
         ArrayList<Cube> candidates = new ArrayList<>(cubes);
