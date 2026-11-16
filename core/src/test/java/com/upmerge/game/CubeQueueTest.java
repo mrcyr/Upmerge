@@ -49,6 +49,16 @@ public class CubeQueueTest {
         }
     }
 
+    @Test public void restorePreservesBothVisibleQueueSlotsAndRejectsInvalidValues() {
+        CubeQueue queue = new CubeQueue(new Random(123));
+        assertTrue(queue.restore(4096, 8, 64));
+        assertEquals(4096, queue.goalTarget());
+        assertEquals(8, queue.current());
+        assertEquals(64, queue.upcoming());
+        assertFalse(queue.restore(4096, 2, 64));
+        assertFalse(queue.restore(4096, 8, 256));
+    }
+
     private static boolean isAllowed(int value, int goal) {
         for (int candidate : CubeQueue.valuesForGoal(goal)) if (candidate == value) return true;
         return false;
