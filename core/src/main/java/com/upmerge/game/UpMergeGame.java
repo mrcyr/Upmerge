@@ -753,27 +753,6 @@ public final class UpMergeGame extends ApplicationAdapter {
     private void drawShopMenu() {
         drawMenuBackdrop();
         batch.begin();
-        font.setColor(0.35f, 0.82f, 1f, 1f);
-        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 240f, 1.25f, 1.65f));
-        drawCentered("МАГАЗИН", screenW * 0.5f, screenH * 0.79f);
-        font.setColor(1f, 0.82f, 0.38f, 1f);
-        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 330f, 0.95f, 1.2f));
-        drawCentered("МОНЕТЫ: " + NumberFormatter.compact(economy.coins()),
-                screenW * 0.5f, screenH * 0.65f);
-        font.setColor(0.72f, 0.82f, 0.92f, 1f);
-        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 390f, 0.75f, 0.92f));
-        drawCenteredFit("ЗАРЯДЫ ПОМОГУТ СПАСТИ ПОЛЕ, КОГДА НЕ ОСТАНЕТСЯ ХОДОВ.",
-                screenW * 0.5f, screenH * 0.56f, screenW * 0.82f,
-                uiScale * MathUtils.clamp(screenW / 390f, 0.62f, 0.82f));
-        batch.end();
-        drawMenuButton("КУПИТЬ 3 ЗАРЯДА · 35 МОНЕТ",
-                screenH * 0.43f, 0.15f, economy.coins() >= GameEconomy.SPLIT_CHARGE_PACK_PRICE);
-        drawMenuButton("НАЗАД", screenH * 0.20f, 0.11f, false);
-    }
-
-    private void drawShopMenu() {
-        drawMenuBackdrop();
-        batch.begin();
         font.setColor(.35f, .82f, 1f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 240f, 1.2f, 1.55f));
         drawCentered("МАГАЗИН", screenW * .5f, screenH * .84f);
