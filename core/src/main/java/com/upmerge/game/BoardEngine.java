@@ -385,6 +385,29 @@ public final class BoardEngine {
         }
     }
 
+    public int cubesInLane(int lane) {
+        if (lane < 0 || lane >= COLUMNS) return 0;
+        return lane(lane).size();
+    }
+
+    public int entryEdgeValue(int lane) {
+        if (lane < 0 || lane >= COLUMNS) return 0;
+        Cube edge = entryEdge(lane(lane));
+        return edge == null ? 0 : edge.value;
+    }
+
+    /** True if at least one lane can accept this exact queued value right now. */
+    public boolean hasLegalLaunch(int value) {
+        if (!isPowerOfTwo(value) || isMergePending() || hasMovingCubes()) return false;
+        for (int lane = 0; lane < COLUMNS; lane++) {
+            List<Cube> stack = lane(lane);
+            if (firstEmptyRow(stack) >= 0) return true;
+            Cube edge = entryEdge(stack);
+            if (edge != null && edge.value == value) return true;
+        }
+        return false;
+    }
+
     public boolean isFull() {
         for (int lane = 0; lane < COLUMNS; lane++) {
             if (firstEmptyRow(lane(lane)) >= 0) return false;
