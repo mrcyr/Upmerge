@@ -356,6 +356,7 @@ public final class UpMergeGame extends ApplicationAdapter {
             return;
         }
         if (menuVisible) {
+            mainMenuLayout = new MainMenuLayout(screenW, screenH, hasSavedGame);
             if (tasksVisible) {
                 if (y <= screenH * 0.14f) tasksVisible = false;
                 else if (y >= screenH * 0.24f && y <= screenH * 0.33f) claimDailyTask();
