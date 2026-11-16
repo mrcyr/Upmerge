@@ -38,6 +38,7 @@ Reference: original Android/WebView build 4.11 (`app/src/main/assets/index.html`
 - [x] Restore the challenge target and terminal run state; clamp restored timer and split charges to valid ranges.
 - [x] Persist balances for split, move, swap, bomb, and undo tool charges across new runs and app restarts.
 - [x] Add persistent lifetime statistics: games, merges, launches, best combo, largest cube, and the six most recent completed results, with a dedicated statistics screen.
+- [x] Add a rotating daily task (launches, merges, or score), persistent progress, a claimable coin reward, and a dedicated task screen.
 - [ ] Persist remaining per-run fields such as elapsed time and full run snapshot details.
 - [x] Add complete menu flow: New Game / Continue / Settings (including a persistent merge-haptics toggle).
 - [x] Add initial mode selector for Classic / Timed (90 seconds) / Challenge.
