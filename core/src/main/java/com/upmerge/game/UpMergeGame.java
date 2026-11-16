@@ -652,7 +652,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         shapes.setColor(.055f, .085f, .12f, 1f);
         roundedRectInBatch(screenW * .5f - 91f * uiScale, footerHeight - 49f * uiScale, 86f * uiScale, 35f * uiScale, 10f * uiScale);
         shapes.setColor(.055f, .085f, .12f, 1f);
-        roundedRectInBatch(screenW * .5f + 5f * uiScale, footerHeight - 49f * uiScale * uiScale, 86f * uiScale, 35f * uiScale, 10f * uiScale);
+        roundedRectInBatch(screenW * .5f + 5f * uiScale, footerHeight - 49f * uiScale, 86f * uiScale, 35f * uiScale, 10f * uiScale);
         shapes.end();
     }
 
@@ -792,7 +792,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         font.draw(batch, "MERGE", pad + 27f * uiScale, screenH - 27f * uiScale);
         font.setColor(.86f, .93f, 1f, 1f);
         font.getData().setScale(uiScale * .92f);
-        drawCentered("Ⅱ", screenW - pad - 12f, screenH - 27f);
+        drawCentered("Ⅱ", screenW - pad - 12f * uiScale, screenH - 27f * uiScale);
 
         String[] labels = {"СЧЁТ", "РЕКОРД", "КОМБО"};
         String[] values = {NumberFormatter.compact(engine.score()),
@@ -851,7 +851,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         for (BoardEngine.Cube cube : engine.cubes()) {
             String value = NumberFormatter.compact(cube.value);
             float fontPixels = cube.value >= 1000 ? cell * .29f : cube.value >= 100 ? cell * .34f : cell * .42f;
-            float baseScale = uiScale * fontPixels / 24f;
+            float baseScale = fontPixels / 24f;
             font.getData().setScale(baseScale);
             textLayout.setText(font, value);
             float maxLabelWidth = cell * 0.76f;
