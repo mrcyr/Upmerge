@@ -28,6 +28,9 @@ public class GameScreenLayoutTest {
                     (layout.toolbarHitBottom + layout.toolbarHitHeight) * .5f));
             assertEquals(4, layout.toolbarIndex(layout.screenW * .9f, layout.toolbarHitHeight * .5f));
             assertEquals(-1, layout.toolbarIndex(layout.screenW * .5f, layout.toolbarHitHeight + 1f));
+            assertEquals(-1, layout.toolbarIndex(layout.screenW * .5f, 12f * layout.density));
+            assertEquals(-1, layout.toolbarIndex(layout.screenW * .5f,
+                    layout.footerHeight - 30f * layout.density));
         }
     }
 
