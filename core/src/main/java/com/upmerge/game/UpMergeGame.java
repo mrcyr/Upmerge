@@ -44,7 +44,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         }
         for(BoardEngine.Cube cube:engine.cubes()){
             float x=left+cube.lane*cell+cell*.08f,y=bottom+(6-cube.visualRow)*cell+cell*.08f;
-            float hue=(MathUtils.log2(cube.value)*.13f)%1f;
+            float hue=((float)(Math.log(cube.value)/Math.log(2.0))*.13f)%1f;
             shapes.setColor(.18f+.55f*hue,.48f+.25f*(1-hue),.78f-.35f*hue,1f);
             shapes.rect(x,y,cell*.84f,cell*.84f);
         }
