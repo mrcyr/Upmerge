@@ -390,13 +390,18 @@ public class BoardEngineTest {
         BoardEngine engine = new BoardEngine();
         int[] values = {2, 4, 8, 16, 32, 64, 128};
         for (int lane = 0; lane < BoardEngine.COLUMNS; lane++) {
-            for (int value : values) {
-                assertTrue(engine.launch(lane, value));
+            // Rotate the values per lane so equal cubes never touch horizontally
+            // and accidentally merge while the test is filling the whole board.
+            for (int index = 0; index < values.length; index++) {
+                int value = values[(index + lane) % values.length];
+                assertTrue("lane=" + lane + ", index=" + index + ", value=" + value,
+                        engine.launch(lane, value));
                 settle(engine);
             }
         }
+        assertEquals(BoardEngine.COLUMNS * BoardEngine.ROWS, engine.cubes().size());
         assertFalse(engine.hasLegalLaunch(256));
-        assertTrue(engine.hasLegalLaunch(128));
+        assertTrue(engine.hasLegalLaunch(2));
     }
 
     @Test public void clearResetsBoardAndScore() {
