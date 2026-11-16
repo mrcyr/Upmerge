@@ -251,6 +251,26 @@ public class BoardEngineTest {
         }
     }
 
+    @Test public void mergeEventContainsEverySourcePositionAndTheAnchorResult() {
+        BoardEngine engine = new BoardEngine();
+        assertTrue(engine.launch(0, 2));
+        settle(engine);
+        assertTrue(engine.launch(1, 2));
+        settle(engine);
+        assertTrue(engine.isMergePending());
+        finishMerge(engine);
+
+        BoardEngine.MergeEvent event = engine.consumeMergeEvent();
+        assertNotNull(event);
+        assertEquals(4, event.value);
+        assertEquals(2, event.sources.size());
+        assertTrue(event.sources.stream().anyMatch(s -> s.lane == 0 && s.value == 2));
+        assertTrue(event.sources.stream().anyMatch(s -> s.lane == 1 && s.value == 2));
+        assertEquals(1, engine.cubes().size());
+        assertEquals(event.lane, engine.cubes().get(0).lane);
+        assertEquals(event.row, engine.cubes().get(0).row);
+    }
+
     @Test public void clearResetsBoardAndScore() {
         BoardEngine engine = new BoardEngine();
         assertTrue(engine.launch(0, 2));
