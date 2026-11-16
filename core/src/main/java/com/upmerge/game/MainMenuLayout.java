@@ -28,7 +28,6 @@ final class MainMenuLayout {
     final Rect[] menuActions = new Rect[2];
     final Rect continueButton, newGameButton;
     final Rect[][] utilities = new Rect[2][2];
-    final Rect statistics;
 
     MainMenuLayout(float width, float height, boolean hasSavedGame) {
         screenW = Math.max(1f, width);
@@ -58,7 +57,6 @@ final class MainMenuLayout {
             float cx = center + (col == 0 ? -1f : 1f) * screenW * .205f;
             utilities[row][col] = centered(cx, ys[row], utilityW, utilityH);
         }
-        statistics = centered(center, screenH * .075f, screenW * .9f, screenH * .04f);
     }
 
     private static Rect centered(float cx, float cy, float width, float height) {
@@ -78,7 +76,6 @@ final class MainMenuLayout {
                 if (row == 0) return col == 0 ? Target.SHOP : Target.ACHIEVEMENTS;
                 return col == 0 ? Target.STATISTICS : Target.TASKS;
             }
-        if (statistics.contains(x, y)) return Target.STATISTICS;
         return Target.NONE;
     }
 }
