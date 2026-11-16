@@ -42,6 +42,7 @@ Reference: original Android/WebView build 4.11 (`app/src/main/assets/index.html`
 - [x] Add initial mode selector for Classic / Timed (90 seconds) / Challenge.
 - [x] Add timed countdown, visible timer HUD, challenge goal completion, and basic pause / resume / restart / return-to-menu controls.
 - [x] Show current level goal in the HUD and brief feedback when the goal advances.
+- [x] Show a full-screen celebratory level-up announcement with glow, rays, new target value, and explicit continue action.
 - [x] Replace the default ASCII-only bitmap font with a runtime-generated Android system font atlas covering Russian Cyrillic for HUD and overlays.
 - [x] Add emergency capacity recovery overlay, split-selection mode, and explicit end-run screen with restart.
 - [x] Add separate haptic pulses for each cube starting gravity movement (including a newly launched cube), each landing, and every completed merge.
