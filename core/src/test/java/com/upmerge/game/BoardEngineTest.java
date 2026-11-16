@@ -194,6 +194,63 @@ public class BoardEngineTest {
         assertEquals(6, engine.cubes().get(0).row);
     }
 
+    @Test public void automaticCascadeStartsAfterFirstMergeCompletes() {
+        BoardEngine engine = new BoardEngine();
+
+        // A 4 waits beside the cell where two 2s will merge into another 4.
+        assertTrue(engine.launch(2, 4));
+        settle(engine);
+        assertTrue(engine.launch(0, 2));
+        settle(engine);
+        assertTrue(engine.launch(1, 2));
+        settle(engine);
+
+        assertTrue("First pair of 2s should begin merging", engine.isMergePending());
+        finishMerge(engine);
+
+        // The new 4 is now face-adjacent to the pre-existing 4.
+        engine.update(0.05f);
+        assertTrue("Second merge should be discovered after the first transaction",
+                engine.isMergePending());
+        finishMerge(engine);
+
+        assertEquals(1, engine.cubes().size());
+        assertEquals(8, engine.cubes().get(0).value);
+        assertEquals(12, engine.score());
+    }
+
+    @Test public void mergeCompactionMovesRemainingCubesWithoutChangingTheirValues() {
+        BoardEngine engine = new BoardEngine();
+
+        assertTrue(engine.launch(0, 2));
+        settle(engine);
+        assertTrue(engine.launch(0, 4));
+        settle(engine);
+        assertTrue(engine.launch(0, 8));
+        settle(engine);
+
+        // Merge the bottom 2 with a 2 in the adjacent lane.
+        assertTrue(engine.launch(1, 2));
+        settle(engine);
+        assertTrue(engine.isMergePending());
+        finishMerge(engine);
+
+        assertTrue(engine.cubes().stream().anyMatch(c -> c.value == 4));
+        assertTrue(engine.cubes().stream().anyMatch(c -> c.value == 8));
+        assertTrue(engine.cubes().stream().allMatch(c -> c.row >= 0 && c.row < BoardEngine.ROWS));
+        settle(engine);
+        for (int lane = 0; lane < BoardEngine.COLUMNS; lane++) {
+            final int currentLane = lane;
+            java.util.List<BoardEngine.Cube> stack = engine.cubes().stream()
+                    .filter(c -> c.lane == currentLane)
+                    .sorted(java.util.Comparator.comparingInt(c -> c.row))
+                    .collect(java.util.stream.Collectors.toList());
+            for (int i = 0; i < stack.size(); i++) {
+                assertEquals("Packed lane must have no gaps", i, stack.get(i).row);
+            }
+        }
+    }
+
     @Test public void clearResetsBoardAndScore() {
         BoardEngine engine = new BoardEngine();
         assertTrue(engine.launch(0, 2));
