@@ -404,6 +404,38 @@ public class BoardEngineTest {
         assertTrue(engine.hasLegalLaunch(2));
     }
 
+    @Test public void emergencyRemovalFreesOneCellAndCompactsLane() {
+        BoardEngine engine = new BoardEngine();
+        int[] values = {2, 4, 8, 16, 32, 64, 128};
+        for (int value : values) {
+            assertTrue(engine.launch(0, value));
+            settle(engine);
+        }
+        long removeId = engine.cubes().stream()
+                .filter(cube -> cube.value == 32).findFirst().get().id;
+        assertTrue(engine.removeCube(removeId));
+        settle(engine);
+        assertEquals(6, engine.cubesInLane(0));
+        assertTrue(engine.hasLegalLaunch(256));
+        java.util.List<BoardEngine.Cube> stack = engine.cubes().stream()
+                .filter(cube -> cube.lane == 0)
+                .sorted(java.util.Comparator.comparingInt(cube -> cube.row))
+                .collect(java.util.stream.Collectors.toList());
+        for (int i = 0; i < stack.size(); i++) {
+            assertEquals(i, stack.get(i).row);
+        }
+    }
+
+    @Test public void emergencyRemovalRejectsUnknownIdsAndMovingBoard() {
+        BoardEngine engine = new BoardEngine();
+        assertFalse(engine.removeCube(999));
+        assertTrue(engine.launch(0, 2));
+        assertFalse(engine.removeCube(1));
+        settle(engine);
+        assertTrue(engine.removeCube(1));
+        assertEquals(0, engine.cubesInLane(0));
+    }
+
     @Test public void clearResetsBoardAndScore() {
         BoardEngine engine = new BoardEngine();
         assertTrue(engine.launch(0, 2));
