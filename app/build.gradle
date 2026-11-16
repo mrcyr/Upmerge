@@ -35,7 +35,7 @@ tasks.register('copyAndroidNatives', Copy) {
     into layout.projectDirectory.dir('src/main/jniLibs')
     duplicatesStrategy = DuplicatesStrategy.FAIL
     nativeAbis.each { abi, classifier ->
-        from({ configurations.natives.findAll { it.name.contains(classifier) }.collect { zipTree(it) } }) {
+        from({ configurations.natives.findAll { it.name.endsWith("-${classifier}.jar") }.collect { zipTree(it) } }) {
             include '**/*.so'
             eachFile { details -> details.path = "${abi}/${details.name}" }
             includeEmptyDirs = false
