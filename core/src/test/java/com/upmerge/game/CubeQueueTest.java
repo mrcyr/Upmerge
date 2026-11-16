@@ -22,8 +22,8 @@ public class CubeQueueTest {
 
     @Test public void queueAdvancesOnlyWhenSuccessfulLaunchConsumesCurrent() {
         CubeQueue queue = new CubeQueue(new Random(1234));
-        int current = queue.current();
-        int upcoming = queue.upcoming();
+        long current = queue.current();
+        long upcoming = queue.upcoming();
         queue.advance();
         assertEquals(upcoming, queue.current());
         assertTrue(isAllowed(queue.upcoming(), 2048));
