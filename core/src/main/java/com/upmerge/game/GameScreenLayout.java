@@ -5,7 +5,7 @@ final class GameScreenLayout {
     final float screenW, screenH, density;
     final float headerHeight, footerHeight, cell;
     final float boardLeft, boardBottom, boardTop, boardRight;
-    final float toolbarHitHeight;
+    final float toolbarHitBottom, toolbarHitHeight;
 
     GameScreenLayout(float width, float height, float density) {
         screenW = Math.max(1f, width);
@@ -23,7 +23,8 @@ final class GameScreenLayout {
         boardBottom = footerHeight + 10f * this.density
                 + (availableHeight - cell * BoardEngine.ROWS) * .5f;
         boardTop = boardBottom + cell * BoardEngine.ROWS;
-        toolbarHitHeight = 92f * this.density;
+        toolbarHitBottom = 28f * this.density;
+        toolbarHitHeight = 90f * this.density;
     }
 
     boolean boardContains(float x, float y) {
@@ -31,7 +32,7 @@ final class GameScreenLayout {
     }
 
     int toolbarIndex(float x, float y) {
-        if (y < 0f || y > toolbarHitHeight) return -1;
+        if (y < toolbarHitBottom || y > toolbarHitHeight) return -1;
         return Math.max(0, Math.min(4, (int) (x / (screenW / 5f))));
     }
 
