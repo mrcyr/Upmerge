@@ -152,7 +152,9 @@ public final class UpMergeGame extends ApplicationAdapter {
             mergeFlightTargetRow = mergeEvent.row;
             mergeFlightSources.clear();
             mergeFlightSources.addAll(mergeEvent.sources);
+            boolean reachedChallenge = gameMode == GameMode.CHALLENGE && mergeEvent.value >= challengeGoal;
             cubeQueue.onMergedValue(mergeEvent.value);
+            if (reachedChallenge) gameOver = true;
             bestScore = Math.max(bestScore, engine.score());
             preferences.putInteger("bestScore", bestScore);
         preferences.putInteger("splitCharges", splitCharges);
@@ -219,6 +221,11 @@ public final class UpMergeGame extends ApplicationAdapter {
         }
 
         // The direction control is an intentional, large hit target in the header.
+        if (y >= screenH - headerHeight && x >= screenW * 0.78f) {
+            paused = true;
+            saveGame();
+            return;
+        }
         if (y >= screenH - headerHeight) {
             engine.setDirection(engine.direction() == BoardEngine.Direction.UP
                     ? BoardEngine.Direction.DOWN : BoardEngine.Direction.UP);
@@ -455,7 +462,10 @@ public final class UpMergeGame extends ApplicationAdapter {
         font.getData().setScale(uiScale * MathUtils.clamp(cell / 39f, 0.90f, 1.35f));
         font.setColor(0.68f, 0.80f, 0.91f, 1f);
         String direction = engine.direction() == BoardEngine.Direction.UP ? "GRAVITY: UP" : "GRAVITY: DOWN";
-        drawCentered(direction, screenW * 0.5f, screenH - headerHeight + 5f);
+        drawCentered(direction, screenW * 0.43f, screenH - headerHeight + 5f);
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 390f, 0.72f, 0.9f));
+        font.setColor(0.9f, 0.94f, 1f, 1f);
+        drawCentered("Ⅱ", screenW * 0.91f, screenH - headerHeight + 5f);
 
         font.setColor(0.58f, 0.68f, 0.78f, 1f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 330f, 0.90f, 1.10f));
@@ -482,6 +492,50 @@ public final class UpMergeGame extends ApplicationAdapter {
     }
 
 
+
+    private void startMode(GameMode mode) {
+        gameMode = mode;
+        timeLeft = 90f;
+        challengeGoal = cubeQueue.goalTarget();
+        menuVisible = false;
+        paused = false;
+        startNewRun();
+    }
+
+    private void drawModeMenu() {
+        shapes.begin(ShapeRenderer.ShapeType.Filled);
+        shapes.setColor(0f, 0f, 0f, 0.92f);
+        shapes.rect(0, 0, screenW, screenH);
+        shapes.end();
+        batch.begin();
+        font.setColor(0.35f, 0.82f, 1f, 1f);
+        font.getData().setScale(uiScale * 1.8f);
+        drawCentered("UPMERGE", screenW * 0.5f, screenH * 0.78f);
+        font.setColor(1f, 1f, 1f, 1f);
+        font.getData().setScale(uiScale * 1.05f);
+        drawCentered("ВЫБЕРИ РЕЖИМ", screenW * 0.5f, screenH * 0.65f);
+        drawCentered("КЛАССИКА", screenW * 0.5f, screenH * 0.56f);
+        drawCentered("НА ВРЕМЯ · 90 СЕКУНД", screenW * 0.5f, screenH * 0.40f);
+        drawCentered("ВЫЗОВ · ДОСТИГНИ ЦЕЛИ", screenW * 0.5f, screenH * 0.23f);
+        batch.end();
+    }
+
+    private void drawPauseMenu() {
+        shapes.begin(ShapeRenderer.ShapeType.Filled);
+        shapes.setColor(0f, 0f, 0f, 0.86f);
+        shapes.rect(0, 0, screenW, screenH);
+        shapes.end();
+        batch.begin();
+        font.setColor(1f, 1f, 1f, 1f);
+        font.getData().setScale(uiScale * 1.4f);
+        drawCentered("ПАУЗА", screenW * 0.5f, screenH * 0.72f);
+        font.getData().setScale(uiScale);
+        drawCentered("ПРОДОЛЖИТЬ", screenW * 0.5f, screenH * 0.58f);
+        drawCentered("НАЧАТЬ ЗАНОВО", screenW * 0.5f, screenH * 0.42f);
+        drawCentered("В ГЛАВНОЕ МЕНЮ", screenW * 0.5f, screenH * 0.25f);
+        batch.end();
+    }
+
     private void startNewRun() {
         engine.clear();
         engine.setDirection(BoardEngine.Direction.UP);
@@ -490,6 +544,8 @@ public final class UpMergeGame extends ApplicationAdapter {
         emergencyDialog = false;
         splitSelecting = false;
         gameOver = false;
+        paused = false;
+        menuVisible = false;
         mergeFlashTime = 0f;
         mergeFlightTime = 0f;
         mergeFlightSources.clear();
@@ -505,6 +561,8 @@ public final class UpMergeGame extends ApplicationAdapter {
         preferences.putInteger("queueGoal", cubeQueue.goalTarget());
         preferences.putInteger("queueCurrent", cubeQueue.current());
         preferences.putInteger("queueUpcoming", cubeQueue.upcoming());
+        preferences.putString("gameMode", gameMode.name());
+        preferences.putFloat("timeLeft", timeLeft);
         preferences.putInteger("bestScore", bestScore);
         preferences.flush();
     }
@@ -513,6 +571,9 @@ public final class UpMergeGame extends ApplicationAdapter {
         if (preferences == null) return;
         String board = preferences.getString("boardV1", "");
         if (board.isEmpty() || !engine.loadState(board)) return;
+        try { gameMode = GameMode.valueOf(preferences.getString("gameMode", "CLASSIC")); }
+        catch (IllegalArgumentException ignored) { gameMode = GameMode.CLASSIC; }
+        timeLeft = preferences.getFloat("timeLeft", 90f);
         int goal = preferences.getInteger("queueGoal", 2048);
         int current = preferences.getInteger("queueCurrent", 2);
         int upcoming = preferences.getInteger("queueUpcoming", 2);
