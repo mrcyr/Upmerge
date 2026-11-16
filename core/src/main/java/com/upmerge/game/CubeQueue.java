@@ -28,6 +28,19 @@ public final class CubeQueue {
     public int upcoming() { return upcoming; }
     public int goalTarget() { return goalTarget; }
 
+    public boolean restore(int target, int currentValue, int upcomingValue) {
+        if (!isAllowed(target, currentValue) || !isAllowed(target, upcomingValue)) return false;
+        goalTarget = target;
+        current = currentValue;
+        upcoming = upcomingValue;
+        return true;
+    }
+
+    private static boolean isAllowed(int target, int value) {
+        for (int candidate : valuesForGoal(target)) if (candidate == value) return true;
+        return false;
+    }
+
     public void reset(int target) {
         goalTarget = Math.max(BASE_GOAL, target);
         current = roll();
