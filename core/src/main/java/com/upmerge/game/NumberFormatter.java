@@ -3,7 +3,7 @@ package com.upmerge.game;
 /** Compact labels matching the 4.11 power-of-1024 notation. */
 public final class NumberFormatter {
     private static final String[] SUFFIXES = {
-            "", "K", "M", "B", "T", "Q", "Qi", "Sx", "Sp", "Oc", "No", "Dc"
+            "", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "Dc"
     };
     private static final long[] DIVISORS = {
             1L, 1L << 10, 1L << 20, 1L << 30, 1L << 40, 1L << 50, 1L << 60
