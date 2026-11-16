@@ -40,6 +40,26 @@ public class CubeQueueTest {
         assertTrue(isAllowed(queue.upcoming(), 4096));
     }
 
+    @Test public void progressionMatchesSuccessiveOriginalGoalTiers() {
+        CubeQueue queue = new CubeQueue(new Random(44));
+        long[] goals = {2048L, 4096L, 8192L, 16384L, 32768L, 65536L};
+        for (int i = 1; i < goals.length; i++) {
+            assertTrue(queue.onMergedValue(goals[i - 1]));
+            assertEquals(goals[i], queue.goalTarget());
+            assertTrue(isAllowed(queue.current(), goals[i]));
+            assertTrue(isAllowed(queue.upcoming(), goals[i]));
+        }
+    }
+
+    @Test public void resetPreservesRequestedPersistentGoalTier() {
+        CubeQueue queue = new CubeQueue(new Random(12));
+        assertTrue(queue.onMergedValue(2048));
+        queue.reset(queue.goalTarget());
+        assertEquals(4096L, queue.goalTarget());
+        assertTrue(isAllowed(queue.current(), 4096));
+        assertTrue(isAllowed(queue.upcoming(), 4096));
+    }
+
     @Test public void randomDrawsNeverLeaveCurrentLevelRange() {
         CubeQueue queue = new CubeQueue(new Random(99));
         for (int i = 0; i < 500; i++) {
