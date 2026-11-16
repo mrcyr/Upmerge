@@ -125,7 +125,7 @@ public class BoardEngineTest {
 
         assertEquals(1, engine.cubes().size());
         assertEquals(8, engine.cubes().get(0).value);
-        assertEquals(12, engine.score());
+        assertEquals(20, engine.score());
     }
 
     @Test public void changingGravityChangesTheNextLaunchEdge() {
@@ -269,6 +269,46 @@ public class BoardEngineTest {
         assertEquals(1, engine.cubes().size());
         assertEquals(event.lane, engine.cubes().get(0).lane);
         assertEquals(event.row, engine.cubes().get(0).row);
+    }
+
+    @Test public void mergesWithinSeventeenSecondsBuildComboUpToNine() {
+        BoardEngine engine = new BoardEngine();
+        for (int expectedCombo = 1; expectedCombo <= 9; expectedCombo++) {
+            assertTrue(engine.launch(expectedCombo % BoardEngine.COLUMNS, 2));
+            settle(engine);
+            // Build an adjacent pair in the next lane without overlapping the
+            // prior result's lane; the engine's score event reports combo tier.
+            int lane = expectedCombo % BoardEngine.COLUMNS;
+            assertTrue(engine.launch(lane, 2));
+            settle(engine);
+            assertTrue(engine.isMergePending());
+            finishMerge(engine);
+            BoardEngine.MergeEvent event = engine.consumeMergeEvent();
+            assertNotNull(event);
+            assertEquals(expectedCombo, event.combo);
+            assertEquals(event.value * expectedCombo, event.points);
+        }
+        assertEquals(9, engine.combo());
+    }
+
+    @Test public void comboResetsAfterMoreThanSeventeenSecondsWithoutMerge() {
+        BoardEngine engine = new BoardEngine();
+        assertTrue(engine.launch(0, 2));
+        settle(engine);
+        assertTrue(engine.launch(0, 2));
+        settle(engine);
+        finishMerge(engine);
+        assertEquals(1, engine.combo());
+
+        tick(engine, 40); // 2 seconds without a merge
+        assertTrue(engine.launch(1, 2));
+        settle(engine);
+        assertTrue(engine.launch(1, 2));
+        settle(engine);
+        finishMerge(engine);
+        BoardEngine.MergeEvent event = engine.consumeMergeEvent();
+        assertNotNull(event);
+        assertEquals(1, event.combo);
     }
 
     @Test public void clearResetsBoardAndScore() {
