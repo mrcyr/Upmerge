@@ -13,14 +13,17 @@ public class GameEconomyTest {
         assertEquals(6L, economy.coins());
     }
 
-    @Test public void splitPackPurchaseDeductsCoinsOnlyWhenAffordable() {
-        GameEconomy economy = new GameEconomy(34L);
-        assertFalse(economy.buySplitChargePack());
-        assertEquals(34L, economy.coins());
-        economy.setCoins(35L);
-        assertTrue(economy.buySplitChargePack());
+    @Test public void eachToolHasItsOwnPackPriceAndFailedPurchaseIsAtomic() {
+        GameEconomy economy = new GameEconomy(54L);
+        assertFalse(economy.buyPack(GameEconomy.Tool.BOMB));
+        assertEquals(54L, economy.coins());
+        assertTrue(economy.buyPack(GameEconomy.Tool.SPLIT));
+        assertEquals(19L, economy.coins());
+        assertFalse(economy.buyPack(GameEconomy.Tool.MOVE));
+        economy.setCoins(55L);
+        assertTrue(economy.buyPack(GameEconomy.Tool.BOMB));
         assertEquals(0L, economy.coins());
-        assertFalse(economy.buySplitChargePack());
+        assertFalse(economy.buyPack(GameEconomy.Tool.BOMB));
     }
 
     @Test public void rewardsSaturateInsteadOfOverflowing() {
