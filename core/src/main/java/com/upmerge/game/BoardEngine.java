@@ -374,6 +374,7 @@ public final class BoardEngine {
 
             ArrayList<Cube> restored = new ArrayList<>();
             Set<String> occupied = new HashSet<>();
+            Set<Long> restoredIds = new HashSet<>();
             int[] laneCounts = new int[COLUMNS];
             long maxId = 0;
             for (int i = 0; i < count; i++) {
@@ -384,7 +385,8 @@ public final class BoardEngine {
                 int row = Integer.parseInt(fields[2]);
                 long value = Long.parseLong(fields[3]);
                 String cell = lane + ":" + row;
-                if (id < 1 || lane < 0 || lane >= COLUMNS || row < 0 || row >= ROWS
+                if (id < 1 || !restoredIds.add(id)
+                        || lane < 0 || lane >= COLUMNS || row < 0 || row >= ROWS
                         || !isPowerOfTwo(value) || !occupied.add(cell)) return false;
                 Cube cube = new Cube(id, lane, row, value, row);
                 cube.moving = false;
