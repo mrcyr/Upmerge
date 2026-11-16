@@ -995,7 +995,11 @@ public final class UpMergeGame extends ApplicationAdapter {
         cubeQueue.reset(savedGoal);
         challengeGoal = cubeQueue.goalTarget();
         timeLeft = 90f;
-        splitCharges = 2;
+        runMerges = 0;
+        runMaxCombo = 1;
+        runMaxBlock = 2L;
+        undoBoardState = null;
+        activeTool = Tool.NONE;
         emergencyDialog = false;
         splitSelecting = false;
         gameOver = false;
@@ -1006,8 +1010,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         mergeFlashTime = 0f;
         mergeFlightTime = 0f;
         mergeFlightSources.clear();
-        preferences.putInteger("splitCharges", splitCharges);
-        preferences.putLong("coins", economy.coins());
+        persistToolBalances();
         saveGame();
     }
 
@@ -1024,6 +1027,11 @@ public final class UpMergeGame extends ApplicationAdapter {
         preferences.putBoolean("gameOver", gameOver);
         preferences.putLong("bestScore", bestScore);
         preferences.putLong("coins", economy.coins());
+        preferences.putInteger("splitCharges", splitCharges);
+        preferences.putInteger("moveCharges", moveCharges);
+        preferences.putInteger("swapCharges", swapCharges);
+        preferences.putInteger("bombCharges", bombCharges);
+        preferences.putInteger("undoCharges", undoCharges);
         preferences.flush();
     }
 
@@ -1038,7 +1046,11 @@ public final class UpMergeGame extends ApplicationAdapter {
         long goal = preferences.getLong("queueGoal", 2048L);
         long current = preferences.getLong("queueCurrent", 2L);
         long upcoming = preferences.getLong("queueUpcoming", 2L);
-        splitCharges = MathUtils.clamp(preferences.getInteger("splitCharges", 2), 0, 2);
+        splitCharges = Math.max(0, preferences.getInteger("splitCharges", 2));
+        moveCharges = Math.max(0, preferences.getInteger("moveCharges", 2));
+        swapCharges = Math.max(0, preferences.getInteger("swapCharges", 2));
+        bombCharges = Math.max(0, preferences.getInteger("bombCharges", 1));
+        undoCharges = Math.max(0, preferences.getInteger("undoCharges", 0));
         if (!cubeQueue.restore(goal, current, upcoming)) {
             engine.clear();
             preferences.remove("boardV1");
