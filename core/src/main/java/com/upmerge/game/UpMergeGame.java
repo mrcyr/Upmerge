@@ -966,7 +966,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         font.setColor(.58f, .69f, .82f, 1f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 450f, .60f, .76f));
         drawCenteredFit("ЦЕЛЬ РАСТЁТ ВДВОЕ ПОСЛЕ КАЖДОГО ДОСТИЖЕНИЯ · K / M / B / T",
-                center, screenH * .075f, mainMenuLayout.contentWidth * .92f, uiScale * (11f / 24f));
+                center, screenH * (screenH / uiScale < 680f ? .035f : .075f), mainMenuLayout.contentWidth * .92f, uiScale * (11f / 24f));
         batch.end();
     }
 
@@ -1409,7 +1409,8 @@ public final class UpMergeGame extends ApplicationAdapter {
         shapes.rect(0, screenH * .72f, screenW, screenH * .28f);
         shapes.end();
         float panelWidth = Math.min(390f * uiScale, screenW - 44f * uiScale);
-        float panelHeight = Math.min(screenH - 44f * uiScale, screenH * .89f);
+        boolean compact = screenH / uiScale < 680f;
+        float panelHeight = Math.min(screenH - 24f * uiScale, screenH * (compact ? .97f : .89f));
         float panelX = (screenW - panelWidth) * .5f;
         float panelY = (screenH - panelHeight) * .5f;
         drawRoundedFill(panelX, panelY, panelWidth, panelHeight,
