@@ -370,6 +370,35 @@ public class BoardEngineTest {
         assertEquals(before, engine.cubes().size());
     }
 
+    @Test public void sevenCubeLaneRejectsDifferentValueButAcceptsMatchingEdgeValue() {
+        BoardEngine engine = new BoardEngine();
+        int[] values = {2, 4, 8, 16, 32, 64, 128};
+        for (int value : values) {
+            assertTrue(engine.launch(0, value));
+            settle(engine);
+        }
+        assertEquals(7, engine.cubesInLane(0));
+        assertEquals(128, engine.entryEdgeValue(0));
+        assertFalse(engine.launch(0, 256));
+        assertTrue(engine.hasLegalLaunch(128));
+        assertTrue(engine.launch(0, 128));
+        settle(engine);
+        assertTrue(engine.isMergePending());
+    }
+
+    @Test public void boardCapacityDependsOnCurrentQueuedValue() {
+        BoardEngine engine = new BoardEngine();
+        int[] values = {2, 4, 8, 16, 32, 64, 128};
+        for (int lane = 0; lane < BoardEngine.COLUMNS; lane++) {
+            for (int value : values) {
+                assertTrue(engine.launch(lane, value));
+                settle(engine);
+            }
+        }
+        assertFalse(engine.hasLegalLaunch(256));
+        assertTrue(engine.hasLegalLaunch(128));
+    }
+
     @Test public void clearResetsBoardAndScore() {
         BoardEngine engine = new BoardEngine();
         assertTrue(engine.launch(0, 2));
