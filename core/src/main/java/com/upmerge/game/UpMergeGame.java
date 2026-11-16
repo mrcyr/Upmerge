@@ -25,9 +25,15 @@ public final class UpMergeGame extends ApplicationAdapter {
     private com.badlogic.gdx.Preferences preferences;
     private float saveTimer;
     private long bestScore;
-    private int splitCharges = 2;
+    private int splitCharges = 2, moveCharges = 2, swapCharges = 2, bombCharges = 1, undoCharges;
     private GameEconomy economy;
     private boolean shopVisible;
+    private Tool activeTool = Tool.NONE;
+    private long selectedToolCubeId = -1L;
+    private String undoBoardState;
+    private long undoQueueGoal, undoQueueCurrent, undoQueueUpcoming;
+    private float undoTimeLeft;
+    private enum Tool { NONE, SPLIT, MOVE, SWAP, BOMB }
     private boolean emergencyDialog;
     private boolean splitSelecting;
     private boolean gameOver;
@@ -72,6 +78,10 @@ public final class UpMergeGame extends ApplicationAdapter {
         preferences = Gdx.app.getPreferences("UpMergeNative");
         bestScore = preferences.getLong("bestScore", 0L);
         splitCharges = preferences.getInteger("splitCharges", 2);
+        moveCharges = preferences.getInteger("moveCharges", 2);
+        swapCharges = preferences.getInteger("swapCharges", 2);
+        bombCharges = preferences.getInteger("bombCharges", 1);
+        undoCharges = preferences.getInteger("undoCharges", 0);
         economy = new GameEconomy(preferences.getLong("coins", 0L));
         hapticsEnabled = preferences.getBoolean("hapticsEnabled", true);
         restoreGame();
@@ -126,7 +136,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         batch.setProjectionMatrix(camera.combined);
 
         headerHeight = Math.max(82f, screenH * 0.145f);
-        footerHeight = Math.max(54f, screenH * 0.095f);
+        footerHeight = Math.max(104f, screenH * 0.155f);
         float sideMargin = Math.max(10f, screenW * 0.035f);
         float availableHeight = Math.max(7f, screenH - headerHeight - footerHeight - 20f);
         cell = Math.max(1f, Math.min((screenW - sideMargin * 2f) / BoardEngine.COLUMNS,
@@ -289,14 +299,9 @@ public final class UpMergeGame extends ApplicationAdapter {
 
         if (menuVisible) {
             if (shopVisible) {
-                if (y > screenH * 0.36f && y <= screenH * 0.56f) {
-                    if (economy.buySplitChargePack()) {
-                        splitCharges += GameEconomy.SPLIT_CHARGE_PACK_SIZE;
-                        preferences.putLong("coins", economy.coins());
-                        preferences.putInteger("splitCharges", splitCharges);
-                        preferences.flush();
-                    }
-                } else if (y <= screenH * 0.30f) shopVisible = false;
+                int item = shopItemAt(x, y);
+                if (item >= 0) buyToolPack(item);
+                else if (y <= screenH * 0.30f) shopVisible = false;
                 return;
             }
             if (settingsVisible) {
@@ -360,6 +365,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         }
 
         // The direction control is an intentional, large hit target in the header.
+        if (y <= footerHeight) { handleToolBarInput(x, y); return; }
         if (y >= screenH - headerHeight && x >= screenW * 0.78f) {
             paused = true;
             saveGame();
@@ -372,10 +378,9 @@ public final class UpMergeGame extends ApplicationAdapter {
         }
 
         if (y >= boardBottom && y <= boardTop) {
+            if (activeTool != Tool.NONE) { handleToolBoardInput(x, y); return; }
             int lane = MathUtils.clamp((int) ((x - boardLeft) / cell), 0, BoardEngine.COLUMNS - 1);
-            if (engine.launch(lane, cubeQueue.current())) {
-                cubeQueue.advance();
-            }
+            if (engine.launch(lane, cubeQueue.current())) { captureUndoSnapshot(); cubeQueue.advance(); }
         }
     }
 
@@ -623,10 +628,27 @@ public final class UpMergeGame extends ApplicationAdapter {
         drawCenteredFit("НАЖМИ НА СТОЛБЕЦ, ЧТОБЫ БРОСИТЬ КУБИК",
                 screenW * 0.5f, footerHeight * 0.62f, screenW * 0.94f,
                 uiScale * MathUtils.clamp(screenW / 330f, 0.55f, 0.78f));
-        drawCenteredFit("МОНЕТЫ: " + NumberFormatter.compact(economy.coins())
-                        + "  ·  ВЕРХНЯЯ ПАНЕЛЬ МЕНЯЕТ НАПРАВЛЕНИЕ",
-                screenW * 0.5f, footerHeight * 0.28f, screenW * 0.94f,
-                uiScale * MathUtils.clamp(screenW / 330f, 0.50f, 0.72f));
+        String[] labels = {"РАЗБИТЬ " + splitCharges, "ПЕРЕНЕСТИ " + moveCharges,
+                "ОБМЕН " + swapCharges, "БОМБА " + bombCharges, "ОТМЕНА " + undoCharges};
+        String[] icons = {"✂", "↗", "⇄", "✹", "↶"};
+        float toolW = screenW / 5f;
+        shapes.end();
+        shapes.begin(ShapeRenderer.ShapeType.Filled);
+        for (int i = 0; i < 5; i++) {
+            boolean selected = (i == 0 && activeTool == Tool.SPLIT)
+                    || (i == 1 && activeTool == Tool.MOVE)
+                    || (i == 2 && activeTool == Tool.SWAP)
+                    || (i == 3 && activeTool == Tool.BOMB);
+            shapes.setColor(selected ? .12f : .075f, selected ? .38f : .12f, selected ? .48f : .17f, 1f);
+            shapes.rect(i * toolW + 2f, 8f, toolW - 4f, footerHeight * .56f);
+        }
+        shapes.end();
+        batch.begin();
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 440f, .55f, .72f));
+        font.setColor(.88f, .94f, 1f, 1f);
+        for (int i = 0; i < 5; i++) drawCentered(icons[i] + " " + labels[i],
+                (i + .5f) * toolW, footerHeight * .39f);
+        batch.end();
         // Center each value in its cube, with a scale that remains readable for large numbers.
         for (BoardEngine.Cube cube : engine.cubes()) {
             String value = NumberFormatter.compact(cube.value);
@@ -749,6 +771,103 @@ public final class UpMergeGame extends ApplicationAdapter {
         drawMenuButton("КУПИТЬ 3 ЗАРЯДА · 35 МОНЕТ",
                 screenH * 0.43f, 0.15f, economy.coins() >= GameEconomy.SPLIT_CHARGE_PACK_PRICE);
         drawMenuButton("НАЗАД", screenH * 0.20f, 0.11f, false);
+    }
+
+    private void drawShopMenu() {
+        drawMenuBackdrop();
+        batch.begin();
+        font.setColor(.35f, .82f, 1f);
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 240f, 1.2f, 1.55f));
+        drawCentered("МАГАЗИН", screenW * .5f, screenH * .84f);
+        font.setColor(1f, .82f, .38f);
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 330f, .9f, 1.1f));
+        drawCentered("МОНЕТЫ: " + NumberFormatter.compact(economy.coins()), screenW * .5f, screenH * .75f);
+        font.setColor(.72f, .82f, .92f);
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 390f, .68f, .84f));
+        drawCentered("ПОКУПАЙ ЗАРЯДЫ ДЛЯ ИНСТРУМЕНТОВ", screenW * .5f, screenH * .68f);
+        batch.end();
+        String[] names = {"РАЗБИТЬ", "ПЕРЕМЕСТИТЬ", "ПОМЕНЯТЬ МЕСТАМИ", "БОМБА", "ОТМЕНА"};
+        GameEconomy.Tool[] tools = GameEconomy.Tool.values();
+        float top = screenH * .61f, gap = screenH * .105f;
+        for (int i = 0; i < names.length; i++) {
+            drawMenuButton(names[i] + " · " + toolCharges(i) + "  |  +3 · "
+                    + tools[i].packPrice + " МОНЕТ", top - i * gap, .082f,
+                    economy.coins() >= tools[i].packPrice);
+        }
+        drawMenuButton("НАЗАД", screenH * .045f, .075f, false);
+    }
+
+    private int shopItemAt(float x, float y) {
+        float top = screenH * .61f, gap = screenH * .105f;
+        for (int i = 0; i < 5; i++) if (Math.abs(y - (top - i * gap)) <= screenH * .041f) return i;
+        return -1;
+    }
+    private int toolCharges(int i) {
+        switch (i) { case 0: return splitCharges; case 1: return moveCharges;
+            case 2: return swapCharges; case 3: return bombCharges; default: return undoCharges; }
+    }
+    private void buyToolPack(int i) {
+        GameEconomy.Tool[] tools = GameEconomy.Tool.values();
+        if (i < 0 || i >= tools.length || !economy.buyPack(tools[i])) return;
+        switch (i) { case 0: splitCharges += 3; break; case 1: moveCharges += 3; break;
+            case 2: swapCharges += 3; break; case 3: bombCharges += 3; break; default: undoCharges += 3; }
+        persistToolBalances();
+    }
+    private void persistToolBalances() {
+        preferences.putLong("coins", economy.coins());
+        preferences.putInteger("splitCharges", splitCharges);
+        preferences.putInteger("moveCharges", moveCharges);
+        preferences.putInteger("swapCharges", swapCharges);
+        preferences.putInteger("bombCharges", bombCharges);
+        preferences.putInteger("undoCharges", undoCharges);
+        preferences.flush();
+    }
+    private void captureUndoSnapshot() {
+        String state = engine.saveState();
+        if (state == null) return;
+        undoBoardState = state; undoQueueGoal = cubeQueue.goalTarget();
+        undoQueueCurrent = cubeQueue.current(); undoQueueUpcoming = cubeQueue.upcoming();
+        undoTimeLeft = timeLeft;
+    }
+    private void handleToolBarInput(float x, float y) {
+        int i = MathUtils.clamp((int) (x / (screenW / 5f)), 0, 4);
+        if (i == 4) {
+            if (undoCharges > 0 && undoBoardState != null
+                    && engine.loadState(undoBoardState)
+                    && cubeQueue.restore(undoQueueGoal, undoQueueCurrent, undoQueueUpcoming)) {
+                undoCharges--; timeLeft = undoTimeLeft; undoBoardState = null; persistToolBalances();
+            }
+            return;
+        }
+        if (toolCharges(i) <= 0) return;
+        activeTool = new Tool[]{Tool.SPLIT, Tool.MOVE, Tool.SWAP, Tool.BOMB}[i];
+        selectedToolCubeId = -1L;
+    }
+    private void handleToolBoardInput(float x, float y) {
+        BoardEngine.Cube cube = cubeAt(x, y);
+        if (activeTool == Tool.SPLIT || activeTool == Tool.BOMB) {
+            if (cube == null) return;
+            boolean success = activeTool == Tool.SPLIT
+                    ? engine.removeCube(cube.id) : engine.bombAt(cube.id) > 0;
+            if (success) {
+                if (activeTool == Tool.SPLIT) splitCharges--; else bombCharges--;
+                activeTool = Tool.NONE; persistToolBalances(); saveGame();
+            }
+        } else if (activeTool == Tool.SWAP) {
+            if (cube == null) return;
+            if (selectedToolCubeId < 0L) selectedToolCubeId = cube.id;
+            else if (engine.swapCubes(selectedToolCubeId, cube.id)) {
+                swapCharges--; activeTool = Tool.NONE; selectedToolCubeId = -1L; persistToolBalances();
+            }
+        } else if (activeTool == Tool.MOVE) {
+            if (selectedToolCubeId < 0L) { if (cube != null) selectedToolCubeId = cube.id; return; }
+            if (cube != null) return;
+            int lane = MathUtils.clamp((int) ((x - boardLeft) / cell), 0, BoardEngine.COLUMNS - 1);
+            int row = MathUtils.clamp(BoardEngine.ROWS - 1 - (int) ((y - boardBottom) / cell), 0, BoardEngine.ROWS - 1);
+            if (engine.moveCube(selectedToolCubeId, lane, row)) {
+                moveCharges--; activeTool = Tool.NONE; selectedToolCubeId = -1L; persistToolBalances();
+            }
+        }
     }
 
     private void drawSettingsMenu() {
