@@ -787,7 +787,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         // Brand row, matching the reference's compact header.
         font.setColor(.42f, .86f, 1f, 1f);
         font.getData().setScale(uiScale * (19f / 24f));
-        font.draw(batch, "UP", pad, screenH - 27f);
+        font.draw(batch, "UP", pad, screenH - 27f * uiScale);
         font.setColor(.91f, .96f, 1f, 1f);
         font.draw(batch, "MERGE", pad + 27f * uiScale, screenH - 27f);
         font.setColor(.86f, .93f, 1f, 1f);
@@ -801,36 +801,36 @@ public final class UpMergeGame extends ApplicationAdapter {
             float x = pad + i * (statW + gap);
             font.setColor(.58f, .70f, .82f, 1f);
             font.getData().setScale(uiScale * (10f / 24f));
-            font.draw(batch, labels[i], x + 8f, statY + statH - 10f * uiScale);
+            font.draw(batch, labels[i], x + 8f * uiScale, statY + statH - 10f * uiScale);
             font.setColor(.96f, .98f, 1f, 1f);
             font.getData().setScale(uiScale * (22f / 24f));
-            font.draw(batch, values[i], x + 8f, statY + 25f * uiScale);
+            font.draw(batch, values[i], x + 8f * uiScale, statY + 25f * uiScale);
         }
 
         float pillY = screenH - 165f * uiScale, pillW = (screenW - pad * 2f - gap) * .5f;
         font.setColor(.58f, .70f, .82f, 1f);
         font.getData().setScale(uiScale * (10f / 24f));
-        font.draw(batch, "МОНЕТЫ", pad + 8f, pillY + 25f * uiScale);
+        font.draw(batch, "МОНЕТЫ", pad + 8f * uiScale, pillY + 25f * uiScale);
         font.setColor(.94f, .97f, 1f, 1f);
         font.getData().setScale(uiScale * (16f / 24f));
-        font.draw(batch, NumberFormatter.compact(economy.coins()), pad + pillW - 42f, pillY + 13f * uiScale);
+        font.draw(batch, NumberFormatter.compact(economy.coins()), pad + pillW - 42f * uiScale, pillY + 13f * uiScale);
         font.setColor(.58f, .70f, .82f, 1f);
         font.getData().setScale(uiScale * .58f);
-        font.draw(batch, "УРОВЕНЬ", pad + pillW + gap + 8f, pillY + 25f * uiScale);
+        font.draw(batch, "УРОВЕНЬ", pad + pillW + gap + 8f * uiScale, pillY + 25f * uiScale);
         font.setColor(.45f, .82f, 1f, 1f);
         font.getData().setScale(uiScale * .80f);
         font.draw(batch, NumberFormatter.compact(cubeQueue.goalTarget()),
-                pad + pillW + gap + pillW - 52f, pillY + 13f * uiScale);
+                pad + pillW + gap + pillW - 52f * uiScale, pillY + 13f * uiScale);
 
         // Queue preview, instruction, then the five equal-width power cells.
         float queueY = footerHeight - 25f * uiScale;
         font.setColor(.62f, .72f, .84f, 1f);
         font.getData().setScale(uiScale * .48f);
-        drawCentered("СЕЙЧАС", screenW * .5f - 62f, queueY + 6f);
+        drawCentered("СЕЙЧАС", screenW * .5f - 62f, queueY + 6f * uiScale);
         drawCentered("СЛЕДУЮЩИЙ", screenW * .5f + 48f, queueY + 6f);
         font.setColor(.42f, .86f, 1f, 1f);
         font.getData().setScale(uiScale * .95f);
-        drawCentered(NumberFormatter.compact(cubeQueue.current()), screenW * .5f - 20f, queueY - 12f);
+        drawCentered(NumberFormatter.compact(cubeQueue.current()), screenW * .5f - 20f, queueY - 12f * uiScale);
         drawCentered(NumberFormatter.compact(cubeQueue.upcoming()), screenW * .5f + 91f, queueY - 12f);
 
         font.setColor(.58f, .68f, .78f, 1f);
@@ -1439,7 +1439,16 @@ public final class UpMergeGame extends ApplicationAdapter {
                 shapes.setColor(red, green, blue, 1f);
                 float stripX = left + width * i / strips;
                 float stripW = width / strips + 1f;
-                shapes.rect(stripX, bottom, stripW, height);
+                float stripCenter = stripX + stripW * .5f;
+                float inset = 0f;
+                if (stripCenter < left + radius) {
+                    float dx = radius - (stripCenter - left);
+                    inset = radius - (float) Math.sqrt(Math.max(0f, radius * radius - dx * dx));
+                } else if (stripCenter > left + width - radius) {
+                    float dx = radius - (left + width - stripCenter);
+                    inset = radius - (float) Math.sqrt(Math.max(0f, radius * radius - dx * dx));
+                }
+                shapes.rect(stripX, bottom + inset, stripW, height - inset * 2f);
                 shapes.end();
             }
             // Rounded outer silhouette over the strip gradient.
