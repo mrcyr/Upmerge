@@ -35,16 +35,18 @@ public class MainMenuLayoutTest {
                 layout.hit(layout.directions[1].centerX(), layout.directions[1].centerY()));
         assertEquals(MainMenuLayout.Target.NEW_GAME,
                 layout.hit(layout.newGameButton.centerX(), layout.newGameButton.centerY()));
-        assertEquals(MainMenuLayout.Target.SETTINGS,
-                layout.hit(layout.utilities[0][0].centerX(), layout.utilities[0][0].centerY()));
+        assertEquals(MainMenuLayout.Target.THEMES,
+                layout.hit(layout.menuActions[0].centerX(), layout.menuActions[0].centerY()));
+        assertEquals(MainMenuLayout.Target.DAILY,
+                layout.hit(layout.menuActions[1].centerX(), layout.menuActions[1].centerY()));
         assertEquals(MainMenuLayout.Target.SHOP,
-                layout.hit(layout.utilities[0][1].centerX(), layout.utilities[0][1].centerY()));
-        assertEquals(MainMenuLayout.Target.TASKS,
-                layout.hit(layout.utilities[1][0].centerX(), layout.utilities[1][0].centerY()));
+                layout.hit(layout.utilities[0][0].centerX(), layout.utilities[0][0].centerY()));
         assertEquals(MainMenuLayout.Target.ACHIEVEMENTS,
-                layout.hit(layout.utilities[1][1].centerX(), layout.utilities[1][1].centerY()));
+                layout.hit(layout.utilities[0][1].centerX(), layout.utilities[0][1].centerY()));
         assertEquals(MainMenuLayout.Target.STATISTICS,
-                layout.hit(layout.statistics.centerX(), layout.statistics.centerY()));
+                layout.hit(layout.utilities[1][0].centerX(), layout.utilities[1][0].centerY()));
+        assertEquals(MainMenuLayout.Target.TASKS,
+                layout.hit(layout.utilities[1][1].centerX(), layout.utilities[1][1].centerY()));
     }
 
     @Test public void continueButtonExistsOnlyWhenThereIsASavedRun() {
@@ -67,7 +69,7 @@ public class MainMenuLayoutTest {
             assertInside(layout.newGameButton, size[0], size[1]);
             for (MainMenuLayout.Rect[] row : layout.utilities)
                 for (MainMenuLayout.Rect rect : row) assertInside(rect, size[0], size[1]);
-            assertInside(layout.statistics, size[0], size[1]);
+            for (MainMenuLayout.Rect rect : layout.menuActions) assertInside(rect, size[0], size[1]);
         }
     }
 
@@ -77,8 +79,7 @@ public class MainMenuLayoutTest {
         assertFalse(layout.utilities[0][1].overlaps(layout.utilities[1][1]));
         assertFalse(layout.newGameButton.overlaps(layout.utilities[0][0]));
         assertFalse(layout.newGameButton.overlaps(layout.utilities[0][1]));
-        assertFalse(layout.utilities[1][0].overlaps(layout.statistics));
-        assertFalse(layout.utilities[1][1].overlaps(layout.statistics));
+        assertFalse(layout.menuActions[0].overlaps(layout.menuActions[1]));
     }
 
     private static void assertInside(MainMenuLayout.Rect rect, float width, float height) {
