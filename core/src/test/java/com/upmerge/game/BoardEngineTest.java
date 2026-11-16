@@ -395,6 +395,20 @@ public class BoardEngineTest {
         assertEquals(before, engine.cubes().size());
     }
 
+    @Test public void snapshotRejectsDuplicateCubeIdsWithoutMutation() {
+        BoardEngine engine = new BoardEngine();
+        assertTrue(engine.launch(1, 16));
+        settle(engine);
+        String original = engine.saveState();
+
+        assertFalse(engine.loadState("UPM1|0|UP|1|0|3|2|7,0,0,2|7,1,0,4"));
+
+        assertEquals(original, engine.saveState());
+        long cubeId = engine.cubes().get(0).id;
+        assertTrue(engine.removeCube(cubeId));
+        assertEquals(0, engine.cubes().size());
+    }
+
     @Test public void snapshotRejectsGapsAgainstActiveGravityEdgeWithoutMutation() {
         BoardEngine engine = new BoardEngine();
         assertTrue(engine.launch(2, 8));
