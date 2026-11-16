@@ -30,6 +30,8 @@ public final class UpMergeGame extends ApplicationAdapter {
     private boolean splitSelecting;
     private boolean gameOver;
     private boolean menuVisible = true;
+    private boolean modeSelectionVisible;
+    private boolean hasSavedGame;
     private boolean paused;
     private GameMode gameMode = GameMode.CLASSIC;
     private float timeLeft = 90f;
@@ -174,8 +176,10 @@ public final class UpMergeGame extends ApplicationAdapter {
         drawMergeFlights();
         drawText();
         drawOverlays();
-        if (menuVisible) drawModeMenu();
-        else if (paused) drawPauseMenu();
+        if (menuVisible) {
+            if (modeSelectionVisible) drawModeMenu();
+            else drawMainMenu();
+        } else if (paused) drawPauseMenu();
     }
 
     private void handleInput() {
@@ -184,9 +188,18 @@ public final class UpMergeGame extends ApplicationAdapter {
         float y = screenH - Gdx.input.getY();
 
         if (menuVisible) {
-            if (y > screenH * 0.52f && y < screenH * 0.72f) startMode(GameMode.CLASSIC, true);
-            else if (y > screenH * 0.34f && y <= screenH * 0.52f) startMode(GameMode.TIMED, true);
-            else if (y > screenH * 0.16f && y <= screenH * 0.34f) startMode(GameMode.CHALLENGE, true);
+            if (!modeSelectionVisible) {
+                if (hasSavedGame && y > screenH * 0.48f && y <= screenH * 0.61f) {
+                    menuVisible = false;
+                    return;
+                }
+                if (y > screenH * 0.32f && y <= screenH * 0.47f) modeSelectionVisible = true;
+            } else {
+                if (y > screenH * 0.51f && y <= screenH * 0.68f) startMode(GameMode.CLASSIC, true);
+                else if (y > screenH * 0.34f && y <= screenH * 0.51f) startMode(GameMode.TIMED, true);
+                else if (y > screenH * 0.17f && y <= screenH * 0.34f) startMode(GameMode.CHALLENGE, true);
+                else if (y <= screenH * 0.16f) modeSelectionVisible = false;
+            }
             return;
         }
         if (paused) {
@@ -450,8 +463,8 @@ public final class UpMergeGame extends ApplicationAdapter {
 
         font.getData().setScale(labelScale);
         font.setColor(0.58f, 0.70f, 0.82f, 1f);
-        font.draw(batch, "SCORE", pad + 10f, cardY + cardH - 12f);
-        font.draw(batch, "DROP", pad + cardW + cardGap + 10f, cardY + cardH - 12f);
+        font.draw(batch, "СЧЁТ", pad + 10f, cardY + cardH - 12f);
+        font.draw(batch, "КУБИК", pad + cardW + cardGap + 10f, cardY + cardH - 12f);
 
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 245f, 1.25f, 1.75f));
         font.setColor(0.96f, 0.98f, 1f, 1f);
@@ -466,14 +479,15 @@ public final class UpMergeGame extends ApplicationAdapter {
                 cardY + cardH * 0.48f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 390f, 0.78f, 0.95f));
         font.setColor(0.58f, 0.70f, 0.82f, 1f);
-        font.draw(batch, "NEXT: " + NumberFormatter.compact(cubeQueue.upcoming()), pad + cardW + cardGap + 10f,
+        font.draw(batch, "СЛЕДУЮЩИЙ: " + NumberFormatter.compact(cubeQueue.upcoming()), pad + cardW + cardGap + 10f,
                 cardY + 12f);
 
         font.getData().setScale(uiScale * MathUtils.clamp(cell / 39f, 0.90f, 1.35f));
         font.setColor(0.68f, 0.80f, 0.91f, 1f);
-        String direction = engine.direction() == BoardEngine.Direction.UP ? "GRAVITY: UP" : "GRAVITY: DOWN";
+        String direction = engine.direction() == BoardEngine.Direction.UP
+                ? "ГРАВИТАЦИЯ: ВВЕРХ" : "ГРАВИТАЦИЯ: ВНИЗ";
         if (gameMode == GameMode.TIMED) {
-            direction += " · " + Math.max(0, (int) Math.ceil(timeLeft)) + "s";
+            direction += " · " + Math.max(0, (int) Math.ceil(timeLeft)) + " СЕК.";
         }
         drawCentered(direction, screenW * 0.43f, screenH - headerHeight + 5f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 390f, 0.72f, 0.9f));
@@ -482,8 +496,9 @@ public final class UpMergeGame extends ApplicationAdapter {
 
         font.setColor(0.58f, 0.68f, 0.78f, 1f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 330f, 0.90f, 1.10f));
-        drawCentered("TAP A COLUMN TO DROP", screenW * 0.5f, footerHeight * 0.62f);
-        drawCentered("TAP THE TOP PANEL TO CHANGE DIRECTION",
+        drawCentered("НАЖМИ НА СТОЛБЕЦ, ЧТОБЫ БРОСИТЬ КУБИК",
+                screenW * 0.5f, footerHeight * 0.62f);
+        drawCentered("ВЕРХНЯЯ ПАНЕЛЬ МЕНЯЕТ НАПРАВЛЕНИЕ",
                 screenW * 0.5f, footerHeight * 0.28f);
         // Center each value in its cube, with a scale that remains readable for large numbers.
         for (BoardEngine.Cube cube : engine.cubes()) {
@@ -530,25 +545,74 @@ public final class UpMergeGame extends ApplicationAdapter {
         gameMode = mode;
         timeLeft = 90f;
         menuVisible = false;
+        modeSelectionVisible = false;
         paused = false;
         startNewRun(resetProgress);
     }
 
-    private void drawModeMenu() {
-        shapes.begin(ShapeRenderer.ShapeType.Filled);
-        shapes.setColor(0f, 0f, 0f, 0.92f);
-        shapes.rect(0, 0, screenW, screenH);
-        shapes.end();
+    private void drawMainMenu() {
+        drawMenuBackdrop();
         batch.begin();
         font.setColor(0.35f, 0.82f, 1f, 1f);
-        font.getData().setScale(uiScale * 1.8f);
-        drawCentered("UPMERGE", screenW * 0.5f, screenH * 0.78f);
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 210f, 1.45f, 2.0f));
+        drawCentered("СЛИЯНИЕ", screenW * 0.5f, screenH * 0.78f);
+        font.setColor(0.72f, 0.82f, 0.92f, 1f);
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 390f, 0.78f, 1.0f));
+        drawCentered("СОБИРАЙ КУБИКИ. ДОСТИГАЙ НОВЫХ ЦЕЛЕЙ.",
+                screenW * 0.5f, screenH * 0.68f);
+        batch.end();
+
+        if (hasSavedGame) drawMenuButton("ПРОДОЛЖИТЬ", screenH * 0.535f, 0.12f, true);
+        drawMenuButton("НОВАЯ ИГРА", screenH * 0.385f, 0.13f, true);
+
+        batch.begin();
+        font.setColor(0.60f, 0.70f, 0.82f, 1f);
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 420f, 0.75f, 0.92f));
+        drawCentered("РЕКОРД: " + NumberFormatter.compact(bestScore),
+                screenW * 0.5f, screenH * 0.20f);
+        batch.end();
+    }
+
+    private void drawModeMenu() {
+        drawMenuBackdrop();
+        batch.begin();
+        font.setColor(0.35f, 0.82f, 1f, 1f);
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 240f, 1.25f, 1.65f));
+        drawCentered("НОВАЯ ИГРА", screenW * 0.5f, screenH * 0.79f);
         font.setColor(1f, 1f, 1f, 1f);
-        font.getData().setScale(uiScale * 1.05f);
-        drawCentered("ВЫБЕРИ РЕЖИМ", screenW * 0.5f, screenH * 0.65f);
-        drawCentered("КЛАССИКА", screenW * 0.5f, screenH * 0.56f);
-        drawCentered("НА ВРЕМЯ · 90 СЕКУНД", screenW * 0.5f, screenH * 0.40f);
-        drawCentered("ВЫЗОВ · ДОСТИГНИ ЦЕЛИ", screenW * 0.5f, screenH * 0.23f);
+        batch.end();
+
+        drawMenuButton("КЛАССИЧЕСКИЙ", screenH * 0.595f, 0.14f, true);
+        drawMenuButton("НА ВРЕМЯ · 90 СЕКУНД", screenH * 0.425f, 0.14f, true);
+        drawMenuButton("ИСПЫТАНИЕ", screenH * 0.255f, 0.14f, true);
+        drawMenuButton("НАЗАД", screenH * 0.105f, 0.10f, false);
+    }
+
+    private void drawMenuBackdrop() {
+        shapes.begin(ShapeRenderer.ShapeType.Filled);
+        shapes.setColor(0.018f, 0.030f, 0.050f, 0.97f);
+        shapes.rect(0, 0, screenW, screenH);
+        shapes.setColor(0.055f, 0.095f, 0.145f, 1f);
+        shapes.rect(screenW * 0.07f, screenH * 0.12f,
+                screenW * 0.86f, screenH * 0.76f);
+        shapes.end();
+    }
+
+    private void drawMenuButton(String label, float centerY, float heightRatio, boolean highlighted) {
+        float width = screenW * 0.76f;
+        float height = screenH * heightRatio;
+        float left = (screenW - width) * 0.5f;
+        float bottom = centerY - height * 0.5f;
+        shapes.begin(ShapeRenderer.ShapeType.Filled);
+        shapes.setColor(highlighted ? 0.10f : 0.075f,
+                highlighted ? 0.30f : 0.12f,
+                highlighted ? 0.43f : 0.18f, 1f);
+        shapes.rect(left, bottom, width, height);
+        shapes.end();
+        batch.begin();
+        font.setColor(1f, 1f, 1f, 1f);
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 390f, 0.82f, 1.08f));
+        drawCentered(label, screenW * 0.5f, centerY - font.getCapHeight() * 0.35f);
         batch.end();
     }
 
@@ -581,6 +645,8 @@ public final class UpMergeGame extends ApplicationAdapter {
         gameOver = false;
         paused = false;
         menuVisible = false;
+        modeSelectionVisible = false;
+        hasSavedGame = true;
         mergeFlashTime = 0f;
         mergeFlightTime = 0f;
         mergeFlightSources.clear();
@@ -617,7 +683,10 @@ public final class UpMergeGame extends ApplicationAdapter {
             engine.clear();
             preferences.remove("boardV1");
             preferences.flush();
+            hasSavedGame = false;
+            return;
         }
+        hasSavedGame = true;
     }
 
     @Override public void pause() {
