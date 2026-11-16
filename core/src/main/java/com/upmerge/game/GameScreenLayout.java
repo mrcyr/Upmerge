@@ -23,7 +23,7 @@ final class GameScreenLayout {
         boardBottom = footerHeight + 10f * this.density
                 + (availableHeight - cell * BoardEngine.ROWS) * .5f;
         boardTop = boardBottom + cell * BoardEngine.ROWS;
-        toolbarHitHeight = 70f * this.density;
+        toolbarHitHeight = 92f * this.density;
     }
 
     boolean boardContains(float x, float y) {
