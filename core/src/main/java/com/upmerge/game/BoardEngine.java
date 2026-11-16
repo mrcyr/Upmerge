@@ -452,6 +452,57 @@ public final class BoardEngine {
         return false;
     }
 
+    /** Moves a settled cube to an empty cell and repacks affected lanes. */
+    public boolean moveCube(long cubeId, int targetLane, int targetRow) {
+        if (isMergePending() || hasMovingCubes() || targetLane < 0 || targetLane >= COLUMNS
+                || targetRow < 0 || targetRow >= ROWS) return false;
+        Cube selected = findCube(cubeId);
+        if (selected == null) return false;
+        for (Cube cube : cubes) {
+            if (cube != selected && cube.lane == targetLane && cube.row == targetRow) return false;
+        }
+        selected.lane = targetLane;
+        selected.row = targetRow;
+        compactAllLanes();
+        return true;
+    }
+
+    /** Swaps two settled cubes, then restores gravity packing in both lanes. */
+    public boolean swapCubes(long firstId, long secondId) {
+        if (firstId == secondId || isMergePending() || hasMovingCubes()) return false;
+        Cube first = findCube(firstId), second = findCube(secondId);
+        if (first == null || second == null) return false;
+        int lane = first.lane, row = first.row;
+        first.lane = second.lane;
+        first.row = second.row;
+        second.lane = lane;
+        second.row = row;
+        compactAllLanes();
+        return true;
+    }
+
+    /** Removes cubes in the selected cell and its eight neighbouring cells. */
+    public int bombAt(long cubeId) {
+        if (isMergePending() || hasMovingCubes()) return 0;
+        Cube center = findCube(cubeId);
+        if (center == null) return 0;
+        int lane = center.lane, row = center.row, removed = 0;
+        for (int i = cubes.size() - 1; i >= 0; i--) {
+            Cube cube = cubes.get(i);
+            if (Math.abs(cube.lane - lane) <= 1 && Math.abs(cube.row - row) <= 1) {
+                cubes.remove(i);
+                removed++;
+            }
+        }
+        if (removed > 0) compactAllLanes();
+        return removed;
+    }
+
+    private Cube findCube(long cubeId) {
+        for (Cube cube : cubes) if (cube.id == cubeId) return cube;
+        return null;
+    }
+
     public int cubesInLane(int lane) {
         if (lane < 0 || lane >= COLUMNS) return 0;
         return lane(lane).size();
