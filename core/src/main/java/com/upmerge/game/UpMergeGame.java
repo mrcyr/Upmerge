@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -88,6 +89,9 @@ public final class UpMergeGame extends ApplicationAdapter {
         shapes = new ShapeRenderer();
         batch = new SpriteBatch();
         font = createCyrillicFont();
+        for (com.badlogic.gdx.graphics.g2d.TextureRegion region : font.getRegions()) {
+            region.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        }
         preferences = Gdx.app.getPreferences("UpMergeNative");
         bestScore = preferences.getLong("bestScore", 0L);
         lifetimeGames = preferences.getLong("statsGames", 0L);
@@ -136,8 +140,8 @@ public final class UpMergeGame extends ApplicationAdapter {
                 BitmapFont generated = generator.generateFont(parameter);
                 generated.setColor(0.94f, 0.97f, 1f, 1f);
                 return generated;
-            } catch (Exception ignored) {
-                // Try the next Android system font; retain a safe fallback below.
+            } catch (Exception error) {
+                Gdx.app.error("UpMergeFont", "Could not load system font " + path, error);
             } finally {
                 if (generator != null) generator.dispose();
             }
@@ -402,14 +406,14 @@ public final class UpMergeGame extends ApplicationAdapter {
                 else if (action == 1) shopVisible = true;
                 else if (action == 2) achievementsVisible = true;
                 else if (action == 3) statsVisible = true;
-            } else if (y >= screenH * .075f && y < screenH * .16f) {
+            } else if (y >= screenH * .105f && y < screenH * .195f) {
                 int action = menuUtilityAt(x, y);
                 if (action == 0) tasksVisible = true;
                 else if (action == 1) shopVisible = true;
                 else if (action == 2) statsVisible = true;
                 else if (action == 3) achievementsVisible = true;
             }
-            else if (y < screenH * .075f) statsVisible = true;
+            else if (y < screenH * .105f) statsVisible = true;
             return;
         }
         if (paused) {
@@ -848,9 +852,17 @@ public final class UpMergeGame extends ApplicationAdapter {
         drawMenuBackdrop();
         float center = screenW * .5f;
         batch.begin();
+        float logoScale = uiScale * MathUtils.clamp(screenW / 190f, 1.65f, 2.35f);
+        font.getData().setScale(logoScale);
+        textLayout.setText(font, "UP");
+        float upWidth = textLayout.width;
+        textLayout.setText(font, "MERGE");
+        float mergeWidth = textLayout.width;
+        float logoLeft = center - (upWidth + mergeWidth) * .5f;
         font.setColor(.42f, .86f, 1f, 1f);
-        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 190f, 1.65f, 2.35f));
-        drawCentered("UPMERGE", center, screenH * .855f);
+        font.draw(batch, "UP", logoLeft, screenH * .855f);
+        font.setColor(.91f, .96f, 1f, 1f);
+        font.draw(batch, "MERGE", logoLeft + upWidth, screenH * .855f);
         font.setColor(.66f, .76f, .89f, 1f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 420f, .68f, .86f));
         drawCenteredFit("СОБИРАЙ КУБИКИ · СОЗДАВАЙ ЦЕПНЫЕ РЕАКЦИИ",
@@ -891,7 +903,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         }
 
         float utilityY1 = screenH * .225f;
-        float utilityY2 = screenH * .125f;
+        float utilityY2 = screenH * .145f;
         float utilityW = screenW * .385f;
         float utilityH = screenH * .065f;
         drawMenuChoice("НАСТРОЙКИ", center - screenW * .205f, utilityY1, utilityW, utilityH, false);
@@ -905,7 +917,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 450f, .60f, .76f));
         drawCentered("РЕКОРД  " + NumberFormatter.compact(bestScore)
                         + "     ·     СТАТИСТИКА",
-                center, screenH * .055f);
+                center, screenH * .075f);
         batch.end();
     }
 
@@ -917,29 +929,33 @@ public final class UpMergeGame extends ApplicationAdapter {
     }
 
     private int menuUtilityAt(float x, float y) {
-        return x < screenW * .5f ? (y >= screenH * .17f ? 0 : 0)
-                : (y >= screenH * .17f ? 1 : 3);
+        return x < screenW * .5f ? 0 : 1;
     }
 
     private void drawMenuChoice(String label, float centerX, float centerY,
                                 float width, float height, boolean selected) {
         float left = centerX - width * .5f, bottom = centerY - height * .5f;
-        drawRoundedFill(left, bottom, width, height, Math.min(15f, height * .38f),
+        float radius = Math.min(16f, height * .34f);
+        drawRoundedFill(left, bottom - 2f, width, height, radius, 0f, 0f, 0f, .30f);
+        drawRoundedFill(left, bottom, width, height, radius,
                 selected ? .12f : .075f, selected ? .38f : .13f,
                 selected ? .53f : .205f, 1f);
-        if (selected) {
-            shapes.begin(ShapeRenderer.ShapeType.Line);
-            shapes.setColor(.43f, .85f, 1f, .95f);
-            shapes.rect(left + 1f, bottom + 1f, width - 2f, height - 2f);
-            shapes.end();
-        }
+        drawRoundedFill(left + 1.5f, bottom + 1.5f, width - 3f, height - 3f,
+                Math.max(5f, radius - 1.5f),
+                selected ? .14f : .085f, selected ? .43f : .15f,
+                selected ? .59f : .235f, 1f);
         batch.begin();
-        font.setColor(selected ? .93f : .78f, selected ? .98f : .86f,
-                selected ? 1f : .94f, 1f);
+        font.setColor(selected ? .96f : .82f, selected ? .99f : .90f,
+                selected ? 1f : .98f, 1f);
         float scale = uiScale * MathUtils.clamp(screenW / 520f, .56f, .78f);
         font.getData().setScale(scale);
-        drawCenteredFit(label, centerX, centerY - font.getCapHeight() * .30f,
-                width * .88f, scale);
+        textLayout.setText(font, label);
+        if (textLayout.width > width * .86f && textLayout.width > 0f) {
+            font.getData().setScale(scale * width * .86f / textLayout.width);
+            textLayout.setText(font, label);
+        }
+        font.draw(batch, label, centerX - textLayout.width * .5f,
+                centerY + textLayout.height * .5f);
         batch.end();
     }
 
@@ -1347,20 +1363,26 @@ public final class UpMergeGame extends ApplicationAdapter {
         float height = screenH * heightRatio;
         float left = (screenW - width) * 0.5f;
         float bottom = centerY - height * 0.5f;
-        if (highlighted) {
-            drawRoundedFill(left, bottom, width, height, Math.min(18f, height * .42f),
-                    .12f, .48f, .68f, 1f);
-            drawRoundedFill(left + 2f, bottom + 2f, width - 4f, height - 4f,
-                    Math.min(16f, height * .40f), .18f, .66f, .88f, 1f);
-        } else {
-            drawRoundedFill(left, bottom, width, height, Math.min(17f, height * .40f),
-                    .075f, .13f, .205f, 1f);
-        }
+        float radius = Math.min(19f, height * .34f);
+        drawRoundedFill(left, bottom - 2f, width, height, radius, 0f, 0f, 0f, .32f);
+        drawRoundedFill(left, bottom, width, height, radius,
+                highlighted ? .10f : .075f, highlighted ? .43f : .13f,
+                highlighted ? .64f : .205f, 1f);
+        drawRoundedFill(left + 1.5f, bottom + 1.5f, width - 3f, height - 3f,
+                Math.max(5f, radius - 1.5f),
+                highlighted ? .13f : .085f, highlighted ? .61f : .15f,
+                highlighted ? .82f : .235f, 1f);
         batch.begin();
         font.setColor(1f, 1f, 1f, 1f);
-        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 390f, 0.82f, 1.08f));
-        drawCenteredFit(label, screenW * 0.5f, centerY - font.getCapHeight() * 0.35f,
-                width * 0.92f, uiScale * MathUtils.clamp(screenW / 390f, 0.72f, 0.92f));
+        float scale = uiScale * MathUtils.clamp(screenW / 390f, 0.82f, 1.08f);
+        font.getData().setScale(scale);
+        textLayout.setText(font, label);
+        if (textLayout.width > width * .88f && textLayout.width > 0f) {
+            font.getData().setScale(scale * width * .88f / textLayout.width);
+            textLayout.setText(font, label);
+        }
+        font.draw(batch, label, screenW * .5f - textLayout.width * .5f,
+                centerY + textLayout.height * .5f);
         batch.end();
     }
 
