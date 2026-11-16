@@ -796,7 +796,7 @@ public final class UpMergeGame extends ApplicationAdapter {
                     : i == 4 ? runMerges >= 10 : engine.score() >= 5000;
             if (earned) {
                 preferences.putBoolean(key, true);
-                economy.rewardForMerge(ACHIEVEMENT_REWARDS[i] * 30L);
+                economy.grantCoins(ACHIEVEMENT_REWARDS[i]);
                 changed = true;
             }
         }
