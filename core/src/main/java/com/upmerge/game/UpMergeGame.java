@@ -633,92 +633,103 @@ public final class UpMergeGame extends ApplicationAdapter {
 
     private void drawBoard() {
         shapes.begin(ShapeRenderer.ShapeType.Filled);
-        shapes.setColor(0.055f, 0.075f, 0.105f, 1f);
-        shapes.rect(boardLeft - 2f, boardBottom - 2f,
-                cell * BoardEngine.COLUMNS + 4f, cell * BoardEngine.ROWS + 4f);
-
+        shapes.setColor(.035f, .055f, .085f, 1f);
+        shapes.rect(boardLeft, boardBottom, cell * BoardEngine.COLUMNS, cell * BoardEngine.ROWS);
         for (int row = 0; row < BoardEngine.ROWS; row++) {
             for (int column = 0; column < BoardEngine.COLUMNS; column++) {
                 boolean alternate = ((row + column) & 1) == 0;
-                shapes.setColor(alternate ? 0.105f : 0.085f,
-                        alternate ? 0.135f : 0.112f,
-                        alternate ? 0.178f : 0.150f, 1f);
-                shapes.rect(boardLeft + column * cell + 1f,
-                        boardBottom + row * cell + 1f, cell - 2f, cell - 2f);
+                shapes.setColor(alternate ? .055f : .045f,
+                        alternate ? .095f : .075f, alternate ? .135f : .11f, 1f);
+                shapes.rect(boardLeft + column * cell + .5f,
+                        boardBottom + row * cell + .5f, cell - 1f, cell - 1f);
             }
         }
+        shapes.end();
+        shapes.begin(ShapeRenderer.ShapeType.Line);
+        shapes.setColor(.39f, .85f, 1f, .30f);
+        shapes.rect(boardLeft, boardBottom, cell * BoardEngine.COLUMNS, cell * BoardEngine.ROWS);
         shapes.end();
     }
 
     private void drawCubes() {
         shapes.begin(ShapeRenderer.ShapeType.Filled);
         for (BoardEngine.Cube cube : engine.cubes()) {
-            float x = boardLeft + cube.lane * cell + cell * 0.075f;
-            float y = boardBottom + (BoardEngine.ROWS - 1 - cube.visualRow) * cell + cell * 0.075f;
-            float size = cell * 0.85f;
+            float size = cell * .88f;
             if (cube.mergePending) {
-                float mergeProgress = MathUtils.clamp(
+                float progress = MathUtils.clamp(
                         engine.mergeElapsedSeconds() / BoardEngine.MERGE_DELAY_SECONDS, 0f, 1f);
-                if (cube.forcedMergeIncoming) {
-                    // The incoming cube is entering an already occupied edge cell.
-                    // Shrink it into the resident cube instead of drawing two
-                    // identical squares directly on top of each other.
-                    size *= Math.max(0.04f, 1f - mergeProgress * 0.96f);
-                } else {
-                    float pulse = 0.5f + 0.5f * MathUtils.sin(engine.mergeElapsedSeconds() * 18f);
-                    size *= 1f + pulse * 0.11f;
-                }
+                if (cube.forcedMergeIncoming) size *= Math.max(.04f, 1f - progress * .96f);
+                else size *= 1f + (0.5f + 0.5f * MathUtils.sin(engine.mergeElapsedSeconds() * 18f)) * .08f;
             } else if (mergeFlashTime > 0f && cube.value == mergeFlashValue
                     && cube.lane == mergeFlashLane && cube.row == mergeFlashRow) {
-                float progress = 1f - mergeFlashTime / 0.42f;
-                size *= 1f + (1f - progress) * 0.18f;
+                size *= 1f + (mergeFlashTime / .42f) * .10f;
             }
-            // Keep the animated cube centered in its cell while it pulses.
-            float centeredOffset = (cell - size) * 0.5f;
-            x = boardLeft + cube.lane * cell + centeredOffset;
-            y = boardBottom + (BoardEngine.ROWS - 1 - cube.visualRow) * cell + centeredOffset;
-            float hue = ((float) (Math.log(cube.value) / Math.log(2.0)) * 0.105f) % 1f;
-            float red = 0.16f + 0.42f * hue;
-            float green = 0.48f + 0.20f * (1f - hue);
-            float blue = 0.72f - 0.22f * hue;
-
-            // Soft offset shadow, dark body, then a narrow top highlight.
-            shapes.setColor(0.012f, 0.020f, 0.032f, 1f);
-            shapes.rect(x + 1.5f, y - 2f, size, size);
-            shapes.setColor(red * 0.58f, green * 0.58f, blue * 0.62f, 1f);
-            shapes.rect(x, y, size, size);
+            float x = boardLeft + (cube.lane + .5f) * cell - size * .5f;
+            float y = boardBottom + (BoardEngine.ROWS - .5f - cube.visualRow) * cell - size * .5f;
+            float radius = Math.max(7f, Math.min(14f, size * .16f));
+            float red, green, blue;
+            switch ((int) cube.value) {
+                case 2: red=.392f; green=.851f; blue=1f; break;       // #64d9ff
+                case 4: red=.376f; green=.898f; blue=.769f; break;   // #60e5c4
+                case 8: red=.561f; green=.890f; blue=.431f; break;   // #8fe36e
+                case 16: red=1f; green=.859f; blue=.412f; break;     // #ffdb69
+                case 32: red=1f; green=.608f; blue=.341f; break;     // #ff9b57
+                case 64: red=1f; green=.396f; blue=.490f; break;     // #ff657d
+                case 128: red=.733f; green=.525f; blue=1f; break;    // #bb86ff
+                case 256: red=.510f; green=.573f; blue=1f; break;    // #8292ff
+                case 512: red=1f; green=.459f; blue=.784f; break;   // #ff75c8
+                case 1024: red=.96f; green=.96f; blue=1f; break;    // #f5f5ff
+                default:
+                    float hue = ((float) (Math.log(cube.value) / Math.log(2.0)) * .105f) % 1f;
+                    red = .45f + .45f * hue; green = .80f - .20f * hue; blue = .95f;
+                    break;
+            }
+            shapes.setColor(.005f, .012f, .025f, .55f);
+            roundedRectInBatch(x + 1.5f, y - 3f, size, size, radius);
+            shapes.setColor(red * .70f, green * .70f, blue * .72f, 1f);
+            roundedRectInBatch(x, y, size, size, radius);
             shapes.setColor(red, green, blue, 1f);
-            shapes.rect(x + 2f, y + 2f, size - 4f, size - 4f);
-            shapes.setColor(Math.min(1f, red + 0.18f), Math.min(1f, green + 0.16f),
-                    Math.min(1f, blue + 0.14f), 1f);
-            shapes.rect(x + 3f, y + size - 5f, size - 6f, 2f);
+            roundedRectInBatch(x + 1.5f, y + 1.5f, size - 3f, size - 3f, radius - 1.5f);
+            // Convex finish used by the original default neon theme.
+            shapes.setColor(1f, 1f, 1f, .18f);
+            roundedRectInBatch(x + size * .10f, y + size * .82f,
+                    size * .80f, Math.max(2f, size * .035f), 2f);
+            shapes.setColor(.02f, .07f, .13f, .13f);
+            shapes.rect(x + size * .08f, y + size * .07f, size * .84f, Math.max(1f, size * .025f));
         }
         shapes.end();
 
-        // In emergency split mode outline every selectable cube. This makes
-        // the tap target obvious without dimming or covering the board.
         if (splitSelecting) {
             shapes.begin(ShapeRenderer.ShapeType.Line);
-            shapes.setColor(0.25f, 0.95f, 1f, 1f);
+            shapes.setColor(.25f, .95f, 1f, 1f);
             for (BoardEngine.Cube cube : engine.cubes()) {
-                float x = boardLeft + cube.lane * cell + cell * 0.045f;
-                float y = boardBottom + (BoardEngine.ROWS - 1 - cube.visualRow) * cell + cell * 0.045f;
-                shapes.rect(x, y, cell * 0.91f, cell * 0.91f);
+                float x = boardLeft + (cube.lane + .5f) * cell;
+                float y = boardBottom + (BoardEngine.ROWS - .5f - cube.visualRow) * cell;
+                shapes.rect(x - cell * .46f, y - cell * .46f, cell * .92f, cell * .92f);
             }
             shapes.end();
         }
-
-        // A short expanding outline marks the result of a completed merge.
         if (mergeFlashTime > 0f && mergeFlashLane >= 0 && mergeFlashRow >= 0) {
-            float progress = 1f - mergeFlashTime / 0.42f;
-            float centerX = boardLeft + (mergeFlashLane + 0.5f) * cell;
-            float centerY = boardBottom + (BoardEngine.ROWS - 0.5f - mergeFlashRow) * cell;
-            float radius = cell * (0.28f + progress * 0.48f);
+            float progress = 1f - mergeFlashTime / .42f;
+            float centerX = boardLeft + (mergeFlashLane + .5f) * cell;
+            float centerY = boardBottom + (BoardEngine.ROWS - .5f - mergeFlashRow) * cell;
             shapes.begin(ShapeRenderer.ShapeType.Line);
-            shapes.setColor(0.45f, 0.90f, 1f, 1f - progress);
-            shapes.circle(centerX, centerY, radius, 32);
+            shapes.setColor(.45f, .90f, 1f, 1f - progress);
+            shapes.circle(centerX, centerY, cell * (.28f + progress * .48f), 32);
             shapes.end();
         }
+    }
+
+    /** Rounded rectangle primitive that can be drawn inside an active ShapeRenderer batch. */
+    private void roundedRectInBatch(float x, float y, float width, float height, float radius) {
+        float r = Math.max(0f, Math.min(radius, Math.min(width, height) * .5f));
+        if (r <= .5f) { shapes.rect(x, y, width, height); return; }
+        shapes.rect(x + r, y, width - 2f * r, height);
+        shapes.rect(x, y + r, width, height - 2f * r);
+        shapes.circle(x + r, y + r, r, 12);
+        shapes.circle(x + width - r, y + r, r, 12);
+        shapes.circle(x + r, y + height - r, r, 12);
+        shapes.circle(x + width - r, y + height - r, r, 12);
     }
 
     /** Draws the source cubes flying into the merge anchor, as in 4.11. */
