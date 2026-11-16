@@ -400,7 +400,7 @@ public final class UpMergeGame extends ApplicationAdapter {
             } else if (y >= screenH * (hasSavedGame ? .285f : .345f)
                     && y < screenH * (hasSavedGame ? .375f : .435f)) {
                 startMode(menuSelectedMode, true);
-            } else if (y >= screenH * .17f && y < screenH * .265f) {
+            } else if (y >= screenH * .185f && y < screenH * .265f) {
                 int action = menuUtilityAt(x, y);
                 if (action == 0) settingsVisible = true;
                 else if (action == 1) shopVisible = true;
