@@ -675,7 +675,7 @@ public final class UpMergeGame extends ApplicationAdapter {
     private void drawCubes() {
         shapes.begin(ShapeRenderer.ShapeType.Filled);
         for (BoardEngine.Cube cube : engine.cubes()) {
-            float size = cell * .88f;
+            float size = cell;
             if (cube.mergePending) {
                 float progress = MathUtils.clamp(
                         engine.mergeElapsedSeconds() / BoardEngine.MERGE_DELAY_SECONDS, 0f, 1f);
@@ -781,10 +781,10 @@ public final class UpMergeGame extends ApplicationAdapter {
         float statY = screenH - 112f * uiScale, statH = 58f * uiScale;
 
         // Brand row, matching the reference's compact header.
-        font.setColor(.42f, .86f, 1f, 1f);
+        font.setColor(.91f, .96f, 1f, 1f);
         font.getData().setScale(uiScale * (19f / 24f));
         font.draw(batch, "UP", pad, screenH - 27f * uiScale);
-        font.setColor(.91f, .96f, 1f, 1f);
+        font.setColor(.42f, .86f, 1f, 1f);
         font.draw(batch, "MERGE", pad + 27f * uiScale, screenH - 27f * uiScale);
         font.setColor(.86f, .93f, 1f, 1f);
         font.getData().setScale(uiScale * .92f);
@@ -855,7 +855,7 @@ public final class UpMergeGame extends ApplicationAdapter {
                 baseScale *= maxLabelWidth / textLayout.width;
                 font.getData().setScale(baseScale);
             }
-            font.setColor(1f, 1f, 1f, 1f);
+            font.setColor(.027f, .09f, .17f, 1f);
             float centerX = boardLeft + (cube.lane + 0.5f) * cell;
             float centerY = boardBottom + (BoardEngine.ROWS - 0.5f - cube.visualRow) * cell;
             drawCentered(value, centerX, centerY + font.getCapHeight() * 0.35f);
@@ -901,24 +901,24 @@ public final class UpMergeGame extends ApplicationAdapter {
         textLayout.setText(logoFont, "MERGE");
         float mergeWidth = textLayout.width;
         float logoLeft = center - (upWidth + mergeWidth) * .5f;
-        logoFont.setColor(.42f, .86f, 1f, 1f);
-        logoFont.draw(batch, "UP", logoLeft, screenH * .855f);
         logoFont.setColor(.91f, .96f, 1f, 1f);
+        logoFont.draw(batch, "UP", logoLeft, screenH * .855f);
+        logoFont.setColor(.42f, .86f, 1f, 1f);
         logoFont.draw(batch, "MERGE", logoLeft + upWidth, screenH * .855f);
         font.setColor(.66f, .76f, .89f, 1f);
         font.getData().setScale(uiScale * (13f / 24f));
-        drawCenteredFit("СОБИРАЙ КУБИКИ · СОЗДАВАЙ ЦЕПНЫЕ РЕАКЦИИ",
-                center, screenH * .785f, screenW * .82f,
-                uiScale * (13f / 24f));
+        drawCentered("ЗАПУСКАЙ КУБИКИ ВВЕРХ.", center, screenH * .79f);
+        drawCentered("ОБЪЕДИНЯЙ ОДИНАКОВЫЕ ЧИСЛА", center, screenH * .765f);
+        drawCentered("И СОЗДАВАЙ ЦЕПНЫЕ РЕАКЦИИ.", center, screenH * .74f);
         font.setColor(.53f, .67f, .82f, 1f);
         font.getData().setScale(uiScale * (13f / 24f));
-        drawCentered("ВЫБЕРИ РЕЖИМ", center, screenH * .715f);
+        drawCentered("ВЫБЕРИ РЕЖИМ", center, screenH * .69f);
         batch.end();
 
         MainMenuLayout.Rect[] modeCards = mainMenuLayout.modes;
         drawMenuChoice("КЛАССИКА", modeCards[0].centerX(), modeCards[0].centerY(), modeCards[0].width, modeCards[0].height,
                 menuSelectedMode == GameMode.CLASSIC);
-        drawMenuChoice("90 СЕК", modeCards[1].centerX(), modeCards[1].centerY(), modeCards[1].width, modeCards[1].height,
+        drawMenuChoice("НА ВРЕМЯ", modeCards[1].centerX(), modeCards[1].centerY(), modeCards[1].width, modeCards[1].height,
                 menuSelectedMode == GameMode.TIMED);
         drawMenuChoice("ВЫЗОВ", modeCards[2].centerX(), modeCards[2].centerY(), modeCards[2].width, modeCards[2].height,
                 menuSelectedMode == GameMode.CHALLENGE);
@@ -941,8 +941,8 @@ public final class UpMergeGame extends ApplicationAdapter {
                 actionCards[1].width, actionCards[1].height, false);
 
         if (hasSavedGame) {
-            drawMenuButton("ПРОДОЛЖИТЬ ИГРУ", mainMenuLayout.continueButton.centerY(), .070f, false);
-            drawMenuButton("НОВАЯ ИГРА", mainMenuLayout.newGameButton.centerY(), .075f, true);
+            drawMenuButton("ПРОДОЛЖИТЬ ИГРУ", mainMenuLayout.continueButton.centerY(), .070f, true);
+            drawMenuButton("НОВАЯ ИГРА", mainMenuLayout.newGameButton.centerY(), .075f, false);
         } else {
             drawMenuButton("НОВАЯ ИГРА", mainMenuLayout.newGameButton.centerY(), .075f, true);
         }
@@ -961,7 +961,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         batch.begin();
         font.setColor(.58f, .69f, .82f, 1f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 450f, .60f, .76f));
-        drawCenteredFit("ЦЕЛЬ РАСТЁТ ВДВОЕ ПОСЛЕ КАЖДОГО ДОСТИЖЕНИЯ · K / M / B / T",
+        drawCenteredFit("Цель растёт вдвое после каждого достижения · K / M / B / T",
                 center, screenH * (screenH / uiScale < 680f ? .035f : .075f), mainMenuLayout.contentWidth * .92f, uiScale * (11f / 24f));
         batch.end();
     }
