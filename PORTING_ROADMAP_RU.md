@@ -13,7 +13,7 @@ Reference: original Android/WebView build 4.11 (`app/src/main/assets/index.html`
 - [x] When no lane can legally accept the current value, run the board-capacity check; offer emergency split when charged and expose an explicit end-run action.
 - [x] Emergency split consumes a saved charge and asks the player to select one cube to remove; then resume and re-check board capacity.
 - [x] Engine exposes a stable-id removal operation and compacts the affected lane.
-- [ ] Add coin payment when the native economy/shop is ported; current emergency flow uses stored split charges only.
+- [x] Add persistent coin rewards for merges and a native shop that sells emergency-split charge packs.
 
 ## Queue parity — original 4.11
 
