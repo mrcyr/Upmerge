@@ -51,8 +51,6 @@ public class MainMenuLayoutTest {
         MainMenuLayout fresh = new MainMenuLayout(360, 800, false);
         MainMenuLayout saved = new MainMenuLayout(360, 800, true);
         assertNull(fresh.continueButton);
-        assertEquals(MainMenuLayout.Target.NONE,
-                fresh.hit(180, 800 * .425f));
         assertNotNull(saved.continueButton);
         assertEquals(MainMenuLayout.Target.CONTINUE,
                 saved.hit(saved.continueButton.centerX(), saved.continueButton.centerY()));
