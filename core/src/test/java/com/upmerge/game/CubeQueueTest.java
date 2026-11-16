@@ -79,6 +79,43 @@ public class CubeQueueTest {
         assertFalse(queue.restore(4096, 8, 256));
     }
 
+
+    @Test public void restoreRejectsNonPowerOfTwoAndOutOfRangeGoalTiers() {
+        CubeQueue queue = new CubeQueue(new Random(321));
+        long originalGoal = queue.goalTarget();
+        long originalCurrent = queue.current();
+        long originalUpcoming = queue.upcoming();
+
+        assertFalse(queue.restore(3000L, 4L, 32L));
+        assertFalse(queue.restore(1024L, 2L, 16L));
+        assertFalse(queue.restore(Long.MAX_VALUE, 2L, 16L));
+        assertFalse(queue.restore(1L << 63, 2L, 16L));
+
+        assertEquals(originalGoal, queue.goalTarget());
+        assertEquals(originalCurrent, queue.current());
+        assertEquals(originalUpcoming, queue.upcoming());
+    }
+
+    @Test public void resetFallsBackToBaseTierForInvalidGoal() {
+        CubeQueue queue = new CubeQueue(new Random(654));
+        queue.reset(3000L);
+        assertEquals(2048L, queue.goalTarget());
+        assertTrue(isAllowed(queue.current(), 2048L));
+        assertTrue(isAllowed(queue.upcoming(), 2048L));
+    }
+
+    @Test public void highestSupportedGoalTierKeepsSixValidQueueValues() {
+        long highestGoal = 1L << 62;
+        assertArrayEquals(new long[]{1L << 52, 1L << 53, 1L << 54,
+                1L << 55, 1L << 56, 1L << 57}, CubeQueue.valuesForGoal(highestGoal));
+
+        CubeQueue queue = new CubeQueue(new Random(987));
+        assertTrue(queue.restore(highestGoal, 1L << 52, 1L << 57));
+        assertEquals(highestGoal, queue.goalTarget());
+        assertFalse(queue.onMergedValue(highestGoal));
+        assertEquals(highestGoal, queue.goalTarget());
+    }
+
     private static boolean isAllowed(long value, long goal) {
         for (long candidate : CubeQueue.valuesForGoal(goal)) if (candidate == value) return true;
         return false;
