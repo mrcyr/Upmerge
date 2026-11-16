@@ -58,10 +58,11 @@ final class MainMenuLayout {
         boolean compact = screenH / this.density < 680f;
         float actionGap = 8f * this.density;
         float actionW = (contentWidth - actionGap) * .5f, actionH = 40f * this.density;
+        float actionsY = screenH * (compact ? .415f : .425f);
         menuActions[0] = centered(center - (actionW + actionGap) * .5f,
-                screenH * (compact ? .415f : .425f), actionW, actionH);
+                actionsY, actionW, actionH);
         menuActions[1] = centered(center + (actionW + actionGap) * .5f,
-                screenH * .45f, actionW, actionH);
+                actionsY, actionW, actionH);
         continueButton = hasSavedGame
                 ? centered(center, screenH * (compact ? .33f : .36f), contentWidth, 48f * this.density) : null;
         newGameButton = centered(center, screenH * (hasSavedGame ? (compact ? .245f : .29f) : (compact ? .33f : .36f)),
