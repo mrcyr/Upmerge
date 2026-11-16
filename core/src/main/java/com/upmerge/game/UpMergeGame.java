@@ -409,6 +409,7 @@ public final class UpMergeGame extends ApplicationAdapter {
                 else if (action == 2) statsVisible = true;
                 else if (action == 3) achievementsVisible = true;
             }
+            else if (y < screenH * .075f) statsVisible = true;
             return;
         }
         if (paused) {
