@@ -148,7 +148,10 @@ public final class UpMergeGame extends ApplicationAdapter {
         if (mergeFlashTime > 0f) mergeFlashTime = Math.max(0f, mergeFlashTime - dt);
         if (levelUpTime > 0f) levelUpTime = Math.max(0f, levelUpTime - dt);
         if (mergeFlightTime > 0f) mergeFlightTime = Math.max(0f, mergeFlightTime - dt);
+        int movementHaptics = engine.consumeMovementHaptics();
+        int landingHaptics = engine.consumeLandingHaptics();
         BoardEngine.MergeEvent mergeEvent = engine.consumeMergeEvent();
+        playHapticFeedback(movementHaptics, landingHaptics, mergeEvent != null);
         if (mergeEvent != null) {
             mergeFlashTime = 0.42f;
             mergeFlashLane = mergeEvent.lane;
@@ -159,7 +162,6 @@ public final class UpMergeGame extends ApplicationAdapter {
             mergeFlightTargetRow = mergeEvent.row;
             mergeFlightSources.clear();
             mergeFlightSources.addAll(mergeEvent.sources);
-            if (hapticsEnabled) Gdx.input.vibrate(32);
             boolean reachedChallenge = gameMode == GameMode.CHALLENGE && mergeEvent.value >= challengeGoal;
             boolean advancedLevel = cubeQueue.onMergedValue(mergeEvent.value);
             if (advancedLevel) levelUpTime = 2.0f;
@@ -185,6 +187,31 @@ public final class UpMergeGame extends ApplicationAdapter {
             else if (modeSelectionVisible) drawModeMenu();
             else drawMainMenu();
         } else if (paused) drawPauseMenu();
+    }
+
+    /**
+     * One distinct pulse per cube movement/landing, plus a stronger pulse for
+     * each completed merge. A single waveform preserves every pulse when
+     * several cubes settle in the same frame.
+     */
+    private void playHapticFeedback(int movementCount, int landingCount, boolean merged) {
+        if (!hapticsEnabled) return;
+        int pulseCount = Math.min(12, Math.max(0, movementCount))
+                + Math.min(12, Math.max(0, landingCount)) + (merged ? 1 : 0);
+        if (pulseCount == 0) return;
+
+        long[] pattern = new long[pulseCount * 2 + 1];
+        int index = 0;
+        for (int i = 0; i < Math.min(12, movementCount); i++) {
+            pattern[++index] = 14L; // cube starts falling or rising
+            pattern[++index] = 28L;
+        }
+        for (int i = 0; i < Math.min(12, landingCount); i++) {
+            pattern[++index] = 22L; // cube reaches its cell
+            pattern[++index] = 34L;
+        }
+        if (merged) pattern[++index] = 78L; // stronger, longer merge pulse
+        Gdx.input.vibrate(pattern, -1);
     }
 
     private void handleInput() {
