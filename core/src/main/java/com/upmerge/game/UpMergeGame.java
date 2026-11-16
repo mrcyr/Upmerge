@@ -48,7 +48,7 @@ public final class UpMergeGame extends ApplicationAdapter {
     private float mergeFlashTime;
     private int mergeFlashLane = -1;
     private int mergeFlashRow = -1;
-    private int mergeFlashValue;
+    private long mergeFlashValue;
     private float mergeFlightTime;
     private int mergeFlightTargetLane;
     private int mergeFlightTargetRow;
@@ -537,9 +537,10 @@ public final class UpMergeGame extends ApplicationAdapter {
     }
 
     private void startNewRun() {
+        long savedGoal = cubeQueue.goalTarget();
         engine.clear();
         engine.setDirection(BoardEngine.Direction.UP);
-        cubeQueue.reset(2048);
+        cubeQueue.reset(savedGoal);
         challengeGoal = cubeQueue.goalTarget();
         timeLeft = 90f;
         splitCharges = 2;
@@ -565,7 +566,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         preferences.putLong("queueUpcoming", cubeQueue.upcoming());
         preferences.putString("gameMode", gameMode.name());
         preferences.putFloat("timeLeft", timeLeft);
-        preferences.putInteger("bestScore", bestScore);
+        preferences.putLong("bestScore", bestScore);
         preferences.flush();
     }
 
