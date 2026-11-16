@@ -33,6 +33,14 @@ public class GameEconomyTest {
         assertEquals(0L, economy.rewardForMerge(0L));
     }
 
+    @Test public void directAchievementGrantsSaturateSafely() {
+        GameEconomy economy = new GameEconomy(Long.MAX_VALUE - 2L);
+        economy.grantCoins(10L);
+        assertEquals(Long.MAX_VALUE, economy.coins());
+        economy.grantCoins(-5L);
+        assertEquals(Long.MAX_VALUE, economy.coins());
+    }
+
     @Test public void negativeStoredBalanceIsClampedToZero() {
         GameEconomy economy = new GameEconomy(-100L);
         assertEquals(0L, economy.coins());
