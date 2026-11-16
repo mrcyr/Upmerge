@@ -10,6 +10,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.ScreenUtils;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Native UpMerge play scene. The board engine owns all gameplay rules;
@@ -33,6 +35,10 @@ public final class UpMergeGame extends ApplicationAdapter {
     private int mergeFlashLane = -1;
     private int mergeFlashRow = -1;
     private int mergeFlashValue;
+    private float mergeFlightTime;
+    private int mergeFlightTargetLane;
+    private int mergeFlightTargetRow;
+    private final List<BoardEngine.MergeSource> mergeFlightSources = new ArrayList<>();
 
     @Override public void create() {
         camera = new OrthographicCamera();
@@ -71,12 +77,18 @@ public final class UpMergeGame extends ApplicationAdapter {
         float dt = Math.min(Gdx.graphics.getDeltaTime(), 0.05f);
         engine.update(dt);
         if (mergeFlashTime > 0f) mergeFlashTime = Math.max(0f, mergeFlashTime - dt);
+        if (mergeFlightTime > 0f) mergeFlightTime = Math.max(0f, mergeFlightTime - dt);
         BoardEngine.MergeEvent mergeEvent = engine.consumeMergeEvent();
         if (mergeEvent != null) {
             mergeFlashTime = 0.42f;
             mergeFlashLane = mergeEvent.lane;
             mergeFlashRow = mergeEvent.row;
             mergeFlashValue = mergeEvent.value;
+            mergeFlightTime = 0.30f;
+            mergeFlightTargetLane = mergeEvent.lane;
+            mergeFlightTargetRow = mergeEvent.row;
+            mergeFlightSources.clear();
+            mergeFlightSources.addAll(mergeEvent.sources);
             cubeQueue.onMergedValue(mergeEvent.value);
         }
         handleInput();
@@ -85,6 +97,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         drawPanels();
         drawBoard();
         drawCubes();
+        drawMergeFlights();
         drawText();
     }
 
@@ -195,6 +208,26 @@ public final class UpMergeGame extends ApplicationAdapter {
             shapes.circle(centerX, centerY, radius, 32);
             shapes.end();
         }
+    }
+
+    /** Draws the source cubes flying into the merge anchor, as in 4.11. */
+    private void drawMergeFlights() {
+        if (mergeFlightTime <= 0f || mergeFlightSources.isEmpty()) return;
+        float progress = 1f - mergeFlightTime / 0.30f;
+        float targetX = boardLeft + (mergeFlightTargetLane + 0.5f) * cell;
+        float targetY = boardBottom + (BoardEngine.ROWS - 0.5f - mergeFlightTargetRow) * cell;
+        shapes.begin(ShapeRenderer.ShapeType.Filled);
+        for (BoardEngine.MergeSource source : mergeFlightSources) {
+            if (source.lane == mergeFlightTargetLane && source.row == mergeFlightTargetRow) continue;
+            float startX = boardLeft + (source.lane + 0.5f) * cell;
+            float startY = boardBottom + (BoardEngine.ROWS - 0.5f - source.row) * cell;
+            float x = MathUtils.lerp(startX, targetX, progress);
+            float y = MathUtils.lerp(startY, targetY, progress);
+            float size = cell * 0.72f * (1f - progress * 0.38f);
+            shapes.setColor(0.20f, 0.72f, 0.82f, 1f - progress * 0.25f);
+            shapes.rect(x - size * 0.5f, y - size * 0.5f, size, size);
+        }
+        shapes.end();
     }
 
     private void drawText() {
