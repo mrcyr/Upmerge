@@ -49,7 +49,7 @@ final class MainMenuLayout {
         menuActions[1] = centered(screenW * .705f, screenH * .425f, actionW, actionH);
         continueButton = hasSavedGame
                 ? centered(screenW * .5f, screenH * .355f, screenW * .76f, screenH * .070f) : null;
-        newGameButton = centered(screenW * .5f, screenH * (hasSavedGame ? .275f : .355f),
+        newGameButton = centered(screenW * .5f, screenH * (hasSavedGame ? .275f : .345f),
                 screenW * .76f, screenH * .075f);
         float utilityW = screenW * .385f, utilityH = screenH * .060f;
         float[] ys = {screenH * .185f, screenH * .105f};
