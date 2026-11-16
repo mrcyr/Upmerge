@@ -479,7 +479,7 @@ public final class UpMergeGame extends ApplicationAdapter {
                 cardY + cardH * 0.48f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 390f, 0.78f, 0.95f));
         font.setColor(0.58f, 0.70f, 0.82f, 1f);
-        font.draw(batch, "СЛЕДУЮЩИЙ: " + NumberFormatter.compact(cubeQueue.upcoming()), pad + cardW + cardGap + 10f,
+        font.draw(batch, "ДАЛЕЕ: " + NumberFormatter.compact(cubeQueue.upcoming()), pad + cardW + cardGap + 10f,
                 cardY + 12f);
 
         font.getData().setScale(uiScale * MathUtils.clamp(cell / 39f, 0.90f, 1.35f));
@@ -489,17 +489,20 @@ public final class UpMergeGame extends ApplicationAdapter {
         if (gameMode == GameMode.TIMED) {
             direction += " · " + Math.max(0, (int) Math.ceil(timeLeft)) + " СЕК.";
         }
-        drawCentered(direction, screenW * 0.43f, screenH - headerHeight + 5f);
+        drawCenteredFit(direction, screenW * 0.43f, screenH - headerHeight + 5f,
+                screenW * 0.68f, uiScale * MathUtils.clamp(cell / 39f, 0.90f, 1.35f));
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 390f, 0.72f, 0.9f));
         font.setColor(0.9f, 0.94f, 1f, 1f);
         drawCentered("Ⅱ", screenW * 0.91f, screenH - headerHeight + 5f);
 
         font.setColor(0.58f, 0.68f, 0.78f, 1f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 330f, 0.90f, 1.10f));
-        drawCentered("НАЖМИ НА СТОЛБЕЦ, ЧТОБЫ БРОСИТЬ КУБИК",
-                screenW * 0.5f, footerHeight * 0.62f);
-        drawCentered("ВЕРХНЯЯ ПАНЕЛЬ МЕНЯЕТ НАПРАВЛЕНИЕ",
-                screenW * 0.5f, footerHeight * 0.28f);
+        drawCenteredFit("НАЖМИ НА СТОЛБЕЦ, ЧТОБЫ БРОСИТЬ КУБИК",
+                screenW * 0.5f, footerHeight * 0.62f, screenW * 0.94f,
+                uiScale * MathUtils.clamp(screenW / 330f, 0.55f, 0.78f));
+        drawCenteredFit("ВЕРХНЯЯ ПАНЕЛЬ МЕНЯЕТ НАПРАВЛЕНИЕ",
+                screenW * 0.5f, footerHeight * 0.28f, screenW * 0.94f,
+                uiScale * MathUtils.clamp(screenW / 330f, 0.55f, 0.78f));
         // Center each value in its cube, with a scale that remains readable for large numbers.
         for (BoardEngine.Cube cube : engine.cubes()) {
             String value = NumberFormatter.compact(cube.value);
@@ -539,6 +542,16 @@ public final class UpMergeGame extends ApplicationAdapter {
         font.draw(batch, value, centerX - textLayout.width * 0.5f, baselineY);
     }
 
+    private void drawCenteredFit(String value, float centerX, float baselineY,
+                                 float maxWidth, float preferredScale) {
+        font.getData().setScale(preferredScale);
+        textLayout.setText(font, value);
+        if (textLayout.width > maxWidth && textLayout.width > 0f) {
+            font.getData().setScale(preferredScale * maxWidth / textLayout.width);
+        }
+        drawCentered(value, centerX, baselineY);
+    }
+
 
 
     private void startMode(GameMode mode, boolean resetProgress) {
@@ -558,8 +571,9 @@ public final class UpMergeGame extends ApplicationAdapter {
         drawCentered("СЛИЯНИЕ", screenW * 0.5f, screenH * 0.78f);
         font.setColor(0.72f, 0.82f, 0.92f, 1f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 390f, 0.78f, 1.0f));
-        drawCentered("СОБИРАЙ КУБИКИ. ДОСТИГАЙ НОВЫХ ЦЕЛЕЙ.",
-                screenW * 0.5f, screenH * 0.68f);
+        drawCenteredFit("СОБИРАЙ КУБИКИ. ДОСТИГАЙ НОВЫХ ЦЕЛЕЙ.",
+                screenW * 0.5f, screenH * 0.68f, screenW * 0.80f,
+                uiScale * MathUtils.clamp(screenW / 390f, 0.62f, 0.82f));
         batch.end();
 
         if (hasSavedGame) drawMenuButton("ПРОДОЛЖИТЬ", screenH * 0.535f, 0.12f, true);
@@ -612,7 +626,8 @@ public final class UpMergeGame extends ApplicationAdapter {
         batch.begin();
         font.setColor(1f, 1f, 1f, 1f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 390f, 0.82f, 1.08f));
-        drawCentered(label, screenW * 0.5f, centerY - font.getCapHeight() * 0.35f);
+        drawCenteredFit(label, screenW * 0.5f, centerY - font.getCapHeight() * 0.35f,
+                width * 0.92f, uiScale * MathUtils.clamp(screenW / 390f, 0.72f, 0.92f));
         batch.end();
     }
 
