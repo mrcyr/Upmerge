@@ -1,0 +1,574 @@
+package com.upmerge.game;
+
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+public class BoardEngineTest {
+    private static void tick(BoardEngine engine, int frames) {
+        for (int i = 0; i < frames; i++) engine.update(0.05f);
+    }
+
+    private static void settle(BoardEngine engine) {
+        for (int i = 0; i < 100; i++) {
+            engine.update(0.05f);
+            boolean moving = false;
+            for (BoardEngine.Cube cube : engine.cubes()) moving |= cube.moving;
+            if (!moving) return;
+        }
+        fail("Board did not settle within 5 seconds");
+    }
+
+    private static void finishMerge(BoardEngine engine) {
+        assertTrue(engine.isMergePending());
+        tick(engine, 10); // 500 ms, beyond the 460 ms anticipation lock
+        assertFalse(engine.isMergePending());
+    }
+
+    @Test public void boardHasFiveColumnsAndSevenRows() {
+        assertEquals(5, BoardEngine.COLUMNS);
+        assertEquals(7, BoardEngine.ROWS);
+    }
+
+    @Test public void mergeArithmeticUsesNextPowerOfTwo() {
+        assertEquals(4, BoardEngine.mergeValue(2, 2));
+        assertEquals(8, BoardEngine.mergeValue(2, 3));
+        assertEquals(16, BoardEngine.mergeValue(2, 5));
+        assertEquals(8, BoardEngine.mergeValue(4, 2));
+        assertEquals(0, BoardEngine.mergeValue(3, 2));
+        assertEquals(0, BoardEngine.mergeValue(2, 1));
+        assertEquals(0, BoardEngine.mergeValue(1, 2));
+        assertEquals(1L << 40, BoardEngine.mergeValue(1L << 39, 2));
+        assertEquals(1L << 50, BoardEngine.mergeValue(1L << 49, 2));
+        assertEquals(1L << 60, BoardEngine.mergeValue(1L << 59, 2));
+    }
+
+    @Test public void mergeRoundingIsCorrectForEverySupportedGroupSize() {
+        long[] expectedForTwos = {0, 0, 4, 8, 8, 16, 16, 16};
+        for (int count = 2; count <= 7; count++) {
+            assertEquals("2-cube group size " + count,
+                    expectedForTwos[count], BoardEngine.mergeValue(2L, count));
+        }
+        assertEquals(16, BoardEngine.mergeValue(4L, 3));
+        assertEquals(32, BoardEngine.mergeValue(8L, 3));
+        assertEquals(64, BoardEngine.mergeValue(8L, 7));
+    }
+
+    @Test public void mergeArithmeticRejectsOverflowInsteadOfWrapping() {
+        assertEquals(0L, BoardEngine.mergeValue(1L << 62, 2));
+        assertEquals(0L, BoardEngine.mergeValue(1L << 61, 3));
+    }
+
+    @Test public void rejectsInvalidLaunches() {
+        BoardEngine engine = new BoardEngine();
+        assertFalse(engine.launch(-1, 2));
+        assertFalse(engine.launch(5, 2));
+        assertFalse(engine.launch(0, 0));
+        assertFalse(engine.launch(0, 3));
+    }
+
+    @Test public void twoFaceAdjacentCubesMergeAfter460Milliseconds() {
+        BoardEngine engine = new BoardEngine();
+        assertTrue(engine.launch(2, 2));
+        settle(engine);
+        assertTrue(engine.launch(2, 2));
+        settle(engine);
+        assertTrue(engine.isMergePending());
+        tick(engine, 8);
+        assertTrue("Merge must not resolve before 460 ms", engine.isMergePending());
+        tick(engine, 2);
+        assertFalse(engine.isMergePending());
+        assertEquals(1, engine.cubes().size());
+        assertEquals(4, engine.cubes().get(0).value);
+        assertEquals(4, engine.score());
+        assertNotNull(engine.consumeMergeEvent());
+    }
+
+    @Test public void differentValuesDoNotMerge() {
+        BoardEngine engine = new BoardEngine();
+        assertTrue(engine.launch(0, 2));
+        settle(engine);
+        assertTrue(engine.launch(0, 4));
+        settle(engine);
+        assertFalse(engine.isMergePending());
+        assertEquals(2, engine.cubes().size());
+    }
+
+    @Test public void downDirectionFillsFromBottomEntryEdge() {
+        BoardEngine engine = new BoardEngine();
+        engine.setDirection(BoardEngine.Direction.DOWN);
+        assertTrue(engine.launch(1, 2));
+        settle(engine);
+        assertEquals(6, engine.cubes().get(0).row);
+        assertTrue(engine.launch(1, 4));
+        settle(engine);
+        assertEquals(5, engine.cubes().stream().filter(c -> c.value == 4).findFirst().get().row);
+    }
+
+    @Test public void fullLaneRejectsWrongEdgeValueAndAcceptsMatchingForcedMerge() {
+        BoardEngine engine = new BoardEngine();
+        int[] values = {2, 4, 2, 4, 2, 4, 2};
+        for (int value : values) {
+            assertTrue(engine.launch(0, value));
+            settle(engine);
+        }
+        // isFull() describes the whole board, not a single full lane.
+        assertFalse(engine.isFull());
+        assertFalse(engine.launch(0, 4));
+        assertTrue(engine.launch(0, 2));
+        settle(engine);
+        assertTrue(engine.isMergePending());
+        assertTrue("The incoming full-lane cube must be identified for its absorb animation",
+                engine.cubes().stream().anyMatch(c -> c.mergePending && c.forcedMergeIncoming));
+        finishMerge(engine);
+        BoardEngine.MergeEvent event = engine.consumeMergeEvent();
+        assertNotNull(event);
+        assertEquals(4, event.value);
+        assertEquals(2, event.count);
+        assertEquals(7, engine.cubes().size());
+        assertTrue(engine.cubes().stream().anyMatch(c -> c.value == 4));
+    }
+
+    @Test public void sequentialMergeChainProducesNextTierAndAccumulatesScore() {
+        BoardEngine engine = new BoardEngine();
+
+        assertTrue(engine.launch(0, 2));
+        settle(engine);
+        assertTrue(engine.launch(1, 2));
+        settle(engine);
+        assertTrue(engine.isMergePending());
+        finishMerge(engine);
+
+        assertEquals(1, engine.cubes().size());
+        assertEquals(4, engine.cubes().get(0).value);
+        assertEquals(4, engine.score());
+
+        // A new 4 lands beside the previous result and starts the next merge.
+        assertTrue(engine.launch(0, 4));
+        settle(engine);
+        assertTrue(engine.isMergePending());
+        finishMerge(engine);
+
+        assertEquals(1, engine.cubes().size());
+        assertEquals(8, engine.cubes().get(0).value);
+        assertEquals(20, engine.score());
+    }
+
+    @Test public void changingGravityChangesTheNextLaunchEdge() {
+        BoardEngine engine = new BoardEngine();
+
+        assertTrue(engine.launch(2, 2));
+        settle(engine);
+        assertEquals(0, engine.cubes().get(0).row);
+
+        engine.setDirection(BoardEngine.Direction.DOWN);
+        assertEquals(BoardEngine.Direction.DOWN, engine.direction());
+        settle(engine); // Existing cubes must finish moving before another launch.
+        assertEquals(6, engine.cubes().get(0).row);
+        assertTrue(engine.launch(2, 4));
+        settle(engine);
+        assertEquals(5, engine.cubes().stream()
+                .filter(c -> c.value == 4).findFirst().get().row);
+    }
+
+    @Test public void mergeEventIsConsumedOnlyOnce() {
+        BoardEngine engine = new BoardEngine();
+        assertTrue(engine.launch(0, 2));
+        settle(engine);
+        assertTrue(engine.launch(0, 2));
+        settle(engine);
+        finishMerge(engine);
+
+        assertNotNull(engine.consumeMergeEvent());
+        assertNull(engine.consumeMergeEvent());
+    }
+
+    @Test public void gravitySwitchRepositionsEveryExistingCubeAcrossTheBoard() {
+        BoardEngine engine = new BoardEngine();
+        assertTrue(engine.launch(0, 2));
+        settle(engine);
+        assertTrue(engine.launch(0, 4));
+        settle(engine);
+
+        assertEquals(0, engine.cubes().stream()
+                .filter(c -> c.value == 2).findFirst().get().row);
+        assertEquals(1, engine.cubes().stream()
+                .filter(c -> c.value == 4).findFirst().get().row);
+
+        engine.setDirection(BoardEngine.Direction.DOWN);
+        assertEquals(BoardEngine.Direction.DOWN, engine.direction());
+        assertTrue("All existing cubes must animate to the opposite edge",
+                engine.cubes().stream().allMatch(c -> c.moving));
+
+        settle(engine);
+        // 4.11 preserves the original top-to-bottom order after reversing gravity.
+        assertEquals(5, engine.cubes().stream()
+                .filter(c -> c.value == 2).findFirst().get().row);
+        assertEquals(6, engine.cubes().stream()
+                .filter(c -> c.value == 4).findFirst().get().row);
+    }
+
+    @Test public void gravityChangeWaitsForCurrentCubeToLand() {
+        BoardEngine engine = new BoardEngine();
+        assertTrue(engine.launch(2, 2));
+        engine.setDirection(BoardEngine.Direction.DOWN);
+
+        // Direction is queued while a launched cube is still travelling.
+        assertEquals(BoardEngine.Direction.UP, engine.direction());
+        settle(engine);
+        assertEquals(BoardEngine.Direction.DOWN, engine.direction());
+        assertEquals(6, engine.cubes().get(0).row);
+    }
+
+    @Test public void automaticCascadeStartsAfterFirstMergeCompletes() {
+        BoardEngine engine = new BoardEngine();
+
+        // A 4 waits beside the cell where two 2s will merge into another 4.
+        assertTrue(engine.launch(2, 4));
+        settle(engine);
+        assertTrue(engine.launch(0, 2));
+        settle(engine);
+        assertTrue(engine.launch(1, 2));
+        settle(engine);
+
+        assertTrue("First pair of 2s should begin merging", engine.isMergePending());
+        finishMerge(engine);
+
+        // The new 4 is now face-adjacent to the pre-existing 4.
+        engine.update(0.05f);
+        assertTrue("Second merge should be discovered after the first transaction",
+                engine.isMergePending());
+        finishMerge(engine);
+
+        assertEquals(1, engine.cubes().size());
+        assertEquals(8, engine.cubes().get(0).value);
+        assertEquals(20, engine.score()); // second merge receives the x2 chain bonus
+    }
+
+    @Test public void mergeCompactionMovesRemainingCubesWithoutChangingTheirValues() {
+        BoardEngine engine = new BoardEngine();
+
+        assertTrue(engine.launch(0, 2));
+        settle(engine);
+        assertTrue(engine.launch(0, 4));
+        settle(engine);
+        assertTrue(engine.launch(0, 8));
+        settle(engine);
+
+        // Merge the bottom 2 with a 2 in the adjacent lane.
+        assertTrue(engine.launch(1, 2));
+        settle(engine);
+        assertTrue(engine.isMergePending());
+        finishMerge(engine);
+
+        assertTrue(engine.cubes().stream().anyMatch(c -> c.value == 4));
+        assertTrue(engine.cubes().stream().anyMatch(c -> c.value == 8));
+        assertTrue(engine.cubes().stream().allMatch(c -> c.row >= 0 && c.row < BoardEngine.ROWS));
+        settle(engine);
+        for (int lane = 0; lane < BoardEngine.COLUMNS; lane++) {
+            final int currentLane = lane;
+            java.util.List<BoardEngine.Cube> stack = engine.cubes().stream()
+                    .filter(c -> c.lane == currentLane)
+                    .sorted(java.util.Comparator.comparingInt(c -> c.row))
+                    .collect(java.util.stream.Collectors.toList());
+            for (int i = 0; i < stack.size(); i++) {
+                assertEquals("Packed lane must have no gaps", i, stack.get(i).row);
+            }
+        }
+    }
+
+    @Test public void mergeEventContainsEverySourcePositionAndTheAnchorResult() {
+        BoardEngine engine = new BoardEngine();
+        assertTrue(engine.launch(0, 2));
+        settle(engine);
+        assertTrue(engine.launch(1, 2));
+        settle(engine);
+        assertTrue(engine.isMergePending());
+        finishMerge(engine);
+
+        BoardEngine.MergeEvent event = engine.consumeMergeEvent();
+        assertNotNull(event);
+        assertEquals(4, event.value);
+        assertEquals(2, event.sources.size());
+        assertTrue(event.sources.stream().anyMatch(s -> s.lane == 0 && s.value == 2));
+        assertTrue(event.sources.stream().anyMatch(s -> s.lane == 1 && s.value == 2));
+        assertEquals(1, engine.cubes().size());
+        assertEquals(event.lane, engine.cubes().get(0).lane);
+        assertEquals(event.row, engine.cubes().get(0).row);
+    }
+
+    @Test public void mergesWithinOnePointSevenSecondsIncreaseComboMultiplier() {
+        BoardEngine engine = new BoardEngine();
+
+        assertTrue(engine.launch(0, 2));
+        settle(engine);
+        assertTrue(engine.launch(0, 2));
+        settle(engine);
+        finishMerge(engine);
+        BoardEngine.MergeEvent first = engine.consumeMergeEvent();
+        assertNotNull(first);
+        assertEquals(1, first.combo);
+        assertEquals(4, first.points);
+
+        assertTrue(engine.launch(1, 2));
+        settle(engine);
+        assertTrue(engine.launch(1, 2));
+        settle(engine);
+        finishMerge(engine);
+        BoardEngine.MergeEvent second = engine.consumeMergeEvent();
+        assertNotNull(second);
+        assertEquals(2, second.combo);
+        assertEquals(8, second.points);
+        assertEquals(12, engine.score());
+    }
+
+    @Test public void comboResetsAfterMoreThanOnePointSevenSecondsWithoutMerge() {
+        BoardEngine engine = new BoardEngine();
+        assertTrue(engine.launch(0, 2));
+        settle(engine);
+        assertTrue(engine.launch(0, 2));
+        settle(engine);
+        finishMerge(engine);
+        assertEquals(1, engine.combo());
+
+        tick(engine, 40); // 2 seconds without a merge
+        assertTrue(engine.launch(1, 2));
+        settle(engine);
+        assertTrue(engine.launch(1, 2));
+        settle(engine);
+        finishMerge(engine);
+        BoardEngine.MergeEvent event = engine.consumeMergeEvent();
+        assertNotNull(event);
+        assertEquals(1, event.combo);
+    }
+
+    @Test public void stableBoardSnapshotRestoresScoreDirectionComboAndCubes() {
+        BoardEngine source = new BoardEngine();
+        assertTrue(source.launch(2, 2));
+        settle(source);
+        assertTrue(source.launch(2, 2));
+        settle(source);
+        finishMerge(source);
+        source.consumeMergeEvent();
+        source.setDirection(BoardEngine.Direction.DOWN);
+        settle(source);
+
+        String saved = source.saveState();
+        assertNotNull(saved);
+
+        BoardEngine restored = new BoardEngine();
+        assertTrue(restored.loadState(saved));
+        assertEquals(source.score(), restored.score());
+        assertEquals(source.direction(), restored.direction());
+        assertEquals(source.combo(), restored.combo());
+        assertEquals(source.cubes().size(), restored.cubes().size());
+        for (BoardEngine.Cube cube : source.cubes()) {
+            BoardEngine.Cube copy = restored.cubes().stream()
+                    .filter(c -> c.id == cube.id).findFirst().orElse(null);
+            assertNotNull(copy);
+            assertEquals(cube.value, copy.value);
+            assertEquals(cube.lane, copy.lane);
+            assertEquals(cube.row, copy.row);
+            assertFalse(copy.moving);
+        }
+    }
+
+    @Test public void snapshotIsUnavailableDuringMotionAndMerge() {
+        BoardEngine engine = new BoardEngine();
+        assertTrue(engine.launch(0, 2));
+        assertNull(engine.saveState());
+        settle(engine);
+        assertTrue(engine.launch(0, 2));
+        settle(engine);
+        assertTrue(engine.isMergePending());
+        assertNull(engine.saveState());
+    }
+
+    @Test public void malformedOrOverlappingSnapshotsAreRejectedWithoutMutation() {
+        BoardEngine engine = new BoardEngine();
+        assertTrue(engine.launch(0, 2));
+        settle(engine);
+        String valid = engine.saveState();
+        int before = engine.cubes().size();
+
+        assertFalse(engine.loadState("UPM1|bad"));
+        assertFalse(engine.loadState("UPM1|0|UP|1|0|2|2|1,0,0,2|2,0,0,4"));
+        assertEquals(before, engine.cubes().size());
+    }
+
+    @Test public void launchNeverOverflowsStableCubeIds() {
+        BoardEngine exhausted = new BoardEngine();
+        assertTrue(exhausted.loadState("UPM1|0|UP|1|0|9223372036854775807|0"));
+        String exhaustedSnapshot = exhausted.saveState();
+        assertFalse(exhausted.launch(0, 2));
+        assertEquals(exhaustedSnapshot, exhausted.saveState());
+
+        BoardEngine lastAvailable = new BoardEngine();
+        assertTrue(lastAvailable.loadState("UPM1|0|UP|1|0|9223372036854775806|0"));
+        assertTrue(lastAvailable.launch(0, 2));
+        assertEquals(9223372036854775806L, lastAvailable.cubes().get(0).id);
+        settle(lastAvailable);
+        assertFalse(lastAvailable.launch(1, 4));
+        assertEquals(1, lastAvailable.cubes().size());
+    }
+
+    @Test public void snapshotRejectsDuplicateCubeIdsWithoutMutation() {
+        BoardEngine engine = new BoardEngine();
+        assertTrue(engine.launch(1, 16));
+        settle(engine);
+        String original = engine.saveState();
+
+        assertFalse(engine.loadState("UPM1|0|UP|1|0|3|2|7,0,0,2|7,1,0,4"));
+
+        assertEquals(original, engine.saveState());
+        long cubeId = engine.cubes().get(0).id;
+        assertTrue(engine.removeCube(cubeId));
+        assertEquals(0, engine.cubes().size());
+    }
+
+    @Test public void snapshotRejectsGapsAgainstActiveGravityEdgeWithoutMutation() {
+        BoardEngine engine = new BoardEngine();
+        assertTrue(engine.launch(2, 8));
+        settle(engine);
+        long originalScore = engine.score();
+        String original = engine.saveState();
+
+        assertFalse(engine.loadState("UPM1|0|UP|1|0|3|2|1,0,0,2|2,0,2,4"));
+        assertFalse(engine.loadState("UPM1|0|DOWN|1|0|3|2|1,0,6,2|2,0,3,4"));
+
+        assertEquals(originalScore, engine.score());
+        assertEquals(original, engine.saveState());
+    }
+
+    @Test public void sevenCubeLaneRejectsDifferentValueButAcceptsMatchingEdgeValue() {
+        BoardEngine engine = new BoardEngine();
+        int[] values = {2, 4, 8, 16, 32, 64, 128};
+        for (int value : values) {
+            assertTrue(engine.launch(0, value));
+            settle(engine);
+        }
+        assertEquals(7, engine.cubesInLane(0));
+        assertEquals(128, engine.entryEdgeValue(0));
+        assertFalse(engine.launch(0, 256));
+        assertTrue(engine.hasLegalLaunch(128));
+        assertTrue(engine.launch(0, 128));
+        settle(engine);
+        assertTrue(engine.isMergePending());
+    }
+
+    @Test public void boardCapacityDependsOnCurrentQueuedValue() {
+        BoardEngine engine = new BoardEngine();
+        int[] values = {2, 4, 8, 16, 32, 64, 128};
+        for (int lane = 0; lane < BoardEngine.COLUMNS; lane++) {
+            // Rotate the values per lane so equal cubes never touch horizontally
+            // and accidentally merge while the test is filling the whole board.
+            for (int index = 0; index < values.length; index++) {
+                int value = values[(index + lane) % values.length];
+                assertTrue("lane=" + lane + ", index=" + index + ", value=" + value,
+                        engine.launch(lane, value));
+                settle(engine);
+            }
+        }
+        assertEquals(BoardEngine.COLUMNS * BoardEngine.ROWS, engine.cubes().size());
+        assertFalse(engine.hasLegalLaunch(256));
+        assertTrue(engine.hasLegalLaunch(2));
+    }
+
+    @Test public void emergencyRemovalFreesOneCellAndCompactsLane() {
+        BoardEngine engine = new BoardEngine();
+        int[] values = {2, 4, 8, 16, 32, 64, 128};
+        for (int value : values) {
+            assertTrue(engine.launch(0, value));
+            settle(engine);
+        }
+        long removeId = engine.cubes().stream()
+                .filter(cube -> cube.value == 32).findFirst().get().id;
+        assertTrue(engine.removeCube(removeId));
+        settle(engine);
+        assertEquals(6, engine.cubesInLane(0));
+        assertTrue(engine.hasLegalLaunch(256));
+        java.util.List<BoardEngine.Cube> stack = engine.cubes().stream()
+                .filter(cube -> cube.lane == 0)
+                .sorted(java.util.Comparator.comparingInt(cube -> cube.row))
+                .collect(java.util.stream.Collectors.toList());
+        for (int i = 0; i < stack.size(); i++) {
+            assertEquals(i, stack.get(i).row);
+        }
+    }
+
+    @Test public void emergencyRemovalRejectsUnknownIdsAndMovingBoard() {
+        BoardEngine engine = new BoardEngine();
+        assertFalse(engine.removeCube(999));
+        assertTrue(engine.launch(0, 2));
+        assertFalse(engine.removeCube(1));
+        settle(engine);
+        assertTrue(engine.removeCube(1));
+        assertEquals(0, engine.cubesInLane(0));
+    }
+
+    @Test public void everyLaunchedCubeEmitsMovementAndLandingHapticEventsOnce() {
+        BoardEngine engine = new BoardEngine();
+        assertTrue(engine.launch(2, 2));
+        assertEquals(1, engine.consumeMovementHaptics());
+        assertEquals(0, engine.consumeMovementHaptics());
+        assertEquals(0, engine.consumeLandingHaptics());
+
+        settle(engine);
+        assertEquals(1, engine.consumeLandingHaptics());
+        assertEquals(0, engine.consumeLandingHaptics());
+    }
+
+    @Test public void gravityRepackEmitsOneMovementEventPerMovedCube() {
+        BoardEngine engine = new BoardEngine();
+        assertTrue(engine.launch(1, 2));
+        settle(engine);
+        engine.consumeMovementHaptics();
+        engine.consumeLandingHaptics();
+        assertTrue(engine.launch(1, 4));
+        settle(engine);
+        engine.consumeMovementHaptics();
+        engine.consumeLandingHaptics();
+
+        engine.setDirection(BoardEngine.Direction.DOWN);
+        assertEquals(2, engine.consumeMovementHaptics());
+        assertEquals(0, engine.consumeMovementHaptics());
+        settle(engine);
+        assertEquals(2, engine.consumeLandingHaptics());
+    }
+
+
+    @Test public void emergencyRemovalEmitsMovementAndLandingEventsForCompactedCubes() {
+        BoardEngine engine = new BoardEngine();
+        assertTrue(engine.launch(0, 2));
+        settle(engine);
+        assertTrue(engine.launch(0, 4));
+        settle(engine);
+        assertTrue(engine.launch(0, 8));
+        settle(engine);
+        engine.consumeMovementHaptics();
+        engine.consumeLandingHaptics();
+
+        long middleCubeId = engine.cubes().stream()
+                .filter(cube -> cube.value == 4).findFirst().get().id;
+        assertTrue(engine.removeCube(middleCubeId));
+
+        // Only the cube above the removed cell changes its logical row.
+        assertEquals(1, engine.consumeMovementHaptics());
+        assertEquals(0, engine.consumeMovementHaptics());
+        assertEquals(0, engine.consumeLandingHaptics());
+
+        settle(engine);
+        assertEquals(1, engine.consumeLandingHaptics());
+        assertEquals(0, engine.consumeLandingHaptics());
+        assertEquals(2, engine.cubesInLane(0));
+    }
+
+    @Test public void clearResetsBoardAndScore() {
+        BoardEngine engine = new BoardEngine();
+        assertTrue(engine.launch(0, 2));
+        settle(engine);
+        engine.clear();
+        assertTrue(engine.cubes().isEmpty());
+        assertEquals(0, engine.score());
+        assertFalse(engine.isMergePending());
+    }
+}

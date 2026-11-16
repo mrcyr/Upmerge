@@ -1,0 +1,56 @@
+plugins { id 'com.android.application' }
+configurations { natives }
+android {
+    namespace 'com.upmerge.game.android'
+    compileSdk 35
+    defaultConfig {
+        applicationId 'com.upmerge.numberpuzzle'
+        minSdk 23
+        targetSdk 35
+        versionCode 58
+        versionName '5.0-native-alpha6'
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    sourceSets { main { jniLibs.srcDirs = ['src/main/jniLibs'] } }
+    packaging {
+        jniLibs { useLegacyPackaging = true }
+        resources { excludes += ['META-INF/AL2.0','META-INF/LGPL2.1','META-INF/DEPENDENCIES','META-INF/LICENSE*','META-INF/NOTICE*'] }
+    }
+    lint { abortOnError false }
+}
+dependencies {
+    implementation project(':core')
+    implementation 'com.badlogicgames.gdx:gdx:1.13.1'
+    implementation 'com.badlogicgames.gdx:gdx-freetype:1.13.1'
+    implementation 'com.badlogicgames.gdx:gdx-backend-android:1.13.1'
+    natives 'com.badlogicgames.gdx:gdx-platform:1.13.1:natives-armeabi-v7a'
+    natives 'com.badlogicgames.gdx:gdx-freetype-platform:1.13.1:natives-armeabi-v7a'
+    natives 'com.badlogicgames.gdx:gdx-platform:1.13.1:natives-arm64-v8a'
+    natives 'com.badlogicgames.gdx:gdx-freetype-platform:1.13.1:natives-arm64-v8a'
+    natives 'com.badlogicgames.gdx:gdx-platform:1.13.1:natives-x86'
+    natives 'com.badlogicgames.gdx:gdx-freetype-platform:1.13.1:natives-x86'
+    natives 'com.badlogicgames.gdx:gdx-platform:1.13.1:natives-x86_64'
+    natives 'com.badlogicgames.gdx:gdx-freetype-platform:1.13.1:natives-x86_64'
+}
+def nativeAbis = ['armeabi-v7a':'natives-armeabi-v7a','arm64-v8a':'natives-arm64-v8a','x86':'natives-x86','x86_64':'natives-x86_64']
+tasks.register('copyAndroidNatives', Copy) {
+    into layout.projectDirectory.dir('src/main/jniLibs')
+    duplicatesStrategy = DuplicatesStrategy.FAIL
+    nativeAbis.each { abi, classifier ->
+        from({ configurations.natives.findAll { it.name.endsWith("-${classifier}.jar") }.collect { zipTree(it) } }) {
+            include '**/*.so'
+            eachFile { details -> details.path = "${abi}/${details.name}" }
+            includeEmptyDirs = false
+        }
+    }
+    doLast {
+        nativeAbis.keySet().each { abi ->
+            def nativeLib = file("src/main/jniLibs/${abi}/libgdx.so")
+            if (!nativeLib.isFile()) throw new GradleException("Missing libGDX native library: ${nativeLib}")
+        }
+    }
+}
+tasks.named('preBuild').configure { dependsOn tasks.named('copyAndroidNatives') }
