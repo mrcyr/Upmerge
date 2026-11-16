@@ -23,7 +23,7 @@ public final class BoardEngine {
 
     public static final class Cube {
         public final long id;
-        public final int value;
+        public final long value;
         public int lane;
         public int row;
         public float visualRow;
@@ -33,7 +33,7 @@ public final class BoardEngine {
         public boolean forcedMergeIncoming;
         private Cube forcedMergeTarget;
 
-        private Cube(long id, int lane, int row, int value, float visualRow) {
+        private Cube(long id, int lane, int row, long value, float visualRow) {
             this.id = id;
             this.lane = lane;
             this.row = row;
@@ -46,7 +46,7 @@ public final class BoardEngine {
     public static final class MergeSource {
         public final int lane;
         public final int row;
-        public final int value;
+        public final long value;
 
         private MergeSource(Cube cube) {
             lane = cube.lane;
@@ -61,10 +61,10 @@ public final class BoardEngine {
         public final int lane;
         public final int row;
         public final int combo;
-        public final int points;
+        public final long points;
         public final List<MergeSource> sources;
 
-        private MergeEvent(int value, int count, int lane, int row, int combo, int points, List<MergeSource> sources) {
+        private MergeEvent(long value, int count, int lane, int row, int combo, long points, List<MergeSource> sources) {
             this.value = value;
             this.count = count;
             this.lane = lane;
@@ -83,7 +83,7 @@ public final class BoardEngine {
     private List<Cube> pendingGroup = Collections.emptyList();
     private Cube pendingAnchor;
     private MergeEvent lastMerge;
-    private int score;
+    private long score;
     private int combo = 1;
     private float secondsSinceLastMerge = Float.MAX_VALUE;
 
@@ -109,7 +109,7 @@ public final class BoardEngine {
         // target rows change now; visualRow animates every cube across the board.
         compactAllLanes();
     }
-    public int score() { return score; }
+    public long score() { return score; }
     public int combo() { return combo; }
     public boolean isMergePending() { return !pendingGroup.isEmpty(); }
     public float mergeElapsedSeconds() { return pendingTime; }
@@ -139,7 +139,7 @@ public final class BoardEngine {
      * A completely full lane accepts only a cube matching the entry-edge cube;
      * it falls into that occupied cell and merges after the normal anticipation.
      */
-    public boolean launch(int lane, int value) {
+    public boolean launch(int lane, long value) {
         if (lane < 0 || lane >= COLUMNS || !isPowerOfTwo(value) || isMergePending()) return false;
         List<Cube> stack = lane(lane);
         for (Cube cube : stack) if (cube.moving) return false;
@@ -259,8 +259,8 @@ public final class BoardEngine {
 
     private void finishMerge() {
         int count = pendingGroup.size();
-        int baseValue = pendingGroup.get(0).value;
-        int result = mergeValue(baseValue, count);
+        long baseValue = pendingGroup.get(0).value;
+        long result = mergeValue(baseValue, count);
         if (result > 0) {
             int lane = pendingAnchor.lane;
             int row = pendingAnchor.row;
@@ -275,7 +275,7 @@ public final class BoardEngine {
             // 4.11 chains merges made within 1.7 seconds, up to x9.
             combo = secondsSinceLastMerge < 1.7f ? Math.min(9, combo + 1) : 1;
             secondsSinceLastMerge = 0f;
-            int points = result * combo;
+            long points = result * combo;
             score += points;
             lastMerge = new MergeEvent(result, count, lane, row, combo, points, sources);
         }
@@ -286,16 +286,17 @@ public final class BoardEngine {
     }
 
     /** Returns the smallest power of two greater than or equal to value * count. */
-    public static int mergeValue(int value, int count) {
+    public static long mergeValue(long value, int count) {
         if (!isPowerOfTwo(value) || count < 2) return 0;
-        long total = (long) value * count;
-        if (total > Integer.MAX_VALUE) return 0;
+        if (value > Long.MAX_VALUE / count) return 0L;
+        long total = value * count;
+        if (total > (1L << 62)) return 0L;
         long result = 1;
         while (result < total) result <<= 1;
-        return result > Integer.MAX_VALUE ? 0 : (int) result;
+        return result > (1L << 62) ? 0L : result;
     }
 
-    private static boolean isPowerOfTwo(int value) {
+    private static boolean isPowerOfTwo(long value) {
         return value >= 2 && (value & (value - 1)) == 0;
     }
 
@@ -359,7 +360,7 @@ public final class BoardEngine {
                 long id = Long.parseLong(fields[0]);
                 int lane = Integer.parseInt(fields[1]);
                 int row = Integer.parseInt(fields[2]);
-                int value = Integer.parseInt(fields[3]);
+                long value = Long.parseLong(fields[3]);
                 String cell = lane + ":" + row;
                 if (id < 1 || lane < 0 || lane >= COLUMNS || row < 0 || row >= ROWS
                         || !isPowerOfTwo(value) || !occupied.add(cell)) return false;
