@@ -43,7 +43,7 @@ final class MainMenuLayout {
         float modeGap = 7f * this.density;
         float modeW = (contentWidth - modeGap * 2f) / 3f;
         float modeH = 40f * this.density;
-        float modeY = screenH * .64f - modeH * .5f;
+        float modeY = screenH * .615f - modeH * .5f;
         for (int i = 0; i < 3; i++) {
             float cx = center + (i - 1) * (modeW + modeGap);
             modes[i] = new Rect(cx - modeW * .5f, modeY, modeW, modeH);
@@ -53,24 +53,24 @@ final class MainMenuLayout {
         for (int i = 0; i < 2; i++) {
             float cx = center + (i == 0 ? -1f : 1f) * (dirW + dirGap) * .5f;
             directions[i] = new Rect(cx - dirW * .5f,
-                    screenH * (compact ? .565f : .57f) - dirH * .5f, dirW, dirH);
+                    screenH * (compact ? .54f : .545f) - dirH * .5f, dirW, dirH);
         }
         boolean compact = screenH / this.density < 680f;
         float actionGap = 8f * this.density;
         float actionW = (contentWidth - actionGap) * .5f, actionH = 40f * this.density;
-        float actionsY = screenH * (compact ? .49f : .50f);
+        float actionsY = screenH * (compact ? .465f : .48f);
         menuActions[0] = centered(center - (actionW + actionGap) * .5f,
                 actionsY, actionW, actionH);
         menuActions[1] = centered(center + (actionW + actionGap) * .5f,
                 actionsY, actionW, actionH);
         continueButton = hasSavedGame
-                ? centered(center, screenH * (compact ? .405f : .43f), contentWidth, 48f * this.density) : null;
-        newGameButton = centered(center, screenH * (hasSavedGame ? (compact ? .315f : .36f) : (compact ? .405f : .43f)),
+                ? centered(center, screenH * (compact ? .385f : .415f), contentWidth, 48f * this.density) : null;
+        newGameButton = centered(center, screenH * (hasSavedGame ? (compact ? .30f : .345f) : (compact ? .385f : .415f)),
                 contentWidth, 48f * this.density);
         float utilityGap = 8f * this.density;
         float utilityW = (contentWidth - utilityGap) * .5f, utilityH = 40f * this.density;
-        float[] ys = compact ? new float[]{screenH * .235f, screenH * .16f}
-                : new float[]{screenH * .28f, screenH * .20f};
+        float[] ys = compact ? new float[]{screenH * .22f, screenH * .145f}
+                : new float[]{screenH * .275f, screenH * .205f};
         for (int row = 0; row < 2; row++) for (int col = 0; col < 2; col++) {
             float cx = center + (col == 0 ? -1f : 1f) * (utilityW + utilityGap) * .5f;
             utilities[row][col] = centered(cx, ys[row], utilityW, utilityH);
