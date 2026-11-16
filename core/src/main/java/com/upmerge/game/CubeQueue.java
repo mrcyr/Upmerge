@@ -84,7 +84,7 @@ public final class CubeQueue {
         return Math.min(56, Math.max(0, (int) Math.round(Math.log((double) safeTarget / BASE_GOAL) / Math.log(2.0))));
     }
 
-    private int roll() {
+    private long roll() {
         long[] values = valuesForGoal(goalTarget);
         int totalWeight = 0;
         for (int i = 0; i < values.length; i++) totalWeight += weightForIndex(i);
