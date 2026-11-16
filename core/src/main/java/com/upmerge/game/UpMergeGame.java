@@ -750,7 +750,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         font.setColor(0.60f, 0.70f, 0.82f, 1f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 420f, 0.75f, 0.92f));
         drawCentered("РЕКОРД: " + NumberFormatter.compact(bestScore),
-                screenW * 0.5f, screenH * 0.035f);
+                screenW * 0.5f, screenH * 0.60f);
         batch.end();
     }
 
