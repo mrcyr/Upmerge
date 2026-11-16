@@ -29,7 +29,9 @@ public final class CubeQueue {
     public long goalTarget() { return goalTarget; }
 
     public boolean restore(long target, long currentValue, long upcomingValue) {
-        if (!isAllowed(target, currentValue) || !isAllowed(target, upcomingValue)) return false;
+        if (!isValidGoal(target)
+                || !isAllowed(target, currentValue)
+                || !isAllowed(target, upcomingValue)) return false;
         goalTarget = target;
         current = currentValue;
         upcoming = upcomingValue;
@@ -41,8 +43,13 @@ public final class CubeQueue {
         return false;
     }
 
+    private static boolean isValidGoal(long target) {
+        return target >= BASE_GOAL && target <= (1L << 62)
+                && (target & (target - 1L)) == 0L;
+    }
+
     public void reset(long target) {
-        goalTarget = Math.max(BASE_GOAL, target);
+        goalTarget = isValidGoal(target) ? target : BASE_GOAL;
         current = roll();
         upcoming = roll();
     }
@@ -80,8 +87,8 @@ public final class CubeQueue {
     }
 
     private static int levelStep(long target) {
-        long safeTarget = Math.max((long) BASE_GOAL, target);
-        return Math.min(56, Math.max(0, (int) Math.round(Math.log((double) safeTarget / BASE_GOAL) / Math.log(2.0))));
+        if (!isValidGoal(target)) return 0;
+        return Long.numberOfTrailingZeros(target) - Long.numberOfTrailingZeros(BASE_GOAL);
     }
 
     private long roll() {
