@@ -29,8 +29,6 @@ public final class UpMergeGame extends ApplicationAdapter {
     private boolean emergencyDialog;
     private boolean splitSelecting;
     private boolean gameOver;
-    private String statusMessage = "";
-    private float statusMessageTime;
 
     private OrthographicCamera camera;
     private ShapeRenderer shapes;
@@ -129,7 +127,6 @@ public final class UpMergeGame extends ApplicationAdapter {
             saveGame();
         }
         if (mergeFlashTime > 0f) mergeFlashTime = Math.max(0f, mergeFlashTime - dt);
-        if (statusMessageTime > 0f) statusMessageTime = Math.max(0f, statusMessageTime - dt);
         if (mergeFlightTime > 0f) mergeFlightTime = Math.max(0f, mergeFlightTime - dt);
         BoardEngine.MergeEvent mergeEvent = engine.consumeMergeEvent();
         if (mergeEvent != null) {
@@ -204,17 +201,6 @@ public final class UpMergeGame extends ApplicationAdapter {
             int lane = MathUtils.clamp((int) ((x - boardLeft) / cell), 0, BoardEngine.COLUMNS - 1);
             if (engine.launch(lane, cubeQueue.current())) {
                 cubeQueue.advance();
-                statusMessage = "";
-                statusMessageTime = 0f;
-            } else if (engine.cubesInLane(lane) >= BoardEngine.ROWS) {
-                int required = engine.entryEdgeValue(lane);
-                statusMessage = required > 0
-                        ? "МАКСИМУМ 7 — НУЖЕН " + required
-                        : "СТОЛБЕЦ ЗАПОЛНЕН";
-                statusMessageTime = 1.8f;
-            } else {
-                statusMessage = "ДОЖДИСЬ ОСТАНОВКИ КУБИКА";
-                statusMessageTime = 1.2f;
             }
         }
     }
@@ -448,12 +434,6 @@ public final class UpMergeGame extends ApplicationAdapter {
         drawCentered("TAP A COLUMN TO DROP", screenW * 0.5f, footerHeight * 0.62f);
         drawCentered("TAP THE TOP PANEL TO CHANGE DIRECTION",
                 screenW * 0.5f, footerHeight * 0.28f);
-        if (statusMessageTime > 0f && !splitSelecting && !emergencyDialog && !gameOver) {
-            font.getData().setScale(uiScale * MathUtils.clamp(screenW / 360f, 0.82f, 1.08f));
-            font.setColor(1f, 0.78f, 0.34f, Math.min(1f, statusMessageTime * 2f));
-            drawCentered(statusMessage, screenW * 0.5f, footerHeight * 0.94f);
-        }
-
         // Center each value in its cube, with a scale that remains readable for large numbers.
         for (BoardEngine.Cube cube : engine.cubes()) {
             String value = Integer.toString(cube.value);
