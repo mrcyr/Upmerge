@@ -642,7 +642,7 @@ public final class UpMergeGame extends ApplicationAdapter {
             shapes.setColor(selected ? .12f : available ? .075f : .045f,
                     selected ? .38f : available ? .12f : .065f,
                     selected ? .48f : available ? .17f : .09f, 1f);
-            roundedRectInBatch(i * toolW + 2f, 8f, toolW - 4f, 55f * uiScale, 11f * uiScale);
+            roundedRectInBatch(i * toolW + 2f, 31f * uiScale, toolW - 4f, 55f * uiScale, 11f * uiScale);
         }
         // Current and upcoming cube previews are grouped above the hint.
         shapes.setColor(.055f, .085f, .12f, 1f);
@@ -829,20 +829,26 @@ public final class UpMergeGame extends ApplicationAdapter {
         drawCentered(NumberFormatter.compact(cubeQueue.current()), screenW * .5f - 20f * uiScale, queueY - 12f * uiScale);
         drawCentered(NumberFormatter.compact(cubeQueue.upcoming()), screenW * .5f + 91f * uiScale, queueY - 12f * uiScale);
 
+        String[] icons = {"↶", "✹", "✂", "↗", "⇄"};
+        String[] toolLabels = {"ОТМЕНА", "БОМБА ×" + bombCharges,
+                "УДАЛИТЬ ×" + splitCharges, "ПЕРЕМЕСТИТЬ ×" + moveCharges,
+                "ПОМЕНЯТЬ 2 ×" + swapCharges};
+        float toolW = screenW / 5f;
+        for (int i = 0; i < icons.length; i++) {
+            font.setColor(.45f, .86f, 1f, 1f);
+            font.getData().setScale(uiScale * (18f / 24f));
+            drawCentered(icons[i], (i + .5f) * toolW, 72f * uiScale);
+            font.setColor(.88f, .94f, 1f, 1f);
+            font.getData().setScale(uiScale * (8f / 24f));
+            drawCenteredFit(toolLabels[i], (i + .5f) * toolW, 48f * uiScale,
+                    toolW - 4f * uiScale, uiScale * (8f / 24f));
+        }
+
         font.setColor(.58f, .68f, .78f, 1f);
         font.getData().setScale(uiScale * (11f / 24f));
         drawCenteredFit("НАЖМИ НА СТОЛБЕЦ, ЧТОБЫ БРОСИТЬ КУБИК",
-                screenW * .5f, footerHeight - 69f * uiScale, screenW * .94f,
+                screenW * .5f, 12f * uiScale, screenW * .94f,
                 uiScale * (11f / 24f));
-        String[] tools = {"↶ ОТМЕНА", "БОМБА", "✂ УДАЛИТЬ", "↗ ПЕРЕМЕСТИТЬ", "⇄ ОБМЕН"};
-        int[] charges = {undoCharges, bombCharges, splitCharges, moveCharges, swapCharges};
-        float toolW = screenW / 5f;
-        for (int i = 0; i < tools.length; i++) {
-            font.setColor(.88f, .94f, 1f, 1f);
-            font.getData().setScale(uiScale * (8f / 24f));
-            drawCenteredFit(tools[i] + "\n" + charges[i], (i + .5f) * toolW,
-                    39f * uiScale, toolW - 4f, uiScale * (8f / 24f));
-        }
 
         for (BoardEngine.Cube cube : engine.cubes()) {
             String value = NumberFormatter.compact(cube.value);
