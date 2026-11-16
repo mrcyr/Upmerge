@@ -44,4 +44,5 @@ Reference: original Android/WebView build 4.11 (`app/src/main/assets/index.html`
 - [x] Validate restored queue goals as supported power-of-two tiers, including the signed-64-bit ceiling.
 - [x] Reject board snapshots containing gaps against the active gravity edge; preserve live state on rejection.
 - [x] Reject duplicate stable cube IDs in restored board snapshots.
+- [x] Prevent stable cube ID overflow when the restored ID counter reaches the signed-64-bit limit.
 - [x] Add persistence regression tests for queue + board consistency after interrupted launches.
