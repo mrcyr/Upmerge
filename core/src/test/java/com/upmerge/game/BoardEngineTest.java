@@ -175,9 +175,10 @@ public class BoardEngineTest {
                 engine.cubes().stream().allMatch(c -> c.moving));
 
         settle(engine);
-        assertEquals(6, engine.cubes().stream()
-                .filter(c -> c.value == 2).findFirst().get().row);
+        // 4.11 preserves the original top-to-bottom order after reversing gravity.
         assertEquals(5, engine.cubes().stream()
+                .filter(c -> c.value == 2).findFirst().get().row);
+        assertEquals(6, engine.cubes().stream()
                 .filter(c -> c.value == 4).findFirst().get().row);
     }
 
