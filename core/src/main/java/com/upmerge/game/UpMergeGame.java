@@ -947,17 +947,24 @@ public final class UpMergeGame extends ApplicationAdapter {
     private void drawMenuChoice(String label, float centerX, float centerY,
                                 float width, float height, boolean selected) {
         float left = centerX - width * .5f, bottom = centerY - height * .5f;
-        float radius = Math.min(16f, height * .34f);
-        drawRoundedFill(left, bottom - 2f, width, height, radius, 0f, 0f, 0f, .30f);
+        float radius = Math.min(12f, height * .30f);
         drawRoundedFill(left, bottom, width, height, radius,
-                selected ? .12f : .075f, selected ? .38f : .13f,
-                selected ? .53f : .205f, 1f);
-        drawRoundedFill(left + 1.5f, bottom + 1.5f, width - 3f, height - 3f,
-                Math.max(5f, radius - 1.5f),
-                selected ? .14f : .085f, selected ? .43f : .15f,
-                selected ? .59f : .235f, 1f);
+                .055f, .085f, .13f, 1f);
+        if (selected) {
+            drawRoundedFill(left + 1f, bottom + 1f, width - 2f, height - 2f,
+                    Math.max(4f, radius - 1f), .10f, .32f, .43f, 1f);
+            shapes.begin(ShapeRenderer.ShapeType.Line);
+            shapes.setColor(.36f, .82f, .98f, .92f);
+            shapes.rect(left + 1f, bottom + 1f, width - 2f, height - 2f);
+            shapes.end();
+        } else {
+            shapes.begin(ShapeRenderer.ShapeType.Line);
+            shapes.setColor(.45f, .62f, .78f, .22f);
+            shapes.rect(left + 1f, bottom + 1f, width - 2f, height - 2f);
+            shapes.end();
+        }
         batch.begin();
-        font.setColor(selected ? .96f : .82f, selected ? .99f : .90f,
+        font.setColor(selected ? .48f : .88f, selected ? .88f : .93f,
                 selected ? 1f : .98f, 1f);
         float scale = uiScale * MathUtils.clamp(screenW / 520f, .56f, .78f);
         font.getData().setScale(scale);
@@ -1375,17 +1382,38 @@ public final class UpMergeGame extends ApplicationAdapter {
         float height = screenH * heightRatio;
         float left = (screenW - width) * 0.5f;
         float bottom = centerY - height * 0.5f;
-        float radius = Math.min(19f, height * .34f);
-        drawRoundedFill(left, bottom - 2f, width, height, radius, 0f, 0f, 0f, .32f);
-        drawRoundedFill(left, bottom, width, height, radius,
-                highlighted ? .10f : .075f, highlighted ? .43f : .13f,
-                highlighted ? .64f : .205f, 1f);
-        drawRoundedFill(left + 1.5f, bottom + 1.5f, width - 3f, height - 3f,
-                Math.max(5f, radius - 1.5f),
-                highlighted ? .13f : .085f, highlighted ? .61f : .15f,
-                highlighted ? .82f : .235f, 1f);
+        float radius = Math.min(16f, height * .30f);
+        drawRoundedFill(left, bottom - 2f, width, height, radius, 0f, 0f, 0f, .24f);
+        if (highlighted) {
+            // CSS reference primary button: cyan-to-blue horizontal gradient.
+            int strips = 18;
+            for (int i = 0; i < strips; i++) {
+                float t = i / (float) (strips - 1);
+                float red = MathUtils.lerp(.41f, .43f, t);
+                float green = MathUtils.lerp(.88f, .66f, t);
+                float blue = MathUtils.lerp(1f, 1f, t);
+                shapes.begin(ShapeRenderer.ShapeType.Filled);
+                shapes.setColor(red, green, blue, 1f);
+                float stripX = left + width * i / strips;
+                float stripW = width / strips + 1f;
+                shapes.rect(stripX, bottom, stripW, height);
+                shapes.end();
+            }
+            // Rounded outer silhouette over the strip gradient.
+            shapes.begin(ShapeRenderer.ShapeType.Line);
+            shapes.setColor(.45f, .84f, 1f, .65f);
+            shapes.rect(left + 1f, bottom + 1f, width - 2f, height - 2f);
+            shapes.end();
+        } else {
+            drawRoundedFill(left, bottom, width, height, radius, .065f, .10f, .15f, 1f);
+            shapes.begin(ShapeRenderer.ShapeType.Line);
+            shapes.setColor(.55f, .70f, .86f, .18f);
+            shapes.rect(left + 1f, bottom + 1f, width - 2f, height - 2f);
+            shapes.end();
+        }
         batch.begin();
-        font.setColor(1f, 1f, 1f, 1f);
+        font.setColor(highlighted ? .025f : .91f, highlighted ? .09f : .95f,
+                highlighted ? .15f : 1f, 1f);
         float scale = uiScale * MathUtils.clamp(screenW / 390f, 0.82f, 1.08f);
         font.getData().setScale(scale);
         textLayout.setText(font, label);
