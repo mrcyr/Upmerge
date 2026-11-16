@@ -271,27 +271,32 @@ public class BoardEngineTest {
         assertEquals(event.row, engine.cubes().get(0).row);
     }
 
-    @Test public void mergesWithinSeventeenSecondsBuildComboUpToNine() {
+    @Test public void mergesWithinOnePointSevenSecondsIncreaseComboMultiplier() {
         BoardEngine engine = new BoardEngine();
-        for (int expectedCombo = 1; expectedCombo <= 9; expectedCombo++) {
-            assertTrue(engine.launch(expectedCombo % BoardEngine.COLUMNS, 2));
-            settle(engine);
-            // Build an adjacent pair in the next lane without overlapping the
-            // prior result's lane; the engine's score event reports combo tier.
-            int lane = expectedCombo % BoardEngine.COLUMNS;
-            assertTrue(engine.launch(lane, 2));
-            settle(engine);
-            assertTrue(engine.isMergePending());
-            finishMerge(engine);
-            BoardEngine.MergeEvent event = engine.consumeMergeEvent();
-            assertNotNull(event);
-            assertEquals(expectedCombo, event.combo);
-            assertEquals(event.value * expectedCombo, event.points);
-        }
-        assertEquals(9, engine.combo());
+
+        assertTrue(engine.launch(0, 2));
+        settle(engine);
+        assertTrue(engine.launch(0, 2));
+        settle(engine);
+        finishMerge(engine);
+        BoardEngine.MergeEvent first = engine.consumeMergeEvent();
+        assertNotNull(first);
+        assertEquals(1, first.combo);
+        assertEquals(4, first.points);
+
+        assertTrue(engine.launch(1, 2));
+        settle(engine);
+        assertTrue(engine.launch(1, 2));
+        settle(engine);
+        finishMerge(engine);
+        BoardEngine.MergeEvent second = engine.consumeMergeEvent();
+        assertNotNull(second);
+        assertEquals(2, second.combo);
+        assertEquals(8, second.points);
+        assertEquals(12, engine.score());
     }
 
-    @Test public void comboResetsAfterMoreThanSeventeenSecondsWithoutMerge() {
+    @Test public void comboResetsAfterMoreThanOnePointSevenSecondsWithoutMerge() {
         BoardEngine engine = new BoardEngine();
         assertTrue(engine.launch(0, 2));
         settle(engine);
