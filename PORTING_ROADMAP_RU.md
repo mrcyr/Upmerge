@@ -42,4 +42,5 @@ Reference: original Android/WebView build 4.11 (`app/src/main/assets/index.html`
 - [x] Add separate haptic pulses for each cube starting gravity movement (including a newly launched cube), each landing, and every completed merge.
 - [x] Add engine regression tests for launch, landing, gravity-repack, and emergency-removal haptic event counts.
 - [x] Validate restored queue goals as supported power-of-two tiers, including the signed-64-bit ceiling.
+- [x] Reject board snapshots containing gaps against the active gravity edge; preserve live state on rejection.
 - [x] Add persistence regression tests for queue + board consistency after interrupted launches.
