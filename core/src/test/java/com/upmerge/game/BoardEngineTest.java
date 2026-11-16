@@ -216,7 +216,7 @@ public class BoardEngineTest {
 
         assertEquals(1, engine.cubes().size());
         assertEquals(8, engine.cubes().get(0).value);
-        assertEquals(12, engine.score());
+        assertEquals(20, engine.score()); // second merge receives the x2 chain bonus
     }
 
     @Test public void mergeCompactionMovesRemainingCubesWithoutChangingTheirValues() {
