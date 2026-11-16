@@ -56,6 +56,7 @@ public final class UpMergeGame extends ApplicationAdapter {
     private float hapticTimeRemaining;
     private boolean paused;
     private GameMode gameMode = GameMode.CLASSIC;
+    private GameMode menuSelectedMode = GameMode.CLASSIC;
     private float timeLeft = 90f;
     private long challengeGoal = 2048;
     private enum GameMode { CLASSIC, TIMED, CHALLENGE }
@@ -375,22 +376,32 @@ public final class UpMergeGame extends ApplicationAdapter {
                 }
                 return;
             }
-            if (!modeSelectionVisible) {
-                if (hasSavedGame && y > screenH * 0.54f && y <= screenH * 0.64f) {
-                    menuVisible = false;
-                    return;
-                }
-                if (y > screenH * 0.39f && y <= screenH * 0.51f) modeSelectionVisible = true;
-                else if (y > screenH * 0.27f && y <= screenH * 0.36f) settingsVisible = true;
-                else if (y > screenH * 0.15f && y <= screenH * 0.24f) shopVisible = true;
-                else if (y > screenH * 0.115f && y <= screenH * 0.15f) statsVisible = true;
-                else if (y > screenH * 0.065f && y <= screenH * 0.11f) tasksVisible = true;
-                else if (y > screenH * 0.005f && y <= screenH * 0.055f) achievementsVisible = true;
-            } else {
-                if (y > screenH * 0.51f && y <= screenH * 0.68f) startMode(GameMode.CLASSIC, true);
-                else if (y > screenH * 0.34f && y <= screenH * 0.51f) startMode(GameMode.TIMED, true);
-                else if (y > screenH * 0.17f && y <= screenH * 0.34f) startMode(GameMode.CHALLENGE, true);
-                else if (y <= screenH * 0.16f) modeSelectionVisible = false;
+            if (y >= screenH * .565f && y <= screenH * .665f) {
+                int choice = menuModeAt(x);
+                if (choice == 0) menuSelectedMode = GameMode.CLASSIC;
+                else if (choice == 1) menuSelectedMode = GameMode.TIMED;
+                else if (choice == 2) menuSelectedMode = GameMode.CHALLENGE;
+            } else if (y >= screenH * .475f && y < screenH * .555f) {
+                engine.setDirection(x < screenW * .5f
+                        ? BoardEngine.Direction.UP : BoardEngine.Direction.DOWN);
+            } else if (hasSavedGame && y >= screenH * .385f && y < screenH * .465f) {
+                menuVisible = false;
+                paused = false;
+                return;
+            } else if (y >= screenH * .285f && y < screenH * .375f) {
+                startMode(menuSelectedMode, true);
+            } else if (y >= screenH * .17f && y < screenH * .265f) {
+                int action = menuUtilityAt(x, y);
+                if (action == 0) settingsVisible = true;
+                else if (action == 1) shopVisible = true;
+                else if (action == 2) achievementsVisible = true;
+                else if (action == 3) statsVisible = true;
+            } else if (y >= screenH * .075f && y < screenH * .16f) {
+                int action = menuUtilityAt(x, y);
+                if (action == 0) tasksVisible = true;
+                else if (action == 1) shopVisible = true;
+                else if (action == 2) statsVisible = true;
+                else if (action == 3) achievementsVisible = true;
             }
             return;
         }
@@ -828,31 +839,100 @@ public final class UpMergeGame extends ApplicationAdapter {
 
     private void drawMainMenu() {
         drawMenuBackdrop();
+        float center = screenW * .5f;
         batch.begin();
-        font.setColor(0.35f, 0.82f, 1f, 1f);
-        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 210f, 1.45f, 2.0f));
-        drawCentered("СЛИЯНИЕ", screenW * 0.5f, screenH * 0.78f);
-        font.setColor(0.72f, 0.82f, 0.92f, 1f);
-        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 390f, 0.78f, 1.0f));
-        drawCenteredFit("СОБИРАЙ КУБИКИ. ДОСТИГАЙ НОВЫХ ЦЕЛЕЙ.",
-                screenW * 0.5f, screenH * 0.68f, screenW * 0.80f,
-                uiScale * MathUtils.clamp(screenW / 390f, 0.62f, 0.82f));
+        font.setColor(.42f, .86f, 1f, 1f);
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 190f, 1.65f, 2.35f));
+        drawCentered("UPMERGE", center, screenH * .855f);
+        font.setColor(.66f, .76f, .89f, 1f);
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 420f, .68f, .86f));
+        drawCenteredFit("СОБИРАЙ КУБИКИ · СОЗДАВАЙ ЦЕПНЫЕ РЕАКЦИИ",
+                center, screenH * .785f, screenW * .82f,
+                uiScale * MathUtils.clamp(screenW / 440f, .58f, .76f));
+        font.setColor(.53f, .67f, .82f, 1f);
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 420f, .62f, .78f));
+        drawCentered("ВЫБЕРИ РЕЖИМ", center, screenH * .715f);
         batch.end();
 
-        if (hasSavedGame) drawMenuButton("ПРОДОЛЖИТЬ", screenH * 0.59f, 0.09f, true);
-        drawMenuButton("НОВАЯ ИГРА", screenH * 0.45f, 0.10f, true);
-        drawMenuButton("НАСТРОЙКИ", screenH * 0.315f, 0.085f, false);
-        drawMenuButton("МАГАЗИН · " + NumberFormatter.compact(economy.coins()) + " МОНЕТ",
-                screenH * 0.195f, 0.075f, false);
-        drawMenuButton("СТАТИСТИКА", screenH * 0.132f, 0.045f, false);
-        drawMenuButton("ЗАДАНИЯ", screenH * 0.087f, 0.04f, false);
-        drawMenuButton("ДОСТИЖЕНИЯ", screenH * 0.032f, 0.04f, false);
+        float cardGap = screenW * .025f;
+        float cardW = screenW * .255f;
+        float cardH = screenH * .075f;
+        float cardY = screenH * .615f;
+        drawMenuChoice("КЛАССИКА", center - cardW - cardGap, cardY, cardW, cardH,
+                menuSelectedMode == GameMode.CLASSIC);
+        drawMenuChoice("90 СЕК", center, cardY, cardW, cardH,
+                menuSelectedMode == GameMode.TIMED);
+        drawMenuChoice("ВЫЗОВ", center + cardW + cardGap, cardY, cardW, cardH,
+                menuSelectedMode == GameMode.CHALLENGE);
 
         batch.begin();
-        font.setColor(0.60f, 0.70f, 0.82f, 1f);
-        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 420f, 0.75f, 0.92f));
-        drawCentered("РЕКОРД: " + NumberFormatter.compact(bestScore),
-                screenW * 0.5f, screenH * 0.60f);
+        font.setColor(.53f, .67f, .82f, 1f);
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 420f, .62f, .78f));
+        drawCentered("НАПРАВЛЕНИЕ", center, screenH * .535f);
+        batch.end();
+        float dirW = screenW * .37f, dirH = screenH * .064f, dirY = screenH * .49f;
+        drawMenuChoice("СНИЗУ ВВЕРХ ↑", center - dirW * .52f, dirY, dirW, dirH,
+                engine.direction() == BoardEngine.Direction.UP);
+        drawMenuChoice("СВЕРХУ ВНИЗ ↓", center + dirW * .52f, dirY, dirW, dirH,
+                engine.direction() == BoardEngine.Direction.DOWN);
+
+        if (hasSavedGame) {
+            drawMenuButton("ПРОДОЛЖИТЬ ИГРУ", screenH * .425f, .078f, false);
+            drawMenuButton("НОВАЯ ИГРА", screenH * .325f, .085f, true);
+        } else {
+            drawMenuButton("НАЧАТЬ ИГРУ", screenH * .39f, .09f, true);
+        }
+
+        float utilityY1 = screenH * .225f;
+        float utilityY2 = screenH * .125f;
+        float utilityW = screenW * .385f;
+        float utilityH = screenH * .065f;
+        drawMenuChoice("НАСТРОЙКИ", center - screenW * .205f, utilityY1, utilityW, utilityH, false);
+        drawMenuChoice("МАГАЗИН · " + NumberFormatter.compact(economy.coins()),
+                center + screenW * .205f, utilityY1, utilityW, utilityH, false);
+        drawMenuChoice("ЗАДАНИЯ", center - screenW * .205f, utilityY2, utilityW, utilityH, false);
+        drawMenuChoice("ДОСТИЖЕНИЯ", center + screenW * .205f, utilityY2, utilityW, utilityH, false);
+
+        batch.begin();
+        font.setColor(.58f, .69f, .82f, 1f);
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 450f, .60f, .76f));
+        drawCentered("РЕКОРД  " + NumberFormatter.compact(bestScore)
+                        + "     ·     СТАТИСТИКА",
+                center, screenH * .055f);
+        batch.end();
+    }
+
+    private int menuModeAt(float x) {
+        float center = screenW * .5f, gap = screenW * .025f, cardW = screenW * .255f;
+        if (x < center - cardW * .5f - gap) return 0;
+        if (x > center + cardW * .5f + gap) return 2;
+        return 1;
+    }
+
+    private int menuUtilityAt(float x, float y) {
+        return x < screenW * .5f ? (y >= screenH * .17f ? 0 : 0)
+                : (y >= screenH * .17f ? 1 : 3);
+    }
+
+    private void drawMenuChoice(String label, float centerX, float centerY,
+                                float width, float height, boolean selected) {
+        float left = centerX - width * .5f, bottom = centerY - height * .5f;
+        drawRoundedFill(left, bottom, width, height, Math.min(15f, height * .38f),
+                selected ? .12f : .075f, selected ? .38f : .13f,
+                selected ? .53f : .205f, 1f);
+        if (selected) {
+            shapes.begin(ShapeRenderer.ShapeType.Line);
+            shapes.setColor(.43f, .85f, 1f, .95f);
+            shapes.rect(left + 1f, bottom + 1f, width - 2f, height - 2f);
+            shapes.end();
+        }
+        batch.begin();
+        font.setColor(selected ? .93f : .78f, selected ? .98f : .86f,
+                selected ? 1f : .94f, 1f);
+        float scale = uiScale * MathUtils.clamp(screenW / 520f, .56f, .78f);
+        font.getData().setScale(scale);
+        drawCenteredFit(label, centerX, centerY - font.getCapHeight() * .30f,
+                width * .88f, scale);
         batch.end();
     }
 
