@@ -374,6 +374,7 @@ public final class BoardEngine {
 
             ArrayList<Cube> restored = new ArrayList<>();
             Set<String> occupied = new HashSet<>();
+            int[] laneCounts = new int[COLUMNS];
             long maxId = 0;
             for (int i = 0; i < count; i++) {
                 String[] fields = parts[7 + i].split(",");
@@ -388,9 +389,32 @@ public final class BoardEngine {
                 Cube cube = new Cube(id, lane, row, value, row);
                 cube.moving = false;
                 restored.add(cube);
+                laneCounts[lane]++;
                 maxId = Math.max(maxId, id);
             }
             if (restoredNextId <= maxId) return false;
+
+            // Snapshots are written only for settled boards: every lane must be
+            // packed tightly against its active gravity edge, with no hidden holes.
+            for (Cube cube : restored) {
+                int countInLane = laneCounts[cube.lane];
+                int expectedRow = restoredDirection == Direction.UP
+                        ? countInLane - 1 : ROWS - countInLane;
+                if (restoredDirection == Direction.UP) {
+                    int below = 0;
+                    for (Cube other : restored) {
+                        if (other.lane == cube.lane && other.row < cube.row) below++;
+                    }
+                    expectedRow = below;
+                } else {
+                    int above = 0;
+                    for (Cube other : restored) {
+                        if (other.lane == cube.lane && other.row > cube.row) above++;
+                    }
+                    expectedRow = ROWS - 1 - above;
+                }
+                if (cube.row != expectedRow) return false;
+            }
 
             cubes.clear();
             cubes.addAll(restored);
