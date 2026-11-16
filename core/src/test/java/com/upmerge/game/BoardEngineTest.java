@@ -42,6 +42,22 @@ public class BoardEngineTest {
         assertEquals(1L << 60, BoardEngine.mergeValue(1L << 59, 2));
     }
 
+    @Test public void mergeRoundingIsCorrectForEverySupportedGroupSize() {
+        long[] expectedForTwos = {0, 0, 4, 8, 8, 16, 16, 16};
+        for (int count = 2; count <= 7; count++) {
+            assertEquals("2-cube group size " + count,
+                    expectedForTwos[count], BoardEngine.mergeValue(2L, count));
+        }
+        assertEquals(16, BoardEngine.mergeValue(4L, 3));
+        assertEquals(32, BoardEngine.mergeValue(8L, 3));
+        assertEquals(64, BoardEngine.mergeValue(8L, 7));
+    }
+
+    @Test public void mergeArithmeticRejectsOverflowInsteadOfWrapping() {
+        assertEquals(0L, BoardEngine.mergeValue(1L << 62, 2));
+        assertEquals(0L, BoardEngine.mergeValue(1L << 61, 3));
+    }
+
     @Test public void rejectsInvalidLaunches() {
         BoardEngine engine = new BoardEngine();
         assertFalse(engine.launch(-1, 2));
