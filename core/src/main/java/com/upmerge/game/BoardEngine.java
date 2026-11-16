@@ -316,6 +316,75 @@ public final class BoardEngine {
         }
     }
 
+    /** Versioned stable snapshot. Saves only settled boards; transient animations are replayed safely. */
+    public String saveState() {
+        if (isMergePending() || hasMovingCubes()) return null;
+        StringBuilder out = new StringBuilder("UPM1|");
+        out.append(score).append('|').append(direction.name()).append('|')
+                .append(combo).append('|').append(Math.min(1.7f, secondsSinceLastMerge)).append('|')
+                .append(nextId).append('|').append(cubes.size());
+        for (Cube cube : cubes) {
+            out.append('|').append(cube.id).append(',')
+                    .append(cube.lane).append(',').append(cube.row).append(',')
+                    .append(cube.value);
+        }
+        return out.toString();
+    }
+
+    public boolean loadState(String state) {
+        if (state == null) return false;
+        try {
+            String[] parts = state.split("\\|");
+            if (parts.length < 7 || !"UPM1".equals(parts[0])) return false;
+            int restoredScore = Integer.parseInt(parts[1]);
+            Direction restoredDirection = Direction.valueOf(parts[2]);
+            int restoredCombo = Integer.parseInt(parts[3]);
+            float restoredComboAge = Float.parseFloat(parts[4]);
+            long restoredNextId = Long.parseLong(parts[5]);
+            int count = Integer.parseInt(parts[6]);
+            if (restoredScore < 0 || restoredCombo < 1 || restoredCombo > 9
+                    || count < 0 || count > COLUMNS * ROWS || parts.length != 7 + count
+                    || restoredNextId < 1 || !Float.isFinite(restoredComboAge)
+                    || restoredComboAge < 0 || restoredComboAge > 1.7f) return false;
+
+            ArrayList<Cube> restored = new ArrayList<>();
+            Set<String> occupied = new HashSet<>();
+            long maxId = 0;
+            for (int i = 0; i < count; i++) {
+                String[] fields = parts[7 + i].split(",");
+                if (fields.length != 4) return false;
+                long id = Long.parseLong(fields[0]);
+                int lane = Integer.parseInt(fields[1]);
+                int row = Integer.parseInt(fields[2]);
+                int value = Integer.parseInt(fields[3]);
+                String cell = lane + ":" + row;
+                if (id < 1 || lane < 0 || lane >= COLUMNS || row < 0 || row >= ROWS
+                        || !isPowerOfTwo(value) || !occupied.add(cell)) return false;
+                Cube cube = new Cube(id, lane, row, value, row);
+                cube.moving = false;
+                restored.add(cube);
+                maxId = Math.max(maxId, id);
+            }
+            if (restoredNextId <= maxId) return false;
+
+            cubes.clear();
+            cubes.addAll(restored);
+            score = restoredScore;
+            direction = restoredDirection;
+            requestedDirection = null;
+            combo = restoredCombo;
+            secondsSinceLastMerge = restoredComboAge;
+            nextId = restoredNextId;
+            pendingGroup = Collections.emptyList();
+            pendingAnchor = null;
+            pendingTime = 0;
+            lastMerge = null;
+            return true;
+        } catch (RuntimeException invalid) {
+            return false;
+        }
+    }
+
     public boolean isFull() {
         for (int lane = 0; lane < COLUMNS; lane++) {
             if (firstEmptyRow(lane(lane)) >= 0) return false;
