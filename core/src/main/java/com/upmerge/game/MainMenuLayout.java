@@ -60,7 +60,7 @@ final class MainMenuLayout {
         menuActions[0] = centered(center - (actionW + actionGap) * .5f,
                 screenH * .45f, actionW, actionH);
         menuActions[1] = centered(center + (actionW + actionGap) * .5f,
-                screenH * .425f, actionW, actionH);
+                screenH * .45f, actionW, actionH);
         continueButton = hasSavedGame
                 ? centered(center, screenH * .37f, contentWidth, 48f * this.density) : null;
         newGameButton = centered(center, screenH * (hasSavedGame ? .30f : .37f),
