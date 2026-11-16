@@ -406,7 +406,7 @@ public final class UpMergeGame extends ApplicationAdapter {
                 else if (action == 1) shopVisible = true;
                 else if (action == 2) achievementsVisible = true;
                 else if (action == 3) statsVisible = true;
-            } else if (y >= screenH * .105f && y < screenH * .195f) {
+            } else if (y >= screenH * .105f && y < screenH * .185f) {
                 int action = menuUtilityAt(x, y);
                 if (action == 0) tasksVisible = true;
                 else if (action == 1) shopVisible = true;
