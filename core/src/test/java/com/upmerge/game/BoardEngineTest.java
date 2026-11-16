@@ -316,6 +316,60 @@ public class BoardEngineTest {
         assertEquals(1, event.combo);
     }
 
+    @Test public void stableBoardSnapshotRestoresScoreDirectionComboAndCubes() {
+        BoardEngine source = new BoardEngine();
+        assertTrue(source.launch(2, 2));
+        settle(source);
+        assertTrue(source.launch(2, 2));
+        settle(source);
+        finishMerge(source);
+        source.consumeMergeEvent();
+        source.setDirection(BoardEngine.Direction.DOWN);
+        settle(source);
+
+        String saved = source.saveState();
+        assertNotNull(saved);
+
+        BoardEngine restored = new BoardEngine();
+        assertTrue(restored.loadState(saved));
+        assertEquals(source.score(), restored.score());
+        assertEquals(source.direction(), restored.direction());
+        assertEquals(source.combo(), restored.combo());
+        assertEquals(source.cubes().size(), restored.cubes().size());
+        for (BoardEngine.Cube cube : source.cubes()) {
+            BoardEngine.Cube copy = restored.cubes().stream()
+                    .filter(c -> c.id == cube.id).findFirst().orElse(null);
+            assertNotNull(copy);
+            assertEquals(cube.value, copy.value);
+            assertEquals(cube.lane, copy.lane);
+            assertEquals(cube.row, copy.row);
+            assertFalse(copy.moving);
+        }
+    }
+
+    @Test public void snapshotIsUnavailableDuringMotionAndMerge() {
+        BoardEngine engine = new BoardEngine();
+        assertTrue(engine.launch(0, 2));
+        assertNull(engine.saveState());
+        settle(engine);
+        assertTrue(engine.launch(0, 2));
+        settle(engine);
+        assertTrue(engine.isMergePending());
+        assertNull(engine.saveState());
+    }
+
+    @Test public void malformedOrOverlappingSnapshotsAreRejectedWithoutMutation() {
+        BoardEngine engine = new BoardEngine();
+        assertTrue(engine.launch(0, 2));
+        settle(engine);
+        String valid = engine.saveState();
+        int before = engine.cubes().size();
+
+        assertFalse(engine.loadState("UPM1|bad"));
+        assertFalse(engine.loadState("UPM1|0|UP|1|0|2|2|1,0,0,2|2,0,0,4"));
+        assertEquals(before, engine.cubes().size());
+    }
+
     @Test public void clearResetsBoardAndScore() {
         BoardEngine engine = new BoardEngine();
         assertTrue(engine.launch(0, 2));
