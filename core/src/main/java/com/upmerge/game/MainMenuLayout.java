@@ -4,7 +4,7 @@ package com.upmerge.game;
  * bottom-left origin so rendering and touch hit-testing use identical bounds. */
 final class MainMenuLayout {
     enum Target { MODE_CLASSIC, MODE_TIMED, MODE_CHALLENGE, DIRECTION_UP, DIRECTION_DOWN,
-        CONTINUE, NEW_GAME, SETTINGS, SHOP, TASKS, ACHIEVEMENTS, STATISTICS, NONE }
+        THEMES, DAILY, CONTINUE, NEW_GAME, SHOP, ACHIEVEMENTS, STATISTICS, TASKS, NONE }
 
     static final class Rect {
         final float x, y, width, height;
@@ -25,6 +25,7 @@ final class MainMenuLayout {
     final float screenW, screenH;
     final Rect[] modes = new Rect[3];
     final Rect[] directions = new Rect[2];
+    final Rect[] menuActions = new Rect[2];
     final Rect continueButton, newGameButton;
     final Rect[][] utilities = new Rect[2][2];
     final Rect statistics;
@@ -44,12 +45,15 @@ final class MainMenuLayout {
             float cx = center + (i == 0 ? -1f : 1f) * dirW * .52f;
             directions[i] = new Rect(cx - dirW * .5f, screenH * .49f - dirH * .5f, dirW, dirH);
         }
+        float actionW = screenW * .385f, actionH = screenH * .060f;
+        menuActions[0] = centered(screenW * .295f, screenH * .425f, actionW, actionH);
+        menuActions[1] = centered(screenW * .705f, screenH * .425f, actionW, actionH);
         continueButton = hasSavedGame
-                ? centered(screenW * .5f, screenH * .425f, screenW * .76f, screenH * .078f) : null;
-        newGameButton = centered(screenW * .5f, screenH * (hasSavedGame ? .325f : .39f),
-                screenW * .76f, screenH * (hasSavedGame ? .085f : .09f));
-        float utilityW = screenW * .385f, utilityH = screenH * .065f;
-        float[] ys = {screenH * .225f, screenH * .145f};
+                ? centered(screenW * .5f, screenH * .355f, screenW * .76f, screenH * .070f) : null;
+        newGameButton = centered(screenW * .5f, screenH * (hasSavedGame ? .275f : .355f),
+                screenW * .76f, screenH * .075f);
+        float utilityW = screenW * .385f, utilityH = screenH * .060f;
+        float[] ys = {screenH * .185f, screenH * .105f};
         for (int row = 0; row < 2; row++) for (int col = 0; col < 2; col++) {
             float cx = center + (col == 0 ? -1f : 1f) * screenW * .205f;
             utilities[row][col] = centered(cx, ys[row], utilityW, utilityH);
@@ -66,12 +70,13 @@ final class MainMenuLayout {
             return Target.values()[i];
         for (int i = 0; i < directions.length; i++) if (directions[i].contains(x, y))
             return i == 0 ? Target.DIRECTION_UP : Target.DIRECTION_DOWN;
+        for (int i = 0; i < menuActions.length; i++) if (menuActions[i].contains(x, y)) return i == 0 ? Target.THEMES : Target.DAILY;
         if (continueButton != null && continueButton.contains(x, y)) return Target.CONTINUE;
         if (newGameButton.contains(x, y)) return Target.NEW_GAME;
         for (int row = 0; row < 2; row++) for (int col = 0; col < 2; col++)
             if (utilities[row][col].contains(x, y)) {
-                if (row == 0) return col == 0 ? Target.SETTINGS : Target.SHOP;
-                return col == 0 ? Target.TASKS : Target.ACHIEVEMENTS;
+                if (row == 0) return col == 0 ? Target.SHOP : Target.ACHIEVEMENTS;
+                return col == 0 ? Target.STATISTICS : Target.TASKS;
             }
         if (statistics.contains(x, y)) return Target.STATISTICS;
         return Target.NONE;
