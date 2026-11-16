@@ -222,7 +222,21 @@ public final class UpMergeGame extends ApplicationAdapter {
     }
 
     private void drawOverlays() {
-        if (!emergencyDialog && !splitSelecting && !gameOver) return;
+        // Cube selection is a gameplay mode, not a blocking dialog: keep the
+        // board fully visible and tappable after the player chooses SPLIT.
+        if (splitSelecting) {
+            shapes.begin(ShapeRenderer.ShapeType.Filled);
+            shapes.setColor(0.04f, 0.42f, 0.52f, 0.96f);
+            shapes.rect(screenW * 0.08f, 5f, screenW * 0.84f, Math.max(30f, footerHeight - 10f));
+            shapes.end();
+            batch.begin();
+            font.getData().setScale(uiScale * MathUtils.clamp(screenW / 390f, 0.72f, 0.92f));
+            font.setColor(1f, 1f, 1f, 1f);
+            drawCentered("ВЫБЕРИ КУБИК", screenW * 0.5f, Math.max(24f, footerHeight * 0.58f));
+            batch.end();
+            return;
+        }
+        if (!emergencyDialog && !gameOver) return;
         shapes.begin(ShapeRenderer.ShapeType.Filled);
         shapes.setColor(0f, 0f, 0f, 0.78f);
         shapes.rect(0, 0, screenW, screenH);
@@ -330,6 +344,20 @@ public final class UpMergeGame extends ApplicationAdapter {
             shapes.rect(x + 3f, y + size - 5f, size - 6f, 2f);
         }
         shapes.end();
+
+        // In emergency split mode outline every selectable cube. This makes
+        // the tap target obvious without dimming or covering the board.
+        if (splitSelecting) {
+            shapes.begin(ShapeRenderer.ShapeType.Line);
+            shapes.setColor(0.25f, 0.95f, 1f, 1f);
+            shapes.set(ShapeRenderer.ShapeType.Line);
+            for (BoardEngine.Cube cube : engine.cubes()) {
+                float x = boardLeft + cube.lane * cell + cell * 0.045f;
+                float y = boardBottom + (BoardEngine.ROWS - 1 - cube.visualRow) * cell + cell * 0.045f;
+                shapes.rect(x, y, cell * 0.91f, cell * 0.91f);
+            }
+            shapes.end();
+        }
 
         // A short expanding outline marks the result of a completed merge.
         if (mergeFlashTime > 0f && mergeFlashLane >= 0 && mergeFlashRow >= 0) {
