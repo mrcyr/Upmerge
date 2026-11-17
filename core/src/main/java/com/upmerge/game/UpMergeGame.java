@@ -1010,9 +1010,9 @@ public final class UpMergeGame extends ApplicationAdapter {
                 menuSelectedDirection == BoardEngine.Direction.DOWN);
 
         MainMenuLayout.Rect[] actionCards = mainMenuLayout.menuActions;
-        drawMenuChoice("ТЕМЫ", actionCards[0].centerX(), actionCards[0].centerY(),
+        drawMenuChoice("✦  ТЕМЫ", actionCards[0].centerX(), actionCards[0].centerY(),
                 actionCards[0].width, actionCards[0].height, false);
-        drawMenuChoice("ЕЖЕДНЕВНО", actionCards[1].centerX(), actionCards[1].centerY(),
+        drawMenuChoice("▦  ЕЖЕДНЕВНО", actionCards[1].centerX(), actionCards[1].centerY(),
                 actionCards[1].width, actionCards[1].height, false);
 
         if (hasSavedGame) {
@@ -1023,14 +1023,14 @@ public final class UpMergeGame extends ApplicationAdapter {
         }
 
         MainMenuLayout.Rect[][] utilityCards = mainMenuLayout.utilities;
-        drawMenuChoice("МАГАЗИН · " + NumberFormatter.compact(economy.coins()),
-                utilityCards[0][0].centerX(), utilityCards[0][0].centerY(),
+        drawMenuChoice("▥  СТАТИСТИКА", utilityCards[0][0].centerX(), utilityCards[0][0].centerY(),
                 utilityCards[0][0].width, utilityCards[0][0].height, false);
-        drawMenuChoice("ДОСТИЖЕНИЯ", utilityCards[0][1].centerX(), utilityCards[0][1].centerY(),
+        drawMenuChoice("▤  ЗАДАНИЯ", utilityCards[0][1].centerX(), utilityCards[0][1].centerY(),
                 utilityCards[0][1].width, utilityCards[0][1].height, false);
-        drawMenuChoice("СТАТИСТИКА", utilityCards[1][0].centerX(), utilityCards[1][0].centerY(),
+        drawMenuChoice("▣  МАГАЗИН · " + NumberFormatter.compact(economy.coins()),
+                utilityCards[1][0].centerX(), utilityCards[1][0].centerY(),
                 utilityCards[1][0].width, utilityCards[1][0].height, false);
-        drawMenuChoice("ЗАДАНИЯ", utilityCards[1][1].centerX(), utilityCards[1][1].centerY(),
+        drawMenuChoice("★  ДОСТИЖЕНИЯ", utilityCards[1][1].centerX(), utilityCards[1][1].centerY(),
                 utilityCards[1][1].width, utilityCards[1][1].height, false);
 
         batch.begin();
