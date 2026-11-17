@@ -50,6 +50,7 @@ public final class UpMergeGame extends ApplicationAdapter {
     private boolean menuVisible = true;
     private boolean modeSelectionVisible;
     private boolean settingsVisible;
+    private UiTheme uiTheme;
     private boolean hapticsEnabled = true;
     private boolean hasSavedGame;
     private long[] activeHapticPattern = new long[0];
@@ -98,6 +99,7 @@ public final class UpMergeGame extends ApplicationAdapter {
             region.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         }
         preferences = Gdx.app.getPreferences("UpMergeNative");
+        uiTheme = UiTheme.fromIndex(preferences.getInteger("uiTheme", 16));
         bestScore = preferences.getLong("bestScore", 0L);
         lifetimeGames = preferences.getLong("statsGames", 0L);
         lifetimeMerges = preferences.getLong("statsMerges", 0L);
@@ -418,7 +420,9 @@ public final class UpMergeGame extends ApplicationAdapter {
                 return;
             }
             if (settingsVisible) {
-                if (y > screenH * 0.40f && y <= screenH * 0.62f) {
+                if (y > screenH * 0.62f && y <= screenH * 0.74f) {
+                    cycleUiTheme();
+                } else if (y > screenH * 0.38f && y <= screenH * 0.54f) {
                     hapticsEnabled = !hapticsEnabled;
                     preferences.putBoolean("hapticsEnabled", hapticsEnabled);
                     preferences.flush();
@@ -763,7 +767,7 @@ public final class UpMergeGame extends ApplicationAdapter {
             float x = boardLeft + (cube.lane + .5f) * cell - size * .5f;
             float y = boardBottom + (BoardEngine.ROWS - .5f - cube.visualRow) * cell - size * .5f;
             float radius = Math.max(7f, Math.min(14f, size * .16f));
-            int rgb = CubePalette.rgb(cube.value);
+            int rgb = uiTheme.cubeColor(cube.value);
             float red = ((rgb >>> 16) & 0xff) / 255f;
             float green = ((rgb >>> 8) & 0xff) / 255f;
             float blue = (rgb & 0xff) / 255f;
@@ -794,9 +798,9 @@ public final class UpMergeGame extends ApplicationAdapter {
 
         // Expanding impact rings: a bright contact shockwave followed by a softer halo.
         shapes.begin(ShapeRenderer.ShapeType.Line);
-        shapes.setColor(0.78f, 0.96f, 1f, fade * .92f);
+        setShapeHex(uiTheme.accent, fade * .92f);
         shapes.circle(cx, cy, radius * (.20f + progress * .78f), 48);
-        shapes.setColor(0.35f, 0.78f, 1f, fade * .52f);
+        setShapeHex(uiTheme.accentSecondary, fade * .52f);
         shapes.circle(cx, cy, radius * (.34f + progress * 1.05f), 48);
         shapes.end();
 
@@ -804,14 +808,14 @@ public final class UpMergeGame extends ApplicationAdapter {
         shapes.begin(ShapeRenderer.ShapeType.Filled);
         shapes.setColor(1f, 1f, 1f, fade * .82f);
         shapes.circle(cx, cy, radius * (.08f + fade * .20f), 32);
-        shapes.setColor(mergeVfx.red(), mergeVfx.green(), mergeVfx.blue(), fade * .42f);
+        setShapeHex(uiTheme.accent, fade * .42f);
         shapes.circle(cx, cy, radius * (.18f + fade * .25f), 32);
         for (int i = 0; i < mergeVfx.particleCount(); i++) {
             float alpha = mergeVfx.particleAlpha(i);
             if (alpha <= 0f) continue;
             float x = mergeVfx.particleX(i), y = mergeVfx.particleY(i);
             float size = mergeVfx.particleSize(i);
-            shapes.setColor(mergeVfx.red(), mergeVfx.green(), mergeVfx.blue(), alpha);
+            setShapeHex(uiTheme.accent, alpha);
             shapes.rect(x - size * .5f, y - size * .5f, size, size);
         }
         shapes.end();
@@ -822,7 +826,7 @@ public final class UpMergeGame extends ApplicationAdapter {
             if (alpha <= 0f) continue;
             float x = mergeVfx.particleX(i), y = mergeVfx.particleY(i);
             float px = mergeVfx.previousX(i), py = mergeVfx.previousY(i);
-            shapes.setColor(0.88f, 0.96f, 1f, alpha * .82f);
+            setShapeHex(uiTheme.accentSecondary, alpha * .82f);
             shapes.line(px, py, x, y);
         }
         shapes.end();
@@ -830,7 +834,7 @@ public final class UpMergeGame extends ApplicationAdapter {
 
     /** Rounded rectangle primitive that can be drawn inside an active ShapeRenderer batch. */
     private void setCubeFaceColor(long value, float alpha) {
-        int rgb = CubePalette.rgb(value);
+        int rgb = uiTheme.cubeColor(value);
         shapes.setColor(((rgb >>> 16) & 0xff) / 255f,
                 ((rgb >>> 8) & 0xff) / 255f, (rgb & 0xff) / 255f, alpha);
     }
@@ -1023,7 +1027,7 @@ public final class UpMergeGame extends ApplicationAdapter {
                 screenH * .745f - 2f * uiScale);
         logoFont.setColor(.93f, .97f, 1f, 1f);
         logoFont.draw(batch, "UP", logoLeft, screenH * .745f);
-        logoFont.setColor(.20f, .82f, 1f, 1f);
+        setFontHex(uiTheme.accent);
         logoFont.draw(batch, "MERGE", logoLeft + upWidth, screenH * .745f);
         font.setColor(.66f, .76f, .89f, 1f);
         font.getData().setScale(uiScale * (15f / 24f));
@@ -1492,17 +1496,18 @@ public final class UpMergeGame extends ApplicationAdapter {
     private void drawSettingsMenu() {
         drawMenuBackdrop();
         batch.begin();
-        font.setColor(0.35f, 0.82f, 1f, 1f);
+        setFontHex(uiTheme.accent);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 240f, 1.25f, 1.65f));
-        drawCentered("НАСТРОЙКИ", screenW * 0.5f, screenH * 0.79f);
+        drawCentered("ТЕМЫ", screenW * 0.5f, screenH * 0.82f);
         font.setColor(0.72f, 0.82f, 0.92f, 1f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 390f, 0.78f, 0.95f));
-        drawCenteredFit("ТАКТИЛЬНЫЙ ОТКЛИК ПРИ СЛИЯНИИ",
-                screenW * 0.5f, screenH * 0.66f, screenW * 0.82f,
+        drawCenteredFit("ЦВЕТА И ОФОРМЛЕНИЕ ИГРЫ",
+                screenW * 0.5f, screenH * 0.72f, screenW * 0.82f,
                 uiScale * MathUtils.clamp(screenW / 390f, 0.65f, 0.86f));
         batch.end();
+        drawMenuButton("ТЕМА: " + uiTheme.name, screenH * 0.66f, 0.10f, true);
         drawMenuButton("ВИБРАЦИЯ: " + (hapticsEnabled ? "ВКЛ" : "ВЫКЛ"),
-                screenH * 0.51f, 0.14f, hapticsEnabled);
+                screenH * 0.46f, 0.10f, hapticsEnabled);
         drawMenuButton("НАЗАД", screenH * 0.25f, 0.11f, false);
     }
 
