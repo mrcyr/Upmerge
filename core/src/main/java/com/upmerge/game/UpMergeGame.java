@@ -1015,10 +1015,15 @@ public final class UpMergeGame extends ApplicationAdapter {
         }
 
         font.setColor(.58f, .68f, .78f, 1f);
-        font.getData().setScale(uiScale * (9f / 24f));
-        drawCenteredFit("НАЖМИ НА СТОЛБЕЦ, ЧТОБЫ БРОСИТЬ КУБИК",
-                screenW * .5f, gameLayout.hintBottom + 1.5f * uiScale, screenW * .94f,
-                uiScale * (9f / 24f));
+        float hintScale = uiScale * (8.5f / 24f);
+        String hintFirst = "ЦЕЛЬ " + NumberFormatter.compact(cubeQueue.goalTarget())
+                + " · КОСНИСЬ ПОЛЯ, ЧТОБЫ БРОСИТЬ";
+        String hintSecond = "КУБИК " + (engine.direction() == BoardEngine.Direction.UP
+                ? "ВВЕРХ" : "ВНИЗ");
+        drawCenteredFit(hintFirst, screenW * .5f,
+                gameLayout.hintBottom + 10f * uiScale, screenW * .94f, hintScale);
+        drawCenteredFit(hintSecond, screenW * .5f,
+                gameLayout.hintBottom + 1f * uiScale, screenW * .94f, hintScale);
 
         for (BoardEngine.Cube cube : engine.cubes()) {
             String value = NumberFormatter.compact(cube.value);
