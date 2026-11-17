@@ -16,7 +16,15 @@ final class CubePalette {
             case 256: return 0x8292FF;
             case 512: return 0xFF75C8;
             case 1024: return 0xF5F5FF;
-            default: return 0xF5F5FF;
+            default:
+                if (value >= 2048 && (value & (value - 1)) == 0) {
+                    float hue = (Long.numberOfTrailingZeros(value) * .105f) % 1f;
+                    int red = Math.round((.45f + .45f * hue) * 255f);
+                    int green = Math.round((.80f - .20f * hue) * 255f);
+                    int blue = Math.round(.95f * 255f);
+                    return (red << 16) | (green << 8) | blue;
+                }
+                return 0xF5F5FF;
         }
     }
 }
