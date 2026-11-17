@@ -7,7 +7,7 @@ final class GameScreenLayout {
     final float boardLeft,boardBottom,boardTop,boardRight;
     final float statBottom,statHeight,pillBottom,pillHeight;
     final float queueBottom,queueHeight,queueLeft,queueCurrentWidth,queueNextWidth,queueGap;
-    final float toolbarBottom,toolbarHeight,hintBottom,hintHeight,pauseSize;
+    final float toolbarBottom,toolbarHeight,toolbarLeft,toolbarCardWidth,toolbarGap,hintBottom,hintHeight,pauseSize;
 
     GameScreenLayout(float width,float height,float density){
         screenW=Math.max(1f,width);screenH=Math.max(1f,height);this.density=Math.max(.75f,density);
@@ -22,6 +22,8 @@ final class GameScreenLayout {
         queueCurrentWidth=screenW*.263f;queueNextWidth=screenW*.317f;queueGap=screenW*.027f;
         queueLeft=screenW*.525f-(queueCurrentWidth+queueGap+queueNextWidth)*.5f;
         toolbarHeight=Math.min(55f*d,screenH*.063f);toolbarBottom=screenH*.074f;
+        toolbarLeft=screenW*.062f;toolbarGap=screenW*.027f;
+        toolbarCardWidth=(screenW-2f*toolbarLeft-4f*toolbarGap)/5f;
         hintHeight=Math.min(18f*d,screenH*.036f);hintBottom=screenH*.025f;
         pauseSize=44f*d;
         float headerNeedBottom=Math.min(screenH-headerHeight,Math.min(pillBottom,statBottom));
@@ -45,7 +47,11 @@ final class GameScreenLayout {
     boolean boardContains(float x,float y){return x>=boardLeft&&x<=boardRight&&y>=boardBottom&&y<=boardTop;}
     int toolbarIndex(float x,float y){
         if(y<toolbarBottom||y>toolbarBottom+toolbarHeight)return -1;
-        return Math.max(0,Math.min(4,(int)(x/(screenW/5f))));
+        if (x < toolbarLeft || x > toolbarLeft + 5f * toolbarCardWidth + 4f * toolbarGap) return -1;
+        int index = (int)((x - toolbarLeft) / (toolbarCardWidth + toolbarGap));
+        if (index < 0 || index > 4) return -1;
+        float cardX = toolbarLeft + index * (toolbarCardWidth + toolbarGap);
+        return x <= cardX + toolbarCardWidth ? index : -1;
     }
     boolean pauseContains(float x,float y){return x>=screenW-pauseSize-8f*density&&y>=screenH-pauseSize-8f*density;}
 }
