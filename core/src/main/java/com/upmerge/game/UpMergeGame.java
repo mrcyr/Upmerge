@@ -995,7 +995,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         font.getData().setScale(uiScale * (9f / 24f));
         drawCenteredFit("НАЖМИ НА СТОЛБЕЦ, ЧТОБЫ БРОСИТЬ КУБИК",
                 screenW * .5f, gameLayout.hintBottom + 1.5f * uiScale, screenW * .94f,
-                uiScale * (11f / 24f));
+                uiScale * (9f / 24f));
 
         for (BoardEngine.Cube cube : engine.cubes()) {
             String value = NumberFormatter.compact(cube.value);
