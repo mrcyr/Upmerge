@@ -906,9 +906,9 @@ public final class UpMergeGame extends ApplicationAdapter {
         // Brand row, matching the reference's compact header.
         font.setColor(.91f, .96f, 1f, 1f);
         font.getData().setScale(uiScale * (19f / 24f));
-        font.draw(batch, "UP", pad, screenH - 50f * uiScale);
+        font.draw(batch, "UP", pad, screenH - 62f * uiScale);
         setFontHex(uiTheme.accent);
-        font.draw(batch, "MERGE", pad + 24f * uiScale, screenH - 50f * uiScale);
+        font.draw(batch, "MERGE", pad + 24f * uiScale, screenH - 62f * uiScale);
         font.setColor(.86f, .93f, 1f, 1f);
         font.getData().setScale(uiScale * .72f);
         textLayout.setText(font, "♫");
@@ -923,26 +923,26 @@ public final class UpMergeGame extends ApplicationAdapter {
             float x = pad + i * (statW + gap);
             font.setColor(.62f, .76f, .89f, 1f);
             font.getData().setScale(uiScale * (10f / 24f));
-            drawCentered(labels[i], x + statW * .5f, statY + statH - 10f * uiScale);
+            drawCentered(labels[i], x + statW * .5f, statY + statH - 15f * uiScale);
             font.setColor(.97f, .99f, 1f, 1f);
             font.getData().setScale(uiScale * (19f / 24f));
-            drawCenteredFit(values[i], x + statW * .5f, statY + 23f * uiScale,
+            drawCenteredFit(values[i], x + statW * .5f, statY + 8f * uiScale,
                     statW * .86f, uiScale);
         }
 
         float pillY = gameLayout.pillBottom, pillW = (screenW - pad * 2f - gap) * .5f;
         font.setColor(.58f, .70f, .82f, 1f);
         font.getData().setScale(uiScale * (10f / 24f));
-        font.draw(batch, "ЦЕЛЬ", pad + 8f * uiScale, pillY + 25f * uiScale);
+        font.draw(batch, "ЦЕЛЬ", pad + 8f * uiScale, pillY + 15f * uiScale);
         font.setColor(.94f, .97f, 1f, 1f);
         font.getData().setScale(uiScale * (16f / 24f));
-        font.draw(batch, NumberFormatter.compact(cubeQueue.goalTarget()), pad + pillW - 52f * uiScale, pillY + 13f * uiScale);
+        font.draw(batch, NumberFormatter.compact(cubeQueue.goalTarget()), pad + pillW - 52f * uiScale, pillY + 2f * uiScale);
         font.setColor(.58f, .70f, .82f, 1f);
         font.getData().setScale(uiScale * (10f / 24f));
-        font.draw(batch, "ДАЛЬШЕ", pad + pillW + gap + 8f * uiScale, pillY + 25f * uiScale);
+        font.draw(batch, "ДАЛЬШЕ", pad + pillW + gap + 8f * uiScale, pillY + 15f * uiScale);
         setFontHex(uiTheme.accent);
         font.getData().setScale(uiScale * (16f / 24f));
-        font.draw(batch, "×2", pad + pillW + gap + pillW - 34f * uiScale, pillY + 13f * uiScale);
+        font.draw(batch, "×2", pad + pillW + gap + pillW - 34f * uiScale, pillY + 2f * uiScale);
 
         // Queue labels sit beside their cube previews, not above them.
         float queueY = gameLayout.queueBottom;
@@ -957,7 +957,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         font.setColor(.62f, .72f, .84f, 1f);
         font.getData().setScale(uiScale * (9f / 24f));
         drawCenteredFit("СЕЙЧАС", queueLeft + (queueCurrentW - previewW) * .5f,
-                queueY + queueH * .5f + 2f * uiScale,
+                queueY + 12f * uiScale,
                 queueCurrentW - previewW - 10f * uiScale, uiScale * (9f / 24f));
         drawCenteredFit("СЛЕДУЮЩИЙ", queueLeft + queueCurrentW + queueGap
                         + (queueNextW - nextW) * .5f, queueY + queueH * .5f + 2f * uiScale,
@@ -966,7 +966,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         font.getData().setScale(uiScale * (11f / 24f));
         drawCentered(NumberFormatter.compact(cubeQueue.current()),
                 queueLeft + queueCurrentW - 5f * uiScale - previewW * .5f,
-                queueY + queueH * .5f - 1f * uiScale);
+                queueY + queueH * .5f - 5f * uiScale);
         drawCentered(NumberFormatter.compact(cubeQueue.upcoming()),
                 queueLeft + queueCurrentW + queueGap + queueNextW - 5f * uiScale - nextW * .5f,
                 queueY + queueH * .5f - 1f * uiScale);
@@ -983,17 +983,17 @@ public final class UpMergeGame extends ApplicationAdapter {
             setFontHex(uiTheme.accent);
             font.getData().setScale(uiScale * (17f / 24f));
             drawCentered(icons[i], toolLeft + i * (toolW + toolGap) + toolW * .5f,
-                    gameLayout.toolbarBottom + gameLayout.toolbarHeight * .72f);
+                    gameLayout.toolbarBottom + gameLayout.toolbarHeight * .46f);
             font.setColor(.88f, .94f, 1f, 1f);
             font.getData().setScale(uiScale * (7f / 24f));
-            drawCenteredFit(toolLabels[i], (i + .5f) * toolW, gameLayout.toolbarBottom + gameLayout.toolbarHeight * .27f,
+            drawCenteredFit(toolLabels[i], (i + .5f) * toolW, gameLayout.toolbarBottom + 2f * uiScale,
                     toolW - 4f * uiScale, uiScale * (8f / 24f));
         }
 
         font.setColor(.58f, .68f, .78f, 1f);
         font.getData().setScale(uiScale * (9f / 24f));
         drawCenteredFit("НАЖМИ НА СТОЛБЕЦ, ЧТОБЫ БРОСИТЬ КУБИК",
-                screenW * .5f, gameLayout.hintBottom + gameLayout.hintHeight * .5f, screenW * .94f,
+                screenW * .5f, gameLayout.hintBottom + 1.5f * uiScale, screenW * .94f,
                 uiScale * (11f / 24f));
 
         for (BoardEngine.Cube cube : engine.cubes()) {
