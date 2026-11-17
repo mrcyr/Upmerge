@@ -1247,25 +1247,17 @@ public final class UpMergeGame extends ApplicationAdapter {
                                 float width, float height, boolean selected, int icon) {
         float left = centerX - width * .5f, bottom = centerY - height * .5f;
         float radius = Math.min(16f * uiScale, height * .5f);
-        drawRoundedFillHex(left, bottom - 3f * uiScale, width, height + 3f * uiScale,
-                radius, uiTheme.background, .82f);
         drawRoundedFillHex(left, bottom, width, height, radius, uiTheme.panel, 1f);
         if (selected) {
-            drawRoundedGradientHex(left + 1f, bottom + 1f, width - 2f, height - 2f,
-                    radius - 1f, UiTheme.mix(uiTheme.accent, 0xffffff, .18f),
-                    UiTheme.mix(uiTheme.accentSecondary, uiTheme.panel, .12f));
-            drawRoundedFillHex(left + 2f * uiScale, bottom + height - 4f * uiScale,
-                    width - 4f * uiScale, 1.5f * uiScale, 1f, uiTheme.accent, .52f);
+            drawRoundedFillHex(left + 1f, bottom + 1f, width - 2f, height - 2f,
+                    radius - 1f, uiTheme.accent, .13f);
             drawRoundedOutlineHex(left + 1f, bottom + 1f, width - 2f, height - 2f,
-                    radius - 1f, uiTheme.accent, .95f);
+                    radius - 1f, uiTheme.accent, .62f);
         } else {
-            drawRoundedGradientHex(left + 1f, bottom + 1f, width - 2f, height - 2f,
-                    radius - 1f, UiTheme.mix(uiTheme.surface, 0xffffff, .05f),
-                    uiTheme.panel);
+            drawRoundedFillHex(left + 1f, bottom + 1f, width - 2f, height - 2f,
+                    radius - 1f, UiTheme.mix(uiTheme.panel, 0xffffff, .05f), 1f);
             drawRoundedOutlineHex(left + 1f, bottom + 1f, width - 2f, height - 2f,
-                    radius - 1f, uiTheme.accentSecondary, .40f);
-            drawRoundedFillHex(left + 5f * uiScale, bottom + height - 3f * uiScale,
-                    width - 10f * uiScale, 1f * uiScale, 1f, uiTheme.accent, .15f);
+                    radius - 1f, 0xffffff, .09f);
         }
         batch.begin();
         font.setColor(selected ? .92f : .86f, selected ? .99f : .92f,
