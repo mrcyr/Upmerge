@@ -989,7 +989,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         logoFont.setColor(.42f, .86f, 1f, 1f);
         logoFont.draw(batch, "MERGE", logoLeft + upWidth, screenH * .855f);
         font.setColor(.66f, .76f, .89f, 1f);
-        font.getData().setScale(uiScale * (14f / 24f));
+        font.getData().setScale(uiScale * (15f / 24f));
         drawCentered("Запускай кубики вверх.", center, screenH * .79f);
         drawCentered("Объединяй одинаковые числа", center, screenH * .765f);
         drawCentered("и создавай цепные реакции.", center, screenH * .74f);
@@ -1016,7 +1016,7 @@ public final class UpMergeGame extends ApplicationAdapter {
                 actionCards[1].width, actionCards[1].height, false);
 
         if (hasSavedGame) {
-            drawMenuButton("ПРОДОЛЖИТЬ ИГРУ", mainMenuLayout.continueButton, true);
+            drawMenuButton("ПРОДОЛЖИТЬ ИГРУ", mainMenuLayout.continueButton, false);
             drawMenuButton("НОВАЯ ИГРА", mainMenuLayout.newGameButton, true);
         } else {
             drawMenuButton("НОВАЯ ИГРА", mainMenuLayout.newGameButton, true);
@@ -1035,9 +1035,9 @@ public final class UpMergeGame extends ApplicationAdapter {
 
         batch.begin();
         font.setColor(.58f, .69f, .82f, 1f);
-        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 450f, .60f, .76f));
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 410f, .68f, .82f));
         drawCenteredFit("Цель растёт вдвое после каждого достижения · K / M / B / T",
-                center, mainMenuLayout.footer.centerY(), mainMenuLayout.contentWidth * .92f, uiScale * (11f / 24f));
+                center, mainMenuLayout.footer.centerY(), mainMenuLayout.contentWidth * .94f, uiScale * (12f / 24f));
         batch.end();
     }
 
@@ -1055,26 +1055,30 @@ public final class UpMergeGame extends ApplicationAdapter {
     private void drawMenuChoice(String label, float centerX, float centerY,
                                 float width, float height, boolean selected) {
         float left = centerX - width * .5f, bottom = centerY - height * .5f;
-        float radius = Math.min(12f, height * .30f);
+        float radius = Math.min(15f * uiScale, height * .32f);
+        drawRoundedFill(left, bottom - 3f * uiScale, width, height + 3f * uiScale,
+                radius, .008f, .025f, .055f, .82f);
         drawRoundedFill(left, bottom, width, height, radius,
-                .055f, .085f, .13f, 1f);
+                .045f, .085f, .145f, 1f);
         if (selected) {
-            drawRoundedFill(left + 1f, bottom + 1f, width - 2f, height - 2f,
-                    Math.max(4f, radius - 1f), .07f, .17f, .24f, 1f);
-            shapes.begin(ShapeRenderer.ShapeType.Line);
-            shapes.setColor(.36f, .82f, .98f, .92f);
-            shapes.rect(left + 1f, bottom + 1f, width - 2f, height - 2f);
-            shapes.end();
+            drawRoundedGradient(left + 1f, bottom + 1f, width - 2f, height - 2f,
+                    radius - 1f, .04f, .48f, .68f, .02f, .72f, .91f);
+            drawRoundedFill(left + 2f * uiScale, bottom + height - 4f * uiScale,
+                    width - 4f * uiScale, 1.5f * uiScale, 1f, .48f, .91f, 1f, .52f);
+            drawRoundedOutline(left + 1f, bottom + 1f, width - 2f, height - 2f,
+                    radius - 1f, .18f, .82f, 1f, .95f);
         } else {
-            shapes.begin(ShapeRenderer.ShapeType.Line);
-            shapes.setColor(.45f, .62f, .78f, .22f);
-            shapes.rect(left + 1f, bottom + 1f, width - 2f, height - 2f);
-            shapes.end();
+            drawRoundedGradient(left + 1f, bottom + 1f, width - 2f, height - 2f,
+                    radius - 1f, .075f, .14f, .22f, .035f, .075f, .13f);
+            drawRoundedOutline(left + 1f, bottom + 1f, width - 2f, height - 2f,
+                    radius - 1f, .27f, .48f, .66f, .58f);
+            drawRoundedFill(left + 5f * uiScale, bottom + height - 3f * uiScale,
+                    width - 10f * uiScale, 1f * uiScale, 1f, .48f, .68f, .84f, .15f);
         }
         batch.begin();
-        font.setColor(selected ? .48f : .88f, selected ? .88f : .93f,
-                selected ? 1f : .98f, 1f);
-        float scale = uiScale * (13.5f / 24f);
+        font.setColor(selected ? .92f : .86f, selected ? .99f : .92f,
+                selected ? 1f : .99f, 1f);
+        float scale = uiScale * (14f / 24f);
         font.getData().setScale(scale);
         textLayout.setText(font, label);
         if (textLayout.width > width * .86f && textLayout.width > 0f) {
@@ -1473,23 +1477,39 @@ public final class UpMergeGame extends ApplicationAdapter {
     }
 
     private void drawMenuBackdrop() {
+        // Deep navy canvas with a restrained cyan bloom behind the brand.
         shapes.begin(ShapeRenderer.ShapeType.Filled);
-        shapes.setColor(0.012f, 0.022f, 0.040f, 0.96f);
-        shapes.rect(0, 0, screenW, screenH);
-        shapes.setColor(0.025f, 0.050f, 0.085f, 1f);
-        shapes.rect(0, screenH * .72f, screenW, screenH * .28f);
+        for (int i = 0; i < 28; i++) {
+            float t = i / 27f;
+            shapes.setColor(.006f + .008f * t, .014f + .018f * t,
+                    .030f + .032f * t, 1f);
+            shapes.rect(0, screenH * i / 28f, screenW, screenH / 28f + 1f);
+        }
+        shapes.setColor(.02f, .16f, .25f, .10f);
+        shapes.circle(screenW * .5f, screenH * .84f, Math.min(screenW, screenH) * .42f, 48);
         shapes.end();
+
         float panelWidth = Math.min(390f * uiScale, screenW - 44f * uiScale);
         boolean compact = screenH / uiScale < 680f;
         float panelHeight = Math.min(screenH - 24f * uiScale, screenH * (compact ? .97f : .89f));
         float panelX = (screenW - panelWidth) * .5f;
         float panelY = (screenH - panelHeight) * .5f;
+        float radius = 27f * uiScale;
+        drawRoundedFill(panelX - 2f * uiScale, panelY - 5f * uiScale,
+                panelWidth + 4f * uiScale, panelHeight + 10f * uiScale,
+                radius + 2f * uiScale, .002f, .008f, .022f, .92f);
         drawRoundedFill(panelX, panelY, panelWidth, panelHeight,
-                28f * uiScale, .045f, .085f, .145f, 1f);
-        shapes.begin(ShapeRenderer.ShapeType.Line);
-        shapes.setColor(.25f, .55f, .76f, .30f);
-        shapes.rect(panelX, panelY, panelWidth, panelHeight);
-        shapes.end();
+                radius, .025f, .052f, .092f, 1f);
+        drawRoundedFill(panelX + 1f * uiScale, panelY + 1f * uiScale,
+                panelWidth - 2f * uiScale, panelHeight - 2f * uiScale,
+                radius - 1f * uiScale, .018f, .038f, .070f, 1f);
+        drawRoundedOutline(panelX, panelY, panelWidth, panelHeight, radius,
+                .19f, .49f, .72f, .62f);
+        // Subtle top and bottom inner highlights create a framed, finished surface.
+        drawRoundedFill(panelX + 20f * uiScale, panelY + panelHeight - 2f * uiScale,
+                panelWidth - 40f * uiScale, 1f * uiScale, 1f, .24f, .66f, .92f, .28f);
+        drawRoundedFill(panelX + 20f * uiScale, panelY + 1f * uiScale,
+                panelWidth - 40f * uiScale, 1f * uiScale, 1f, .18f, .42f, .66f, .16f);
     }
 
     private void drawMenuButton(String label, MainMenuLayout.Rect bounds, boolean highlighted) {
@@ -1497,51 +1517,31 @@ public final class UpMergeGame extends ApplicationAdapter {
     }
 
     private void drawMenuButton(String label, float centerY, float heightRatio, boolean highlighted) {
-        float width = mainMenuLayout != null ? mainMenuLayout.contentWidth : screenW * 0.76f;
-        float height = Math.min(screenH * heightRatio, 48f * uiScale);
-        float left = (screenW - width) * 0.5f;
-        float bottom = centerY - height * 0.5f;
-        float radius = Math.min(16f, height * .30f);
-        drawRoundedFill(left, bottom - 2f, width, height, radius, 0f, 0f, 0f, .24f);
+        float width = mainMenuLayout != null ? mainMenuLayout.contentWidth : screenW * .76f;
+        float height = Math.min(screenH * heightRatio, 54f * uiScale);
+        float left = (screenW - width) * .5f;
+        float bottom = centerY - height * .5f;
+        float radius = Math.min(17f * uiScale, height * .34f);
+        drawRoundedFill(left, bottom - 4f * uiScale, width, height + 5f * uiScale,
+                radius, .002f, .012f, .030f, .88f);
         if (highlighted) {
-            // CSS reference primary button: cyan-to-blue horizontal gradient.
-            int strips = 18;
-            for (int i = 0; i < strips; i++) {
-                float t = i / (float) (strips - 1);
-                float red = MathUtils.lerp(.41f, .43f, t);
-                float green = MathUtils.lerp(.88f, .66f, t);
-                float blue = MathUtils.lerp(1f, 1f, t);
-                shapes.begin(ShapeRenderer.ShapeType.Filled);
-                shapes.setColor(red, green, blue, 1f);
-                float stripX = left + width * i / strips;
-                float stripW = width / strips + 1f;
-                float stripCenter = stripX + stripW * .5f;
-                float inset = 0f;
-                if (stripCenter < left + radius) {
-                    float dx = radius - (stripCenter - left);
-                    inset = radius - (float) Math.sqrt(Math.max(0f, radius * radius - dx * dx));
-                } else if (stripCenter > left + width - radius) {
-                    float dx = radius - (left + width - stripCenter);
-                    inset = radius - (float) Math.sqrt(Math.max(0f, radius * radius - dx * dx));
-                }
-                shapes.rect(stripX, bottom + inset, stripW, height - inset * 2f);
-                shapes.end();
-            }
-            // Rounded outer silhouette over the strip gradient.
-            shapes.begin(ShapeRenderer.ShapeType.Line);
-            shapes.setColor(.45f, .84f, 1f, .65f);
-            shapes.rect(left + 1f, bottom + 1f, width - 2f, height - 2f);
-            shapes.end();
+            drawRoundedGradient(left, bottom, width, height, radius,
+                    .35f, .84f, .99f, .28f, .57f, .98f);
+            drawRoundedFill(left + 5f * uiScale, bottom + height - 4f * uiScale,
+                    width - 10f * uiScale, 1.5f * uiScale, 1f, .82f, .98f, 1f, .55f);
+            drawRoundedOutline(left + 1f, bottom + 1f, width - 2f, height - 2f,
+                    radius - 1f, .48f, .88f, 1f, .88f);
         } else {
-            drawRoundedFill(left, bottom, width, height, radius, .065f, .10f, .15f, 1f);
-            shapes.begin(ShapeRenderer.ShapeType.Line);
-            shapes.setColor(.55f, .70f, .86f, .18f);
-            shapes.rect(left + 1f, bottom + 1f, width - 2f, height - 2f);
-            shapes.end();
+            drawRoundedGradient(left, bottom, width, height, radius,
+                    .09f, .20f, .32f, .035f, .085f, .15f);
+            drawRoundedOutline(left + 1f, bottom + 1f, width - 2f, height - 2f,
+                    radius - 1f, .30f, .57f, .78f, .72f);
+            drawRoundedFill(left + 6f * uiScale, bottom + height - 4f * uiScale,
+                    width - 12f * uiScale, 1.2f * uiScale, 1f, .55f, .78f, .96f, .22f);
         }
         batch.begin();
-        font.setColor(highlighted ? .025f : .91f, highlighted ? .09f : .95f,
-                highlighted ? .15f : 1f, 1f);
+        font.setColor(highlighted ? .018f : .91f, highlighted ? .075f : .95f,
+                highlighted ? .12f : 1f, 1f);
         float scale = uiScale * (16f / 24f);
         font.getData().setScale(scale);
         textLayout.setText(font, label);
@@ -1552,6 +1552,46 @@ public final class UpMergeGame extends ApplicationAdapter {
         font.draw(batch, label, screenW * .5f - textLayout.width * .5f,
                 centerY + textLayout.height * .5f);
         batch.end();
+    }
+
+    private void drawRoundedGradient(float x, float y, float width, float height, float radius,
+                                     float r1, float g1, float b1,
+                                     float r2, float g2, float b2) {
+        float r = Math.max(0f, Math.min(radius, Math.min(width, height) * .5f));
+        int strips = 24;
+        for (int i = 0; i < strips; i++) {
+            float t = (i + .5f) / strips;
+            float sx = x + width * i / strips;
+            float sw = width / strips + .75f;
+            float centerX = sx + sw * .5f;
+            float inset = 0f;
+            if (centerX < x + r) {
+                float dx = r - (centerX - x);
+                inset = r - (float) Math.sqrt(Math.max(0f, r * r - dx * dx));
+            } else if (centerX > x + width - r) {
+                float dx = r - (x + width - centerX);
+                inset = r - (float) Math.sqrt(Math.max(0f, r * r - dx * dx));
+            }
+            shapes.begin(ShapeRenderer.ShapeType.Filled);
+            shapes.setColor(MathUtils.lerp(r1, r2, t),
+                    MathUtils.lerp(g1, g2, t), MathUtils.lerp(b1, b2, t), 1f);
+            shapes.rect(sx, y + inset, sw, height - inset * 2f);
+            shapes.end();
+        }
+    }
+
+    private void drawRoundedOutline(float x, float y, float width, float height, float radius,
+                                    float red, float green, float blue, float alpha) {
+        float r = Math.max(0f, Math.min(radius, Math.min(width, height) * .5f));
+        shapes.begin(ShapeRenderer.ShapeType.Line);
+        shapes.setColor(red, green, blue, alpha);
+        shapes.rect(x + r, y, width - 2f * r, height);
+        shapes.rect(x, y + r, width, height - 2f * r);
+        shapes.circle(x + r, y + r, r, 16);
+        shapes.circle(x + width - r, y + r, r, 16);
+        shapes.circle(x + r, y + height - r, r, 16);
+        shapes.circle(x + width - r, y + height - r, r, 16);
+        shapes.end();
     }
 
     private void drawPauseMenu() {
