@@ -166,7 +166,7 @@ public final class UpMergeGame extends ApplicationAdapter {
                 generator = new FreeTypeFontGenerator(Gdx.files.absolute(path));
                 FreeTypeFontGenerator.FreeTypeFontParameter parameter =
                         new FreeTypeFontGenerator.FreeTypeFontParameter();
-                parameter.size = 26;
+                parameter.size = 24;
                 parameter.characters = FreeTypeFontGenerator.DEFAULT_CHARS
                         + "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"
                         + "абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
@@ -1120,9 +1120,9 @@ public final class UpMergeGame extends ApplicationAdapter {
         font.setColor(.86f, .93f, 1f, 1f);
         font.getData().setScale(uiScale * .72f);
         textLayout.setText(font, "♫");
-        drawCentered("♫", soundCenterX, headerButtonY + headerButton * .5f - textLayout.height * .5f);
-        textLayout.setText(font, "Ⅱ");
-        drawCentered("Ⅱ", pauseCenterX, headerButtonY + headerButton * .5f - textLayout.height * .5f);
+        batch.end();
+        drawHeaderIcons(soundCenterX, pauseCenterX, headerCenterY, headerButton);
+        batch.begin();
 
         String[] labels = {"СЧЁТ", "РЕКОРД", "КОМБО"};
         String[] values = {NumberFormatter.compact(engine.score()),
@@ -1177,12 +1177,12 @@ public final class UpMergeGame extends ApplicationAdapter {
                 queueNextW - nextW - 10f * uiScale, uiScale * (9f / 24f));
         font.setColor(.035f, .10f, .17f, 1f);
         font.getData().setScale(uiScale * (11f / 24f));
-        drawCentered(NumberFormatter.compact(cubeQueue.current()),
+        drawCenteredAt(NumberFormatter.compact(cubeQueue.current()),
                 queueLeft + queueCurrentW - 5f * uiScale - previewW * .5f,
-                queueY + queueH * .5f - 5f * uiScale);
-        drawCentered(NumberFormatter.compact(cubeQueue.upcoming()),
+                queueY + queueH * .5f);
+        drawCenteredAt(NumberFormatter.compact(cubeQueue.upcoming()),
                 queueLeft + queueCurrentW + queueGap + queueNextW - 5f * uiScale - nextW * .5f,
-                queueY + queueH * .5f - 5f * uiScale);
+                queueY + queueH * .5f);
 
         // Footer follows the reference order: queue, power tools, instruction.
         String[] toolLabels = {"ОТМЕНА", "БОМБА ×" + bombCharges,
@@ -1229,7 +1229,7 @@ public final class UpMergeGame extends ApplicationAdapter {
             font.setColor(.027f, .09f, .17f, 1f);
             float centerX = boardLeft + (cube.lane + 0.5f) * cell;
             float centerY = boardBottom + (BoardEngine.ROWS - 0.5f - cube.visualRow) * cell;
-            drawCentered(value, centerX, centerY + font.getCapHeight() * 0.35f);
+            drawCenteredAt(value, centerX, centerY);
         }
         batch.end();
         drawToolIcons();
@@ -1289,9 +1289,34 @@ public final class UpMergeGame extends ApplicationAdapter {
         shapes.end();
     }
 
+    private void drawHeaderIcons(float soundX, float menuX, float centerY, float size) {
+        float unit = size * .34f;
+        beginShapes(ShapeRenderer.ShapeType.Filled);
+        setShapeHex(uiTheme.accent, 1f);
+        shapes.rect(soundX - unit * .72f, centerY - unit * .28f, unit * .34f, unit * .56f);
+        shapes.triangle(soundX - unit * .40f, centerY - unit * .42f,
+                soundX + unit * .18f, centerY - unit * .78f,
+                soundX + unit * .18f, centerY + unit * .78f);
+        shapes.end();
+        beginShapes(ShapeRenderer.ShapeType.Line);
+        setShapeHex(uiTheme.accent, .95f);
+        shapes.arc(soundX - unit * .03f, centerY, unit * .82f, -52f, 104f, 18);
+        shapes.arc(soundX - unit * .03f, centerY, unit * 1.16f, -48f, 96f, 18);
+        shapes.line(menuX - unit * .70f, centerY + unit * .52f, menuX + unit * .70f, centerY + unit * .52f);
+        shapes.line(menuX - unit * .70f, centerY, menuX + unit * .70f, centerY);
+        shapes.line(menuX - unit * .70f, centerY - unit * .52f, menuX + unit * .70f, centerY - unit * .52f);
+        shapes.end();
+    }
+
     private void drawCentered(String value, float centerX, float baselineY) {
         textLayout.setText(font, value);
         font.draw(batch, value, centerX - textLayout.width * 0.5f, baselineY);
+    }
+
+    private void drawCenteredAt(String value, float centerX, float centerY) {
+        textLayout.setText(font, value);
+        font.draw(batch, value, centerX - textLayout.width * .5f,
+                centerY + textLayout.height * .5f);
     }
 
     private void drawCenteredFit(String value, float centerX, float baselineY,
@@ -1340,11 +1365,11 @@ public final class UpMergeGame extends ApplicationAdapter {
         setLogoFontHex(uiTheme.accent);
         logoFont.draw(batch, "MERGE", logoLeft + upWidth, logoBaseline);
         font.setColor(.66f, .76f, .89f, 1f);
-        font.getData().setScale(uiScale * (13f / 24f));
+        float subtitleScale = uiScale * (12f / 24f);
         drawCenteredFit("Запускай кубики вверх. Объединяй одинаковые", center,
-                logoBaseline - 50f * uiScale, screenW * .84f, uiScale * (13f / 24f));
+                logoBaseline - 48f * uiScale, mainMenuLayout.contentWidth * .94f, subtitleScale);
         drawCenteredFit("числа и создавай цепные реакции.", center,
-                logoBaseline - 70f * uiScale, screenW * .84f, uiScale * (13f / 24f));
+                logoBaseline - 66f * uiScale, mainMenuLayout.contentWidth * .94f, subtitleScale);
         batch.end();
 
         MainMenuLayout.Rect[] modeCards = mainMenuLayout.modes;
