@@ -658,11 +658,11 @@ public final class UpMergeGame extends ApplicationAdapter {
         roundedRectInBatch(queueLeft, queueY, queueW, queueH, 10f * uiScale);
         shapes.setColor(.065f, .095f, .14f, 1f);
         roundedRectInBatch(queueLeft + queueW + queueGap, queueY, queueW, queueH, 10f * uiScale);
-        float cubePreview = 34f * uiScale;
+        float cubePreview = Math.min(34f * uiScale, Math.min(queueH - 12f * uiScale, queueW * .34f));
         setCubeFaceColor(cubeQueue.current(), 1f);
         roundedRectInBatch(queueLeft + queueW - cubePreview - 5f * uiScale,
                 queueY + 6f * uiScale, cubePreview, cubePreview, 6f * uiScale);
-        float nextPreview = 32f * uiScale;
+        float nextPreview = Math.min(32f * uiScale, Math.min(queueH - 14f * uiScale, queueW * .32f));
         setCubeFaceColor(cubeQueue.upcoming(), 1f);
         roundedRectInBatch(queueLeft + queueW + queueGap + queueW - nextPreview - 5f * uiScale,
                 queueY + 7f * uiScale, nextPreview, nextPreview, 6f * uiScale);
@@ -884,18 +884,23 @@ public final class UpMergeGame extends ApplicationAdapter {
         // Queue labels sit beside their cube previews, not above them.
         float queueY = gameLayout.queueBottom;
         float queueW = gameLayout.queueWidth, queueGap = gameLayout.queueGap;
+        float previewW = Math.min(34f * uiScale, Math.min(gameLayout.queueHeight - 12f * uiScale, queueW * .34f));
+        float nextW = Math.min(32f * uiScale, Math.min(gameLayout.queueHeight - 14f * uiScale, queueW * .32f));
         float queueLeft = (screenW - queueW * 2f - queueGap) * .5f;
         font.setColor(.62f, .72f, .84f, 1f);
         font.getData().setScale(uiScale * (9f / 24f));
-        font.draw(batch, "СЕЙЧАС", queueLeft + 7f * uiScale, queueY + 21f * uiScale);
-        font.draw(batch, "СЛЕДУЮЩИЙ", queueLeft + queueW + queueGap + 7f * uiScale,
-                queueY + 21f * uiScale);
+        drawCenteredFit("СЕЙЧАС", queueLeft + (queueW - previewW) * .5f,
+                queueY + 21f * uiScale, queueW - previewW - 10f * uiScale,
+                uiScale * (9f / 24f));
+        drawCenteredFit("СЛЕДУЮЩИЙ", queueLeft + queueW + queueGap
+                        + (queueW - nextW) * .5f, queueY + 21f * uiScale,
+                queueW - nextW - 10f * uiScale, uiScale * (9f / 24f));
         font.setColor(.035f, .10f, .17f, 1f);
         font.getData().setScale(uiScale * (11f / 24f));
         drawCentered(NumberFormatter.compact(cubeQueue.current()),
-                queueLeft + queueW - 22f * uiScale, queueY + 17f * uiScale);
+                queueLeft + queueW - 5f * uiScale - previewW * .5f, queueY + 17f * uiScale);
         drawCentered(NumberFormatter.compact(cubeQueue.upcoming()),
-                queueLeft + queueW + queueGap + queueW - 22f * uiScale,
+                queueLeft + queueW + queueGap + queueW - 5f * uiScale - nextW * .5f,
                 queueY + 17f * uiScale);
 
         // Footer follows the reference order: queue, power tools, instruction.
@@ -1486,30 +1491,7 @@ public final class UpMergeGame extends ApplicationAdapter {
     }
 
     private void drawMenuButton(String label, MainMenuLayout.Rect bounds, boolean highlighted) {
-        float left = bounds.x, bottom = bounds.y, width = bounds.width, height = bounds.height;
-        float radius = Math.min(16f * uiScale, height * .30f);
-        drawRoundedFill(left, bottom - 2f * uiScale, width, height, radius, 0f, 0f, 0f, .24f);
-        if (highlighted) {
-            final int strips = 18;
-            for (int i = 0; i < strips; i++) {
-                float t = i / (float) (strips - 1);
-                float red = MathUtils.lerp(.41f, .43f, t);
-                float green = MathUtils.lerp(.88f, .66f, t);
-                shapes.begin(ShapeRenderer.ShapeType.Filled);
-                shapes.setColor(red, green, 1f, 1f);
-                float stripX = left + width * i / strips;
-                float stripW = width / strips + 1f;
-                shapes.rect(stripX, bottom, stripW, height);
-                shapes.end();
-            }
-        } else {
-            drawRoundedFill(left, bottom, width, height, radius, .065f, .10f, .15f, 1f);
-        }
-        batch.begin();
-        font.setColor(.96f, .98f, 1f, 1f);
-        drawCenteredFit(label, screenW * .5f, bounds.centerY() - font.getCapHeight() * .30f,
-                width * .90f, uiScale * (16f / 24f));
-        batch.end();
+        drawMenuButton(label, bounds.centerY(), bounds.height / screenH, highlighted);
     }
 
     private void drawMenuButton(String label, float centerY, float heightRatio, boolean highlighted) {
