@@ -1044,7 +1044,7 @@ public final class UpMergeGame extends ApplicationAdapter {
 
     private void drawMainMenu() {
         drawMenuBackdrop();
-        float center = screenW * .5f;
+        float center = screenW * .469f;
         batch.begin();
         float logoScale = uiScale * (30f / 24f);
         logoFont.getData().setScale(logoScale);
