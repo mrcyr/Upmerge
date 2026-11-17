@@ -1343,11 +1343,24 @@ public final class UpMergeGame extends ApplicationAdapter {
     }
 
     private void drawMenuHeading(String value, float centerX, float baselineY) {
-        // Dedicated bold face for section titles; body copy and numeric HUD
-        // retain the regular face so their measured widths remain predictable.
+        // Section titles use the display face, but are constrained by both the
+        // available width and a predictable fraction of the viewport height.
         logoFont.setColor(font.getColor());
-        logoFont.getData().setScale(font.getData().scaleX, font.getData().scaleY);
+        float scale = font.getData().scaleX;
+        logoFont.getData().setScale(scale);
         textLayout.setText(logoFont, value);
+        float maxWidth = screenW * .88f;
+        if (textLayout.width > maxWidth && textLayout.width > 0f) {
+            scale *= maxWidth / textLayout.width;
+            logoFont.getData().setScale(scale);
+            textLayout.setText(logoFont, value);
+        }
+        float maxHeight = Math.max(18f * uiScale, screenH * .075f);
+        if (textLayout.height > maxHeight && textLayout.height > 0f) {
+            scale *= maxHeight / textLayout.height;
+            logoFont.getData().setScale(scale);
+            textLayout.setText(logoFont, value);
+        }
         logoFont.draw(batch, value, centerX - textLayout.width * .5f, baselineY);
     }
 
@@ -1497,8 +1510,17 @@ public final class UpMergeGame extends ApplicationAdapter {
         float scale = uiScale * (11f / 24f);
         font.getData().setScale(scale);
         textLayout.setText(font, label);
+        // Long labels shrink to the card width; short/tall labels stay centered
+        // and never consume the full button height.
         if (textLayout.width > width * .86f && textLayout.width > 0f) {
-            font.getData().setScale(scale * width * .86f / textLayout.width);
+            scale *= width * .86f / textLayout.width;
+            font.getData().setScale(scale);
+            textLayout.setText(font, label);
+        }
+        float maxTextHeight = Math.max(8f * uiScale, height * .52f);
+        if (textLayout.height > maxTextHeight && textLayout.height > 0f) {
+            scale *= maxTextHeight / textLayout.height;
+            font.getData().setScale(scale);
             textLayout.setText(font, label);
         }
         float labelCenterX = centerX + (icon == 0 ? 0f : height * .13f);
@@ -2192,7 +2214,14 @@ public final class UpMergeGame extends ApplicationAdapter {
         font.getData().setScale(scale);
         textLayout.setText(font, label);
         if (textLayout.width > width * .88f && textLayout.width > 0f) {
-            font.getData().setScale(scale * width * .88f / textLayout.width);
+            scale *= width * .88f / textLayout.width;
+            font.getData().setScale(scale);
+            textLayout.setText(font, label);
+        }
+        float maxTextHeight = Math.max(10f * uiScale, height * .48f);
+        if (textLayout.height > maxTextHeight && textLayout.height > 0f) {
+            scale *= maxTextHeight / textLayout.height;
+            font.getData().setScale(scale);
             textLayout.setText(font, label);
         }
         font.draw(batch, label, centerX - textLayout.width * .5f,
