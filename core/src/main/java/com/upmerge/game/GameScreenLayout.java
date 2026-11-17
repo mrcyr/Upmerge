@@ -68,7 +68,7 @@ final class GameScreenLayout {
 
         float arenaTopDp = pillTop - pillH;
         float arenaBottomDp = bottomDp;
-        arenaTop = arenaTopDp * d;
+        arenaTop = (arenaTopDp - (compact ? 5f : 8f)) * d;
         arenaBottom = arenaBottomDp * d;
 
         // HTML canvas bounds(): largest square cell fitting inside the actual
