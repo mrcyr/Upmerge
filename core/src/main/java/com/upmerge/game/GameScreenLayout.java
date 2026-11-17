@@ -13,7 +13,7 @@ final class GameScreenLayout {
         screenW=Math.max(1f,width);screenH=Math.max(1f,height);this.density=Math.max(.75f,density);
         float d=this.density;
         // Proportions sampled from the supplied 259x554 gameplay reference.
-        headerHeight=Math.max(155f*d,screenH*.28f);
+        headerHeight=Math.max(158f*d,screenH*.285f);
         footerHeight=Math.max(116f*d,screenH*.21f);
         float gap=10f*d;
         statHeight=Math.min(58f*d,screenH*.071f);statBottom=screenH-120f*d;
