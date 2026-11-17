@@ -895,7 +895,7 @@ public final class UpMergeGame extends ApplicationAdapter {
 
         // Brand row, matching the reference's compact header.
         font.setColor(.91f, .96f, 1f, 1f);
-        font.getData().setScale(uiScale * (17f / 24f));
+        font.getData().setScale(uiScale * (19f / 24f));
         font.draw(batch, "UP", pad, screenH - 50f * uiScale);
         setFontHex(uiTheme.accent);
         font.draw(batch, "MERGE", pad + 24f * uiScale, screenH - 50f * uiScale);
@@ -915,7 +915,7 @@ public final class UpMergeGame extends ApplicationAdapter {
             font.getData().setScale(uiScale * (10f / 24f));
             drawCentered(labels[i], x + statW * .5f, statY + statH - 10f * uiScale);
             font.setColor(.97f, .99f, 1f, 1f);
-            font.getData().setScale(uiScale);
+            font.getData().setScale(uiScale * (19f / 24f));
             drawCenteredFit(values[i], x + statW * .5f, statY + 23f * uiScale,
                     statW * .86f, uiScale);
         }
@@ -964,16 +964,16 @@ public final class UpMergeGame extends ApplicationAdapter {
         float toolW = screenW / 5f;
         for (int i = 0; i < icons.length; i++) {
             setFontHex(uiTheme.accent);
-            font.getData().setScale(uiScale * (18f / 24f));
+            font.getData().setScale(uiScale * (17f / 24f));
             drawCentered(icons[i], (i + .5f) * toolW, gameLayout.toolbarBottom + gameLayout.toolbarHeight * .72f);
             font.setColor(.88f, .94f, 1f, 1f);
-            font.getData().setScale(uiScale * (8f / 24f));
+            font.getData().setScale(uiScale * (7f / 24f));
             drawCenteredFit(toolLabels[i], (i + .5f) * toolW, gameLayout.toolbarBottom + gameLayout.toolbarHeight * .27f,
                     toolW - 4f * uiScale, uiScale * (8f / 24f));
         }
 
         font.setColor(.58f, .68f, .78f, 1f);
-        font.getData().setScale(uiScale * (11f / 24f));
+        font.getData().setScale(uiScale * (9f / 24f));
         drawCenteredFit("НАЖМИ НА СТОЛБЕЦ, ЧТОБЫ БРОСИТЬ КУБИК",
                 screenW * .5f, gameLayout.hintBottom + gameLayout.hintHeight * .5f, screenW * .94f,
                 uiScale * (11f / 24f));
@@ -1045,9 +1045,11 @@ public final class UpMergeGame extends ApplicationAdapter {
         setLogoFontHex(uiTheme.accent);
         logoFont.draw(batch, "MERGE", logoLeft + upWidth, screenH * .745f);
         font.setColor(.66f, .76f, .89f, 1f);
-        font.getData().setScale(uiScale * (15f / 24f));
-        drawCentered("Запускай кубики вверх. Объединяй одинаковые", center, screenH * .700f);
-        drawCentered("числа и создавай цепные реакции.", center, screenH * .675f);
+        font.getData().setScale(uiScale * (13f / 24f));
+        drawCenteredFit("Запускай кубики вверх. Объединяй одинаковые", center,
+                screenH * .700f, screenW * .84f, uiScale * (13f / 24f));
+        drawCenteredFit("числа и создавай цепные реакции.", center,
+                screenH * .675f, screenW * .84f, uiScale * (13f / 24f));
         batch.end();
 
         MainMenuLayout.Rect[] modeCards = mainMenuLayout.modes;
@@ -1139,7 +1141,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         batch.begin();
         font.setColor(selected ? .92f : .86f, selected ? .99f : .92f,
                 selected ? 1f : .99f, 1f);
-        float scale = uiScale * (14f / 24f);
+        float scale = uiScale * (11f / 24f);
         font.getData().setScale(scale);
         textLayout.setText(font, label);
         if (textLayout.width > width * .86f && textLayout.width > 0f) {
@@ -1715,7 +1717,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         batch.begin();
         font.setColor(highlighted ? .018f : .91f, highlighted ? .075f : .95f,
                 highlighted ? .12f : 1f, 1f);
-        float scale = uiScale * (16f / 24f);
+        float scale = uiScale * (15f / 24f);
         font.getData().setScale(scale);
         textLayout.setText(font, label);
         if (textLayout.width > width * .88f && textLayout.width > 0f) {
