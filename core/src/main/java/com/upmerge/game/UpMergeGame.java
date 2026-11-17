@@ -1879,12 +1879,16 @@ public final class UpMergeGame extends ApplicationAdapter {
         float r = Math.max(0f, Math.min(radius, Math.min(width, height) * .5f));
         beginShapes(ShapeRenderer.ShapeType.Line);
         shapes.setColor(red, green, blue, alpha);
-        shapes.rect(x + r, y, width - 2f * r, height);
-        shapes.rect(x, y + r, width, height - 2f * r);
-        shapes.circle(x + r, y + r, r, 16);
-        shapes.circle(x + width - r, y + r, r, 16);
-        shapes.circle(x + r, y + height - r, r, 16);
-        shapes.circle(x + width - r, y + height - r, r, 16);
+        // Draw only the four straight edges and quarter-circle corners.
+        // Full circles here caused the visible "target rings" on every card.
+        shapes.line(x + r, y, x + width - r, y);
+        shapes.line(x + r, y + height, x + width - r, y + height);
+        shapes.line(x, y + r, x, y + height - r);
+        shapes.line(x + width, y + r, x + width, y + height - r);
+        shapes.arc(x + r, y + r, r, 180f, 90f, 8);
+        shapes.arc(x + width - r, y + r, r, 270f, 90f, 8);
+        shapes.arc(x + width - r, y + height - r, r, 0f, 90f, 8);
+        shapes.arc(x + r, y + height - r, r, 90f, 90f, 8);
         shapes.end();
     }
 
