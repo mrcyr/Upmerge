@@ -753,10 +753,6 @@ public final class UpMergeGame extends ApplicationAdapter {
         shapes.setColor(((uiTheme.accent >>> 16) & 255) / 255f,
                 ((uiTheme.accent >>> 8) & 255) / 255f,
                 (uiTheme.accent & 255) / 255f, .27f);
-        shapes.setColor(((uiTheme.accent >>> 16) & 255) / 255f,
-                ((uiTheme.accent >>> 8) & 255) / 255f,
-                (uiTheme.accent & 255) / 255f, .27f);
-        shapes.getProjectionMatrix();
         for (int row = 0; row < BoardEngine.ROWS; row++) {
             for (int column = 0; column < BoardEngine.COLUMNS; column++) {
                 shapes.rect(boardLeft + column * cell + .5f,
