@@ -956,7 +956,7 @@ public final class UpMergeGame extends ApplicationAdapter {
 
         String[] labels = {"СЧЁТ", "РЕКОРД", "КОМБО"};
         String[] values = {NumberFormatter.compact(engine.score()),
-                NumberFormatter.compact(bestScore), "×" + runMaxCombo};
+                NumberFormatter.compact(bestScore), "×" + combo};
         for (int i = 0; i < 3; i++) {
             float x = pad + i * (statW + gap);
             font.setColor(.62f, .76f, .89f, 1f);
@@ -1028,16 +1028,21 @@ public final class UpMergeGame extends ApplicationAdapter {
                     toolW - 4f * uiScale, uiScale * (7f / 24f));
         }
 
-        font.setColor(.58f, .68f, .78f, 1f);
-        float hintScale = uiScale * (8.5f / 24f);
-        String hintFirst = "ЦЕЛЬ " + NumberFormatter.compact(cubeQueue.goalTarget())
-                + " · КОСНИСЬ ПОЛЯ, ЧТОБЫ БРОСИТЬ";
-        String hintSecond = "КУБИК " + (engine.direction() == BoardEngine.Direction.UP
-                ? "ВВЕРХ" : "ВНИЗ");
-        drawCenteredFit(hintFirst, screenW * .5f,
-                gameLayout.hintBottom + 10f * uiScale, screenW * .94f, hintScale);
-        drawCenteredFit(hintSecond, screenW * .5f,
-                gameLayout.hintBottom + 1f * uiScale, screenW * .94f, hintScale);
+        font.setColor(.47f, .56f, .71f, 1f);
+        float hintScale = uiScale * (11f / 24f);
+        String hint = gameMode == GameMode.TIMED
+                ? "ВРЕМЯ " + Math.max(0, (int)Math.ceil(timeLeft)) + " СЕКУНД · МАКСИМУМ ОЧКОВ"
+                : gameMode == GameMode.CHALLENGE
+                ? "СОБЕРИ КУБИК " + NumberFormatter.compact(challengeGoal)
+                : "НАЖМИ НА ПОЛЕ, ЧТОБЫ ЗАПУСТИТЬ КУБИК "
+                    + (engine.direction() == BoardEngine.Direction.UP ? "ВВЕРХ" : "ВНИЗ");
+        if (activeTool == Tool.SPLIT) hint = "ВЫБЕРИ КУБИК ДЛЯ УДАЛЕНИЯ";
+        else if (activeTool == Tool.MOVE) hint = "ВЫБЕРИ КУБИК, ЗАТЕМ МЕСТО ДЛЯ ПЕРЕМЕЩЕНИЯ";
+        else if (activeTool == Tool.SWAP) hint = "ВЫБЕРИ ДВА КУБИКА ДЛЯ ОБМЕНА";
+        else if (activeTool == Tool.BOMB) hint = "ВЫБЕРИ ЦЕНТР ВЗРЫВА 3×3";
+        drawCenteredFit(hint, screenW * .5f,
+                gameLayout.hintBottom + gameLayout.hintHeight * .82f,
+                screenW * .94f, hintScale);
 
         for (BoardEngine.Cube cube : engine.cubes()) {
             String value = NumberFormatter.compact(cube.value);
