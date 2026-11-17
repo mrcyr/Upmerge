@@ -600,19 +600,32 @@ public class BoardEngineTest {
 
     @Test public void threeConnectedCubesResolveAsOneGroupAndUseRoundedValue() {
         BoardEngine engine = new BoardEngine();
-        for (int lane = 0; lane < 3; lane++) {
-            assertTrue(engine.launch(lane, 2));
-            settle(engine);
-        }
-        assertTrue("Three face-connected equal cubes must start one merge", engine.isMergePending());
+
+        // Build two separated 2s: (lane 0,row 1) and (lane 1,row 0).
+        // The final 2 at (lane 1,row 1) touches both simultaneously.
+        assertTrue(engine.launch(0, 4));
+        settle(engine);
+        assertTrue(engine.launch(0, 2));
+        settle(engine);
+        assertTrue(engine.launch(1, 2));
+        settle(engine);
+        assertFalse("The first two equal cubes are diagonal, not adjacent",
+                engine.isMergePending());
+
+        assertTrue(engine.launch(1, 2));
+        settle(engine);
+        assertTrue("Third cube must connect both existing cubes", engine.isMergePending());
         finishMerge(engine);
+
         BoardEngine.MergeEvent event = engine.consumeMergeEvent();
         assertNotNull(event);
         assertEquals(3, event.count);
         assertEquals(8L, event.value);
         assertEquals(8L, event.points);
-        assertEquals(1, engine.cubes().size());
-        assertEquals(8L, engine.cubes().get(0).value);
+        assertTrue(engine.cubes().stream().anyMatch(c -> c.value == 4));
+        assertEquals(2, engine.cubes().size());
+        assertEquals(8L, engine.cubes().stream()
+                .filter(c -> c.value == 8).findFirst().get().value);
     }
 
     @Test public void pendingMergeBlocksAdditionalLaunchesUntilTransactionCompletes() {
