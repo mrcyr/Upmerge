@@ -642,6 +642,7 @@ public final class UpMergeGame extends ApplicationAdapter {
                     ? UiTheme.mix(uiTheme.background, uiTheme.panel, t / .52f)
                     : UiTheme.mix(uiTheme.panel, uiTheme.surface, (t - .52f) / .48f);
             float scale = 1f - t;
+            if (scale <= .001f) continue;
             setShapeHex(color, 1f);
             shapes.ellipse(centerX - radiusX * scale, centerY - radiusY * scale,
                     radiusX * 2f * scale, radiusY * 2f * scale);
