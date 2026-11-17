@@ -1583,7 +1583,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         float panelWidth = screenW * .868f;
         float panelHeight = screenH * .666f;
         float panelX = (screenW - panelWidth) * .5f;
-        float panelY = (screenH - panelHeight) * .5f;
+        float panelY = screenH * .133f;
         float radius = 27f * uiScale;
         drawRoundedFillHex(panelX - 2f * uiScale, panelY - 5f * uiScale,
                 panelWidth + 4f * uiScale, panelHeight + 10f * uiScale,
