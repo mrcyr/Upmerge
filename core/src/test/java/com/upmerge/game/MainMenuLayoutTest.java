@@ -83,26 +83,33 @@ public class MainMenuLayoutTest {
         assertFalse(layout.menuActions[0].overlaps(layout.menuActions[1]));
     }
 
-    @Test public void allMenuControlsStayDisjointAtCompactAndHighDensitySizes() {
-        for (float[] device : new float[][] {{320, 568, 1}, {349, 749, 1},
-                {384, 828, 1}, {1080, 2400, 3}}) {
-            MainMenuLayout layout = new MainMenuLayout(device[0], device[1], true, device[2]);
+    @Test public void everyMenuControlIsInsideAndAllRowsAreDisjointAcrossDensities() {
+        for (float[] device : new float[][] {{320,568,1}, {349,749,1},
+                {384,828,1}, {432,960,1}, {1080,2400,3}}) {
+            MainMenuLayout layout = new MainMenuLayout(device[0],device[1],true,device[2]);
             java.util.List<MainMenuLayout.Rect> controls = new java.util.ArrayList<>();
-            java.util.Collections.addAll(controls, layout.modes);
-            java.util.Collections.addAll(controls, layout.directions);
-            java.util.Collections.addAll(controls, layout.menuActions);
+            java.util.Collections.addAll(controls,layout.modes);
+            java.util.Collections.addAll(controls,layout.directions);
+            java.util.Collections.addAll(controls,layout.menuActions);
             controls.add(layout.continueButton);
             controls.add(layout.newGameButton);
-            for (MainMenuLayout.Rect[] row : layout.utilities)
-                java.util.Collections.addAll(controls, row);
-            for (int i = 0; i < controls.size(); i++) {
-                assertInside(controls.get(i), device[0], device[1]);
-                for (int j = i + 1; j < controls.size(); j++) {
-                    assertFalse("controls overlap on " + device[0] + "x" + device[1]
-                            + ": " + i + " and " + j,
+            for (MainMenuLayout.Rect[] row:layout.utilities)
+                java.util.Collections.addAll(controls,row);
+            controls.add(layout.footer);
+            for(int i=0;i<controls.size();i++){
+                assertInside(controls.get(i),device[0],device[1]);
+                for(int j=i+1;j<controls.size();j++)
+                    assertFalse("overlap at "+device[0]+"x"+device[1]+" between "+i+" and "+j,
                             controls.get(i).overlaps(controls.get(j)));
-                }
             }
+            // Screen order is explicitly top-down: modes, direction, themes, main actions, utilities, footer.
+            assertTrue(layout.modes[0].centerY()>layout.directions[0].centerY());
+            assertTrue(layout.directions[0].centerY()>layout.menuActions[0].centerY());
+            assertTrue(layout.menuActions[0].centerY()>layout.continueButton.centerY());
+            assertTrue(layout.continueButton.centerY()>layout.newGameButton.centerY());
+            assertTrue(layout.newGameButton.centerY()>layout.utilities[0][0].centerY());
+            assertTrue(layout.utilities[0][0].centerY()>layout.utilities[1][0].centerY());
+            assertTrue(layout.utilities[1][0].centerY()>layout.footer.centerY());
         }
     }
 
