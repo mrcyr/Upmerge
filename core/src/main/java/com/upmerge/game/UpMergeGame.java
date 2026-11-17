@@ -490,8 +490,9 @@ public final class UpMergeGame extends ApplicationAdapter {
             return;
         }
         if (gameOver) {
-            if (y >= screenH * 0.36f && y <= screenH * 0.58f) startMode(gameMode, true);
-            else if (y < screenH * 0.36f) { menuVisible = true; gameOver = false; }
+            if (y >= screenH * .52f) beginEmergencySplit(true);
+            else if (y >= screenH * .38f) startMode(gameMode, true);
+            else if (y < screenH * .30f) { menuVisible = true; gameOver = false; }
             return;
         }
         if (emergencyDialog) {
@@ -618,37 +619,41 @@ public final class UpMergeGame extends ApplicationAdapter {
             return;
         }
         if (!emergencyDialog && !gameOver) return;
-        beginShapes(ShapeRenderer.ShapeType.Filled);
-        shapes.setColor(0f, 0f, 0f, 0.78f);
-        shapes.rect(0, 0, screenW, screenH);
-        shapes.setColor(0.075f, 0.105f, 0.145f, 1f);
-        shapes.rect(screenW * 0.08f, screenH * 0.34f, screenW * 0.84f, screenH * 0.32f);
-        if (gameOver) {
-            shapes.setColor(0.12f, 0.36f, 0.58f, 1f);
-            shapes.rect(screenW * 0.16f, screenH * 0.40f, screenW * 0.68f, 0.14f);
-        } else if (emergencyDialog && splitCharges > 0) {
-            shapes.setColor(0.12f, 0.48f, 0.34f, 1f);
-            shapes.rect(screenW * 0.16f, screenH * 0.42f, screenW * 0.68f, screenH * 0.10f);
-        }
-        shapes.end();
+        drawMenuBackdrop();
         batch.begin();
         font.setColor(1f, 1f, 1f, 1f);
-        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 300f, 0.95f, 1.25f));
-        drawCentered(gameOver ? "ИГРА ОКОНЧЕНА" : emergencyDialog ? "ПОЛЕ ЗАПОЛНЕНО" : "ВЫБЕРИ КУБИК",
-                screenW * 0.5f, screenH * 0.59f);
-        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 390f, 0.78f, 1f));
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 260f, 1.15f, 1.5f));
+        drawCentered(gameOver ? "ИГРА ОКОНЧЕНА" : "ПОЛЕ ЗАПОЛНЕНО",
+                screenW * .5f, screenH * .69f);
+        font.setColor(.62f, .70f, .82f, 1f);
+        font.getData().setScale(uiScale * (13f / 24f));
         if (gameOver) {
-            drawCentered("СЧЁТ: " + engine.score() + "   РЕКОРД: " + bestScore, screenW * 0.5f, screenH * 0.49f);
-            drawCentered("НОВАЯ ИГРА", screenW * 0.5f, screenH * 0.435f);
-            drawCentered("В ГЛАВНОЕ МЕНЮ", screenW * 0.5f, screenH * 0.365f);
-        } else if (emergencyDialog) {
-            drawCentered(splitCharges > 0 ? "РАЗБИТЬ КУБИК · ЗАРЯД " + splitCharges
-                    : "НЕТ ЗАРЯДОВ", screenW * 0.5f, screenH * 0.47f);
-            drawCentered("НАЖМИ НИЖЕ ДЛЯ ЗАВЕРШЕНИЯ", screenW * 0.5f, screenH * 0.38f);
+            drawCenteredFit("ТВОЙ РЕЗУЛЬТАТ", screenW * .5f, screenH * .615f,
+                    screenW * .82f, uiScale * (13f / 24f));
+            font.setColor(.46f, .88f, 1f, 1f);
+            font.getData().setScale(uiScale * MathUtils.clamp(screenW / 170f, 1.8f, 2.6f));
+            drawCentered(NumberFormatter.compact(engine.score()), screenW * .5f, screenH * .55f);
         } else {
-            drawCentered("ВЫБЕРИ ЛЮБОЙ КУБИК НА ПОЛЕ", screenW * 0.5f, screenH * 0.45f);
+            drawCenteredFit("Нет свободной колонки для следующего кубика.",
+                    screenW * .5f, screenH * .615f, screenW * .82f, uiScale * (13f / 24f));
+            drawCenteredFit(splitCharges > 0 ? "УДАЛИ ОДИН КУБИК, ЧТОБЫ ПРОДОЛЖИТЬ"
+                    : "НЕТ ЗАРЯДОВ ДЛЯ УДАЛЕНИЯ",
+                    screenW * .5f, screenH * .56f, screenW * .82f, uiScale * (11f / 24f));
         }
         batch.end();
+
+        float buttonHeight = 48f * uiScale;
+        float ratio = buttonHeight / screenH;
+        if (gameOver) {
+            drawMenuButton("РАЗБИТЬ КУБИК И ПРОДОЛЖИТЬ",
+                    screenH * .48f, ratio, true);
+            drawMenuButton("ЕЩЁ РАЗ", screenH * .37f, ratio, false);
+            drawMenuButton("В ГЛАВНОЕ МЕНЮ", screenH * .26f, ratio, false);
+        } else {
+            drawMenuButton(splitCharges > 0 ? "РАЗБИТЬ 1 КУБИК" : "НЕТ ЗАРЯДОВ",
+                    screenH * .47f, ratio, splitCharges > 0);
+            drawMenuButton("ЗАВЕРШИТЬ ИГРУ", screenH * .34f, ratio, false);
+        }
     }
 
     /** Theme-driven radial backdrop matching the HTML game's 50% / 25% gradient. */
