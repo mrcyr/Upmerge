@@ -1401,7 +1401,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         drawCentered("МОНЕТЫ: " + NumberFormatter.compact(economy.coins()), screenW * .5f, screenH * .75f);
         font.setColor(.72f, .82f, .92f, 1f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 390f, .68f, .84f));
-        drawCentered("ПОКУПАЙ ЗАРЯДЫ ДЛЯ ИНСТРУМЕНТОВ", screenW * .5f, screenH * .68f);
+        drawCentered("ПОКУПАЙ ЗАРЯДЫ ДЛЯ ИНСТРУМЕНТОВ", screenW * .5f, screenH * .78f);
         batch.end();
         String[] names = {"РАЗБИТЬ", "ПЕРЕМЕСТИТЬ", "ПОМЕНЯТЬ МЕСТАМИ", "БОМБА", "ОТМЕНА"};
         GameEconomy.Tool[] tools = GameEconomy.Tool.values();
