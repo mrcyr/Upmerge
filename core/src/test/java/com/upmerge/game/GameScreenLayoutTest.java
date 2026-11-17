@@ -45,6 +45,22 @@ public class GameScreenLayoutTest {
         }
     }
 
+
+    @Test public void gameplayAnchorsMatchTheSuppliedReferenceProportions() {
+        GameScreenLayout l = new GameScreenLayout(259f, 554f, 1f);
+        assertEquals(39.334f, l.statHeight, .02f);
+        assertEquals(434f, l.statBottom, .02f);
+        assertEquals(31.024f, l.pillHeight, .02f);
+        assertEquals(396f, l.pillBottom, .02f);
+        assertEquals(82.316f, l.queueBottom, .03f);
+        assertEquals(31.024f, l.queueHeight, .02f);
+        assertEquals(40.996f, l.toolbarBottom, .02f);
+        assertEquals(34.902f, l.toolbarHeight, .02f);
+        assertEquals(13.85f, l.hintBottom, .02f);
+        assertEquals(18f, l.hintHeight, .02f);
+        assertEquals(38.65f, l.cell, .05f);
+    }
+
     @Test public void pauseTargetIsInsideTopRightHeaderOnly(){
         GameScreenLayout l=new GameScreenLayout(384,828,1);
         assertTrue(l.pauseContains(380,810));
