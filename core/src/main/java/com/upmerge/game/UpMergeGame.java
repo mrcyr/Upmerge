@@ -53,6 +53,9 @@ public final class UpMergeGame extends ApplicationAdapter {
     private boolean menuVisible = true;
     private boolean modeSelectionVisible;
     private boolean settingsVisible;
+    private boolean themesVisible;
+    private String cubeShape = "rounded";
+    private String cubeFinish = "convex";
     private UiTheme uiTheme;
     private boolean hapticsEnabled = true;
     private boolean hasSavedGame;
@@ -118,6 +121,8 @@ public final class UpMergeGame extends ApplicationAdapter {
             preferences.flush();
         }
         uiTheme = UiTheme.fromIndex(savedTheme);
+        cubeShape = preferences.getString("cubeShape", "rounded");
+        cubeFinish = preferences.getString("cubeFinish", "convex");
         bestScore = preferences.getLong("bestScore", 0L);
         lifetimeGames = preferences.getLong("statsGames", 0L);
         lifetimeMerges = preferences.getLong("statsMerges", 0L);
@@ -308,11 +313,13 @@ public final class UpMergeGame extends ApplicationAdapter {
         drawText();
         drawOverlays();
         if (menuVisible) {
-            if (settingsVisible) drawSettingsMenu();
+            if (themesVisible) drawThemesMenu();
+            else if (settingsVisible) drawSettingsMenu();
             else if (shopVisible) drawShopMenu();
             else if (achievementsVisible) drawAchievementsMenu();
             else if (statsVisible) drawStatsMenu();
             else if (tasksVisible) drawTasksMenu();
+            else if (themesVisible) drawThemesMenu();
             else if (modeSelectionVisible) drawModeMenu();
             else drawMainMenu();
         } else if (paused) drawPauseMenu();
@@ -385,7 +392,8 @@ public final class UpMergeGame extends ApplicationAdapter {
                 levelUpTime = 0f;
                 saveGame();
             } else if (menuVisible) {
-                if (settingsVisible) settingsVisible = false;
+                if (themesVisible) themesVisible = false;
+                else if (settingsVisible) settingsVisible = false;
                 else if (shopVisible) shopVisible = false;
                 else if (achievementsVisible) achievementsVisible = false;
                 else if (statsVisible) statsVisible = false;
@@ -441,6 +449,10 @@ public final class UpMergeGame extends ApplicationAdapter {
                 else if (y <= screenH * 0.30f) shopVisible = false;
                 return;
             }
+            if (themesVisible) {
+                handleThemesInput(x, y);
+                return;
+            }
             if (settingsVisible) {
                 if (y > screenH * 0.62f && y <= screenH * 0.74f) {
                     cycleUiTheme();
@@ -468,7 +480,7 @@ public final class UpMergeGame extends ApplicationAdapter {
                     preferences.putString("menuDirection", menuSelectedDirection.name());
                     preferences.flush();
                     break;
-                case THEMES: settingsVisible = true; break;
+                case THEMES: themesVisible = true; break;
                 case DAILY: tasksVisible = true; break;
                 case CONTINUE: menuVisible = false; paused = false; break;
                 case NEW_GAME: startMode(menuSelectedMode, true); break;
@@ -481,7 +493,9 @@ public final class UpMergeGame extends ApplicationAdapter {
             return;
         }
         if (paused) {
-            if (settingsVisible) {
+            if (themesVisible) {
+                handleThemesInput(x, y);
+            } else if (settingsVisible) {
                 if (y > screenH * .62f && y <= screenH * .76f) cycleUiTheme();
                 else if (y > screenH * .40f && y <= screenH * .56f) {
                     hapticsEnabled = !hapticsEnabled;
@@ -1706,6 +1720,109 @@ public final class UpMergeGame extends ApplicationAdapter {
             if (engine.moveCube(selectedToolCubeId, lane, row)) {
                 moveCharges--; activeTool = Tool.NONE; selectedToolCubeId = -1L; persistToolBalances();
             }
+        }
+    }
+
+    private void drawThemesMenu() {
+        drawMenuBackdrop();
+        float d = uiScale;
+        float left = screenW * .08f, width = screenW * .84f;
+        batch.begin();
+        setFontHex(uiTheme.accent);
+        font.getData().setScale(d * MathUtils.clamp(screenW / 245f, 1.15f, 1.45f));
+        drawCentered("ТЕМЫ", screenW * .5f, screenH * .88f);
+        font.setColor(.72f, .82f, .92f, 1f);
+        font.getData().setScale(d * MathUtils.clamp(screenW / 430f, .62f, .78f));
+        drawCenteredFit("Цвета и текстуры настраиваются отдельно. Можно выбрать яркую палитру и оставить кубики гладкими.",
+                screenW * .5f, screenH * .81f, width, d * .68f);
+        font.setColor(.80f, .88f, .97f, 1f);
+        font.getData().setScale(d * .58f);
+        drawCentered("ЦВЕТОВАЯ ПАЛИТРА", screenW * .5f, screenH * .735f);
+        batch.end();
+
+        int columns = 5;
+        float gapX = screenW * .025f, gapY = 9f * d;
+        float swatchW = (width - gapX * (columns - 1)) / columns;
+        float swatchH = Math.max(34f * d, screenH * .052f);
+        float top = screenH * .70f;
+        for (int i = 0; i < UiTheme.NAMES.length; i++) {
+            int col = i % columns, row = i / columns;
+            float x = left + col * (swatchW + gapX);
+            float y = top - (row + 1) * swatchH - row * gapY;
+            UiTheme theme = UiTheme.fromIndex(i);
+            drawRoundedFillHex(x, y, swatchW, swatchH, swatchH * .35f, theme.panel, 1f);
+            drawRoundedOutlineHex(x, y, swatchW, swatchH, swatchH * .35f,
+                    i == uiTheme.index ? theme.accent : 0xffffff, i == uiTheme.index ? .95f : .12f);
+            // Five visible palette bars make every theme recognizable without emoji glyphs.
+            float barW = (swatchW - 12f * d) / 5f;
+            for (int k = 0; k < 5; k++) {
+                int rgb = theme.cubes[k];
+                drawRoundedFillHex(x + 6f*d + k*(barW + 1f*d), y + swatchH*.22f,
+                        barW, swatchH*.56f, 3f*d, rgb, 1f);
+            }
+            batch.begin();
+            font.setColor(.88f, .94f, 1f, 1f);
+            font.getData().setScale(d * .42f);
+            drawCenteredFit(theme.name.toUpperCase(), x + swatchW*.5f, y - 4f*d,
+                    swatchW, d*.42f);
+            batch.end();
+        }
+
+        float selectorTop = screenH * .335f;
+        batch.begin();
+        font.setColor(.80f, .88f, .97f, 1f);
+        font.getData().setScale(d * .58f);
+        drawCentered("ТЕКСТУРА КУБИКОВ", screenW*.5f, selectorTop);
+        batch.end();
+        String[] textureNames = {"БЕЗ ТЕКСТУРЫ", "ОБЪЁМНЫЙ ГЛЯНЕЦ", "КАМЕНЬ", "МРАМОР",
+                "КАРБОН", "МЕТАЛЛ", "ДЕРЕВО", "КРИСТАЛЛ", "КЕРАМИКА", "ГОЛОГРАФИК"};
+        for (int i=0;i<textureNames.length;i++) {
+            int col=i%2,row=i/2;
+            float bw=(width-gapX)*.5f, bh=31f*d;
+            float x=left+col*(bw+gapX), y=selectorTop-25f*d-row*(bh+5f*d);
+            boolean selected=(i==0 && "flat".equals(cubeFinish)) || (i==1 && "convex".equals(cubeFinish));
+            drawMenuChoice(textureNames[i],x+bw*.5f,y-bh*.5f,bw,bh,selected);
+        }
+        float shapeY = screenH * .105f;
+        batch.begin();
+        font.setColor(.80f, .88f, .97f, 1f);
+        font.getData().setScale(d * .58f);
+        drawCentered("ФОРМА", screenW*.5f, shapeY+48f*d);
+        batch.end();
+        String[] shapeNames={"СКРУГЛЁННЫЕ","КВАДРАТЫ","КРУГИ"};
+        String[] shapeIds={"rounded","square","circle"};
+        for(int i=0;i<3;i++){
+            float bw=(width-2f*gapX)/3f;
+            drawMenuChoice(shapeNames[i],left+i*(bw+gapX)+bw*.5f,shapeY+12f*d,bw,31f*d,
+                    shapeIds[i].equals(cubeShape));
+        }
+        drawMenuButton("ЗАКРЫТЬ", screenH*.045f, .065f, false);
+    }
+
+    private void handleThemesInput(float x, float y) {
+        float left=screenW*.08f, width=screenW*.84f, gapX=screenW*.025f;
+        float swatchW=(width-gapX*4f)/5f, swatchH=Math.max(34f*uiScale,screenH*.052f);
+        float top=screenH*.70f, gapY=9f*uiScale;
+        for(int i=0;i<UiTheme.NAMES.length;i++){
+            int col=i%5,row=i/5;
+            float bx=left+col*(swatchW+gapX);
+            float by=top-(row+1)*swatchH-row*gapY;
+            if(x>=bx&&x<=bx+swatchW&&y>=by&&y<=by+swatchH){
+                uiTheme=UiTheme.fromIndex(i);
+                preferences.putInteger("uiTheme",i); preferences.flush(); return;
+            }
+        }
+        if(y<screenH*.075f){themesVisible=false;return;}
+        // Keep the HTML's two selectable finishes functional; other material
+        // labels remain visual presets until their texture assets are ported.
+        if(y>screenH*.17f&&y<screenH*.33f){
+            cubeFinish=y>screenH*.27f?"convex":"flat";
+            preferences.putString("cubeFinish",cubeFinish);preferences.flush();return;
+        }
+        if(y>screenH*.07f&&y<screenH*.16f){
+            int index=MathUtils.clamp((int)((x-left)/(width/3f)),0,2);
+            cubeShape=index==0?"rounded":index==1?"square":"circle";
+            preferences.putString("cubeShape",cubeShape);preferences.flush();
         }
     }
 
