@@ -661,15 +661,15 @@ public final class UpMergeGame extends ApplicationAdapter {
         float statW = (screenW - topPad * 2f - statGap * 2f) / 3f;
         for (int i = 0; i < 3; i++) {
             setShapeHex(UiTheme.mix(uiTheme.surface, uiTheme.panel, .45f), 1f);
-            roundedRectInBatch(topPad + i * (statW + statGap), statY, statW, statH, 14f * uiScale);
+            roundedRectInBatch(topPad + i * (statW + statGap), statY, statW, statH, 16f * uiScale);
         }
         float pillY = gameLayout.pillBottom;
         float pillGap = 7f * uiScale;
         float pillW = (screenW - topPad * 2f - pillGap) * .5f;
         setShapeHex(uiTheme.panel, 1f);
-        roundedRectInBatch(topPad, pillY, pillW, gameLayout.pillHeight, 11f * uiScale);
+        roundedRectInBatch(topPad, pillY, pillW, gameLayout.pillHeight, 12f * uiScale);
         setShapeHex(uiTheme.panel, 1f);
-        roundedRectInBatch(topPad + pillW + pillGap, pillY, pillW, gameLayout.pillHeight, 11f * uiScale);
+        roundedRectInBatch(topPad + pillW + pillGap, pillY, pillW, gameLayout.pillHeight, 12f * uiScale);
 
         float toolW = gameLayout.toolbarCardWidth;
         float toolGap = gameLayout.toolbarGap;
@@ -685,7 +685,7 @@ public final class UpMergeGame extends ApplicationAdapter {
             setShapeHex(selected ? UiTheme.mix(uiTheme.accent, uiTheme.panel, .42f)
                     : available ? UiTheme.mix(uiTheme.surface, uiTheme.panel, .35f) : uiTheme.panel, 1f);
             roundedRectInBatch(toolLeft + i * (toolW + toolGap), gameLayout.toolbarBottom,
-                    toolW, gameLayout.toolbarHeight, 11f * uiScale);
+                    toolW, gameLayout.toolbarHeight, 13f * uiScale);
         }
         // Queue cards mirror the HTML flex row: label on the left, colored cube on the right.
         float queueY = gameLayout.queueBottom;
@@ -694,10 +694,10 @@ public final class UpMergeGame extends ApplicationAdapter {
         float queueH = gameLayout.queueHeight, queueGap = gameLayout.queueGap;
         float queueLeft = gameLayout.queueLeft;
         setShapeHex(uiTheme.panel, 1f);
-        roundedRectInBatch(queueLeft, queueY, queueCurrentW, queueH, 10f * uiScale);
+        roundedRectInBatch(queueLeft, queueY, queueCurrentW, queueH, 12f * uiScale);
         setShapeHex(uiTheme.panel, 1f);
         roundedRectInBatch(queueLeft + queueCurrentW + queueGap, queueY,
-                queueNextW, queueH, 10f * uiScale);
+                queueNextW, queueH, 12f * uiScale);
         shapes.end();
 
         // Repaint the HUD surfaces with subtle vertical gradients and crisp edges.
@@ -1161,7 +1161,7 @@ public final class UpMergeGame extends ApplicationAdapter {
     private void drawMenuChoice(String label, float centerX, float centerY,
                                 float width, float height, boolean selected, int icon) {
         float left = centerX - width * .5f, bottom = centerY - height * .5f;
-        float radius = Math.min(15f * uiScale, height * .32f);
+        float radius = Math.min(16f * uiScale, height * .5f);
         drawRoundedFillHex(left, bottom - 3f * uiScale, width, height + 3f * uiScale,
                 radius, uiTheme.background, .82f);
         drawRoundedFillHex(left, bottom, width, height, radius, uiTheme.panel, 1f);
@@ -1749,7 +1749,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         float height = Math.min(screenH * heightRatio, 54f * uiScale);
         float left = centerX - width * .5f;
         float bottom = centerY - height * .5f;
-        float radius = Math.min(17f * uiScale, height * .34f);
+        float radius = Math.min(16f * uiScale, height * .5f);
         drawRoundedFillHex(left, bottom - 4f * uiScale, width, height + 5f * uiScale,
                 radius, uiTheme.background, .88f);
         if (highlighted) {
