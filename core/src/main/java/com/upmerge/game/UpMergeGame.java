@@ -854,7 +854,8 @@ public final class UpMergeGame extends ApplicationAdapter {
             }
         }
         // HTML renderer lightly marks the column under the launch pointer.
-        int activeLane = MathUtils.clamp((int)((Gdx.input.getX() - boardLeft) / cell),
+        float pointerX = Gdx.input.isTouched() ? Gdx.input.getX() : screenW * .5f;
+        int activeLane = MathUtils.clamp((int)((pointerX - boardLeft) / cell),
                 0, BoardEngine.COLUMNS - 1);
         setShapeHex(uiTheme.accent, .07f);
         shapes.rect(boardLeft + activeLane * cell, boardBottom, cell,
