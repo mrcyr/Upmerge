@@ -11,7 +11,7 @@ public class MainMenuLayoutTest {
                     (layout.modes[0].centerX() + layout.modes[2].centerX()) * .5f, .01f);
             assertEquals(layout.modes[1].centerX(), size[0] * .5f, .01f);
             for (MainMenuLayout.Rect mode : layout.modes)
-                assertEquals(Math.min(46f, size[1] * .07f), mode.height, .01f);
+                assertEquals(Math.min(46f, size[1] * .048f), mode.height, .01f);
             assertFalse(layout.modes[0].overlaps(layout.modes[1]));
             assertFalse(layout.modes[1].overlaps(layout.modes[2]));
             assertFalse(layout.directions[0].overlaps(layout.directions[1]));
@@ -111,6 +111,19 @@ public class MainMenuLayoutTest {
             assertTrue(layout.utilities[0][0].centerY()>layout.utilities[1][0].centerY());
             assertTrue(layout.utilities[1][0].centerY()>layout.footer.centerY());
         }
+    }
+
+
+    @Test public void menuAnchorsMatchTheSuppliedReferenceProportions() {
+        MainMenuLayout layout = new MainMenuLayout(279f, 527f, true);
+        assertEquals(279f * .774f, layout.contentWidth, .01f);
+        assertEquals(527f * .357f, 527f - layout.modes[0].y - layout.modes[0].height, .01f);
+        assertEquals(527f * .418f, 527f - layout.directions[0].y - layout.directions[0].height, .01f);
+        assertEquals(527f * .478f, 527f - layout.menuActions[0].y - layout.menuActions[0].height, .01f);
+        assertEquals(527f * .543f, 527f - layout.continueButton.y - layout.continueButton.height, .01f);
+        assertEquals(527f * .621f, 527f - layout.newGameButton.y - layout.newGameButton.height, .01f);
+        assertEquals(527f * .700f, 527f - layout.utilities[0][0].y - layout.utilities[0][0].height, .01f);
+        assertEquals(527f * .761f, 527f - layout.utilities[1][0].y - layout.utilities[1][0].height, .01f);
     }
 
     private static void assertInside(MainMenuLayout.Rect rect, float width, float height) {
