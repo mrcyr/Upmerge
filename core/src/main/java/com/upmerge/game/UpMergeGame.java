@@ -1019,7 +1019,7 @@ public final class UpMergeGame extends ApplicationAdapter {
             drawMenuButton("ПРОДОЛЖИТЬ ИГРУ", mainMenuLayout.continueButton, true);
             drawMenuButton("НОВАЯ ИГРА", mainMenuLayout.newGameButton, true);
         } else {
-            drawMenuButton("НОВАЯ ИГРА", mainMenuLayout.newGameButton, false);
+            drawMenuButton("НОВАЯ ИГРА", mainMenuLayout.newGameButton, true);
         }
 
         MainMenuLayout.Rect[][] utilityCards = mainMenuLayout.utilities;
