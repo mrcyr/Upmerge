@@ -27,7 +27,7 @@ final class MainMenuLayout {
         float panelW=Math.min(390f*this.density,screenW-2f*margin);
         contentWidth=Math.max(100f*this.density,panelW-44f*this.density);
         float cx=screenW*.5f, gap=7f*this.density;
-        float rowH=46f*this.density;
+        float rowH=Math.min(46f*this.density,screenH*.07f);
         float modeW=(contentWidth-2f*gap)/3f;
         // Top-down anchors are converted once to bottom-left coordinates.
         float top=screenH*.285f;
@@ -40,7 +40,7 @@ final class MainMenuLayout {
         float actionOffset=(half+4f*this.density)*.5f;
         menuActions[0]=topRect(cx-actionOffset,top,half,rowH);
         menuActions[1]=topRect(cx+actionOffset,top,half,rowH);
-        float mainH=54f*this.density;
+        float mainH=Math.min(52f*this.density,screenH*.085f);
         if(saved){
             continueButton=topRect(cx,screenH*.57f,contentWidth,mainH);
             newGameButton=topRect(cx,screenH*.665f,contentWidth,mainH);
@@ -49,7 +49,7 @@ final class MainMenuLayout {
             newGameButton=topRect(cx,screenH*.615f,contentWidth,mainH);
         }
         float utilityW=half;
-        float utilityTop0=screenH*.755f,utilityTop1=screenH*.835f;
+        float utilityTop0=screenH*.76f,utilityTop1=screenH*.835f;
         for(int row=0;row<2;row++) for(int col=0;col<2;col++){
             float yTop=row==0?utilityTop0:utilityTop1;
             utilities[row][col]=topRect(cx+(col==0?-1:1)*(utilityW+8f*this.density)*.5f,
