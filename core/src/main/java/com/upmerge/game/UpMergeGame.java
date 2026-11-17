@@ -104,7 +104,15 @@ public final class UpMergeGame extends ApplicationAdapter {
             region.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         }
         preferences = Gdx.app.getPreferences("UpMergeNative");
-        uiTheme = UiTheme.fromIndex(preferences.getInteger("uiTheme", 0));
+        int savedTheme = preferences.getInteger("uiTheme", 0);
+        // Earlier native previews accidentally defaulted to palette 16
+        // (ultraviolet). The HTML reference starts with the Neon palette.
+        if (savedTheme == 16) {
+            savedTheme = 0;
+            preferences.putInteger("uiTheme", savedTheme);
+            preferences.flush();
+        }
+        uiTheme = UiTheme.fromIndex(savedTheme);
         bestScore = preferences.getLong("bestScore", 0L);
         lifetimeGames = preferences.getLong("statsGames", 0L);
         lifetimeMerges = preferences.getLong("statsMerges", 0L);
