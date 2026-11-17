@@ -923,10 +923,10 @@ public final class UpMergeGame extends ApplicationAdapter {
     }
 
     private void drawText() {
-        float headerButton = 29f * uiScale;
-        float headerButtonY = screenH - 72f * uiScale;
-        float soundCenterX = screenW - 55.5f * uiScale;
-        float pauseCenterX = screenW - 20.5f * uiScale;
+        float headerButton = 42f * uiScale;
+        float headerButtonY = screenH - 57f * uiScale;
+        float soundCenterX = screenW - 89f * uiScale;
+        float pauseCenterX = screenW - 39f * uiScale;
         drawRoundedFillHex(soundCenterX - headerButton * .5f, headerButtonY,
                 headerButton, headerButton, 12f * uiScale, UiTheme.mix(uiTheme.surface, uiTheme.panel, .45f), .92f);
         drawRoundedOutlineHex(soundCenterX - headerButton * .5f, headerButtonY,
@@ -1142,7 +1142,7 @@ public final class UpMergeGame extends ApplicationAdapter {
 
     private void drawMainMenu() {
         drawMenuBackdrop();
-        float center = screenW * .469f;
+        float center = screenW * .5f;
         batch.begin();
         float logoScale = uiScale * (30f / 24f);
         logoFont.getData().setScale(logoScale);
@@ -1819,7 +1819,7 @@ public final class UpMergeGame extends ApplicationAdapter {
     private void drawMenuButton(String label, float centerY, float heightRatio, boolean highlighted) {
         boolean referenceMenu = menuVisible && !settingsVisible && !shopVisible
                 && !achievementsVisible && !statsVisible && !tasksVisible && !modeSelectionVisible;
-        float centerX = referenceMenu ? screenW * .469f : screenW * .5f;
+        float centerX = screenW * .5f;
         float width = mainMenuLayout != null ? mainMenuLayout.contentWidth : screenW * .76f;
         float height = Math.min(screenH * heightRatio, 54f * uiScale);
         float left = centerX - width * .5f;
