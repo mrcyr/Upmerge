@@ -80,6 +80,7 @@ public final class UpMergeGame extends ApplicationAdapter {
     private int mergeFlashRow = -1;
     private long mergeFlashValue;
     private float mergeFlightTime;
+    private final MergeVfx mergeVfx = new MergeVfx();
     private float levelUpTime;
     private boolean levelUpVisible;
     private long levelUpGoal = 2048L;
@@ -226,6 +227,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         if (mergeFlashTime > 0f) mergeFlashTime = Math.max(0f, mergeFlashTime - dt);
         if (levelUpTime > 0f) levelUpTime = Math.max(0f, levelUpTime - dt);
         if (mergeFlightTime > 0f) mergeFlightTime = Math.max(0f, mergeFlightTime - dt);
+        mergeVfx.update(dt);
         int movementHaptics = engine.consumeMovementHaptics();
         int landingHaptics = engine.consumeLandingHaptics();
         BoardEngine.MergeEvent mergeEvent = engine.consumeMergeEvent();
@@ -237,6 +239,9 @@ public final class UpMergeGame extends ApplicationAdapter {
             mergeFlashRow = mergeEvent.row;
             mergeFlashValue = mergeEvent.value;
             mergeFlightTime = 0.30f;
+            mergeVfx.start(boardLeft + (mergeEvent.lane + .5f) * cell,
+                    boardBottom + (BoardEngine.ROWS - .5f - mergeEvent.row) * cell,
+                    cell, mergeEvent.value, mergeEvent.count);
             mergeFlightTargetLane = mergeEvent.lane;
             mergeFlightTargetRow = mergeEvent.row;
             mergeFlightSources.clear();
@@ -276,6 +281,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         drawBoard();
         drawCubes();
         drawMergeFlights();
+        drawMergeVfx();
         drawText();
         drawOverlays();
         if (menuVisible) {
@@ -777,22 +783,49 @@ public final class UpMergeGame extends ApplicationAdapter {
             }
             shapes.end();
         }
-        if (mergeFlashTime > 0f && mergeFlashLane >= 0 && mergeFlashRow >= 0) {
-            float progress = 1f - mergeFlashTime / .42f;
-            float centerX = boardLeft + (mergeFlashLane + .5f) * cell;
-            float centerY = boardBottom + (BoardEngine.ROWS - .5f - mergeFlashRow) * cell;
-            float pulse = 1f - progress;
-            shapes.begin(ShapeRenderer.ShapeType.Filled);
-            shapes.setColor(.20f, .78f, 1f, .10f * pulse);
-            shapes.circle(centerX, centerY, cell * (.34f + progress * .30f), 32);
-            shapes.end();
-            shapes.begin(ShapeRenderer.ShapeType.Line);
-            shapes.setColor(.45f, .90f, 1f, pulse);
-            shapes.circle(centerX, centerY, cell * (.28f + progress * .48f), 40);
-            shapes.setColor(.78f, .96f, 1f, pulse * .58f);
-            shapes.circle(centerX, centerY, cell * (.18f + progress * .34f), 32);
-            shapes.end();
+    }
+
+    private void drawMergeVfx() {
+        if (!mergeVfx.isActive()) return;
+        float progress = mergeVfx.progress();
+        float fade = 1f - progress;
+        float cx = mergeVfx.centerX(), cy = mergeVfx.centerY();
+        float radius = mergeVfx.cellSize();
+
+        // Expanding impact rings: a bright contact shockwave followed by a softer halo.
+        shapes.begin(ShapeRenderer.ShapeType.Line);
+        shapes.setColor(0.78f, 0.96f, 1f, fade * .92f);
+        shapes.circle(cx, cy, radius * (.20f + progress * .78f), 48);
+        shapes.setColor(0.35f, 0.78f, 1f, fade * .52f);
+        shapes.circle(cx, cy, radius * (.34f + progress * 1.05f), 48);
+        shapes.end();
+
+        // A brief central flash and radial streaks make the collision read as an impact.
+        shapes.begin(ShapeRenderer.ShapeType.Filled);
+        shapes.setColor(1f, 1f, 1f, fade * .82f);
+        shapes.circle(cx, cy, radius * (.08f + fade * .20f), 32);
+        shapes.setColor(mergeVfx.red(), mergeVfx.green(), mergeVfx.blue(), fade * .42f);
+        shapes.circle(cx, cy, radius * (.18f + fade * .25f), 32);
+        for (int i = 0; i < mergeVfx.particleCount(); i++) {
+            float alpha = mergeVfx.particleAlpha(i);
+            if (alpha <= 0f) continue;
+            float x = mergeVfx.particleX(i), y = mergeVfx.particleY(i);
+            float size = mergeVfx.particleSize(i);
+            shapes.setColor(mergeVfx.red(), mergeVfx.green(), mergeVfx.blue(), alpha);
+            shapes.rect(x - size * .5f, y - size * .5f, size, size);
         }
+        shapes.end();
+
+        shapes.begin(ShapeRenderer.ShapeType.Line);
+        for (int i = 0; i < mergeVfx.particleCount(); i++) {
+            float alpha = mergeVfx.particleAlpha(i);
+            if (alpha <= 0f) continue;
+            float x = mergeVfx.particleX(i), y = mergeVfx.particleY(i);
+            float px = mergeVfx.previousX(i), py = mergeVfx.previousY(i);
+            shapes.setColor(0.88f, 0.96f, 1f, alpha * .82f);
+            shapes.line(px, py, x, y);
+        }
+        shapes.end();
     }
 
     /** Rounded rectangle primitive that can be drawn inside an active ShapeRenderer batch. */
