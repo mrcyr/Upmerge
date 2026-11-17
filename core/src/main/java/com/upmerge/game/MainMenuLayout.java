@@ -75,13 +75,13 @@ final class MainMenuLayout {
         menuActions[1]=topRect(innerLeft+dirW+dirGap,top,dirW,actionH*v);
         top+=actionH*v;
         if(saved){
-            top+=8f*d;
-            continueButton=topRect(innerLeft,top,innerW,buttonH*d);
-            top+=buttonH*d;
+            top+=8f*v;
+            continueButton=topRect(innerLeft,top,innerW,buttonH*v);
+            top+=buttonH*v;
         }else continueButton=null;
-        top+=8f*d;
-        newGameButton=topRect(innerLeft,top,innerW,buttonH*d);
-        top+=buttonH*d+8f*d;
+        top+=8f*v;
+        newGameButton=topRect(innerLeft,top,innerW,buttonH*v);
+        top+=buttonH*v+8f*v;
         float utilityGapPx=utilityGap*d, utilityW=(innerW-utilityGapPx)*.5f;
         for(int row=0;row<2;row++)for(int col=0;col<2;col++)
             utilities[row][col]=topRect(innerLeft+col*(utilityW+utilityGapPx),
