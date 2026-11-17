@@ -629,12 +629,9 @@ public final class UpMergeGame extends ApplicationAdapter {
     }
 
     private void drawPanels() {
+        // The HTML reference keeps the header, arena and footer on one continuous
+        // background. Only HUD cards and controls receive their own surfaces.
         shapes.begin(ShapeRenderer.ShapeType.Filled);
-        setShapeHex(uiTheme.surface, 1f);
-        shapes.rect(0, screenH - headerHeight, screenW, headerHeight);
-        setShapeHex(uiTheme.background, 1f);
-        shapes.rect(0, 0, screenW, footerHeight);
-
         float topPad = Math.max(10f, screenW * .04f);
         float statGap = 7f * uiScale;
         float statY = gameLayout.statBottom;
@@ -735,30 +732,42 @@ public final class UpMergeGame extends ApplicationAdapter {
     }
 
     private void drawBoard() {
+        float boardWidth = cell * BoardEngine.COLUMNS;
+        float boardHeight = cell * BoardEngine.ROWS;
+        // Keep the arena transparent over the continuous screen background, as in HTML.
         shapes.begin(ShapeRenderer.ShapeType.Filled);
-        setShapeHex(UiTheme.mix(uiTheme.accentSecondary, uiTheme.background, .45f), 1f);
-        shapes.rect(boardLeft, boardBottom, cell * BoardEngine.COLUMNS, cell * BoardEngine.ROWS);
+        setShapeHex(uiTheme.background, 1f);
+        shapes.rect(boardLeft, boardBottom, boardWidth, boardHeight);
         for (int row = 0; row < BoardEngine.ROWS; row++) {
             for (int column = 0; column < BoardEngine.COLUMNS; column++) {
                 boolean alternate = ((row + column) & 1) == 0;
-                setShapeHex(alternate ? UiTheme.mix(uiTheme.panel, uiTheme.surface, .18f)
-                        : UiTheme.mix(uiTheme.background, uiTheme.panel, .35f), 1f);
+                setShapeHex(uiTheme.accent, alternate ? .075f : .035f);
+                shapes.rect(boardLeft + column * cell, boardBottom + row * cell,
+                        cell, cell);
+            }
+        }
+        shapes.end();
+
+        // The reference draws a fine accent outline around every one of the 5×7 cells.
+        shapes.begin(ShapeRenderer.ShapeType.Line);
+        shapes.setColor(((uiTheme.accent >>> 16) & 255) / 255f,
+                ((uiTheme.accent >>> 8) & 255) / 255f,
+                (uiTheme.accent & 255) / 255f, .27f);
+        shapes.setColor(((uiTheme.accent >>> 16) & 255) / 255f,
+                ((uiTheme.accent >>> 8) & 255) / 255f,
+                (uiTheme.accent & 255) / 255f, .27f);
+        shapes.getProjectionMatrix();
+        for (int row = 0; row < BoardEngine.ROWS; row++) {
+            for (int column = 0; column < BoardEngine.COLUMNS; column++) {
                 shapes.rect(boardLeft + column * cell + .5f,
                         boardBottom + row * cell + .5f, cell - 1f, cell - 1f);
             }
         }
         shapes.end();
-        float boardWidth = cell * BoardEngine.COLUMNS;
-        float boardHeight = cell * BoardEngine.ROWS;
-        drawRoundedFillHex(boardLeft - 4f * uiScale, boardBottom - 4f * uiScale,
-                boardWidth + 8f * uiScale, boardHeight + 8f * uiScale,
-                17f * uiScale, uiTheme.background, .98f);
-        drawRoundedOutlineHex(boardLeft - 3f * uiScale, boardBottom - 3f * uiScale,
-                boardWidth + 6f * uiScale, boardHeight + 6f * uiScale,
-                16f * uiScale, uiTheme.accent, .92f);
-        drawRoundedFillHex(boardLeft + 8f * uiScale, boardBottom + boardHeight - 2f * uiScale,
-                boardWidth - 16f * uiScale, 1.4f * uiScale, 1f,
-                uiTheme.accent, .26f);
+
+        drawRoundedOutlineHex(boardLeft - 1f * uiScale, boardBottom - 1f * uiScale,
+                boardWidth + 2f * uiScale, boardHeight + 2f * uiScale,
+                1f * uiScale, uiTheme.accent, .42f);
     }
 
     private void drawCubes() {
