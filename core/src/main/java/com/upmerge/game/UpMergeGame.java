@@ -157,8 +157,10 @@ public final class UpMergeGame extends ApplicationAdapter {
 
     private BitmapFont createLogoFont() {
         String[] candidates = {
+                "/system/fonts/Roboto-Black.ttf",
                 "/system/fonts/Roboto-Bold.ttf",
-                "/system/fonts/Roboto-Black.ttf"
+                "/system/fonts/RobotoCondensed-Bold.ttf",
+                "/system/fonts/NotoSans-Bold.ttf"
         };
         for (String path : candidates) {
             FreeTypeFontGenerator generator = null;
@@ -984,9 +986,14 @@ public final class UpMergeGame extends ApplicationAdapter {
         textLayout.setText(logoFont, "MERGE");
         float mergeWidth = textLayout.width;
         float logoLeft = center - (upWidth + mergeWidth) * .5f;
-        logoFont.setColor(.91f, .96f, 1f, 1f);
+        // Soft offset shadow keeps the wordmark legible against the navy panel.
+        logoFont.setColor(.005f, .018f, .035f, .92f);
+        logoFont.draw(batch, "UP", logoLeft + 1.5f * uiScale, screenH * .855f - 2f * uiScale);
+        logoFont.draw(batch, "MERGE", logoLeft + upWidth + 1.5f * uiScale,
+                screenH * .855f - 2f * uiScale);
+        logoFont.setColor(.93f, .97f, 1f, 1f);
         logoFont.draw(batch, "UP", logoLeft, screenH * .855f);
-        logoFont.setColor(.42f, .86f, 1f, 1f);
+        logoFont.setColor(.20f, .82f, 1f, 1f);
         logoFont.draw(batch, "MERGE", logoLeft + upWidth, screenH * .855f);
         font.setColor(.66f, .76f, .89f, 1f);
         font.getData().setScale(uiScale * (15f / 24f));
@@ -1010,9 +1017,9 @@ public final class UpMergeGame extends ApplicationAdapter {
                 menuSelectedDirection == BoardEngine.Direction.DOWN);
 
         MainMenuLayout.Rect[] actionCards = mainMenuLayout.menuActions;
-        drawMenuChoice("✦  ТЕМЫ", actionCards[0].centerX(), actionCards[0].centerY(),
+        drawMenuChoice("ТЕМЫ", actionCards[0].centerX(), actionCards[0].centerY(),
                 actionCards[0].width, actionCards[0].height, false);
-        drawMenuChoice("▦  ЕЖЕДНЕВНО", actionCards[1].centerX(), actionCards[1].centerY(),
+        drawMenuChoice("ЕЖЕДНЕВНО", actionCards[1].centerX(), actionCards[1].centerY(),
                 actionCards[1].width, actionCards[1].height, false);
 
         if (hasSavedGame) {
@@ -1023,14 +1030,14 @@ public final class UpMergeGame extends ApplicationAdapter {
         }
 
         MainMenuLayout.Rect[][] utilityCards = mainMenuLayout.utilities;
-        drawMenuChoice("▥  СТАТИСТИКА", utilityCards[0][0].centerX(), utilityCards[0][0].centerY(),
+        drawMenuChoice("СТАТИСТИКА", utilityCards[0][0].centerX(), utilityCards[0][0].centerY(),
                 utilityCards[0][0].width, utilityCards[0][0].height, false);
-        drawMenuChoice("▤  ЗАДАНИЯ", utilityCards[0][1].centerX(), utilityCards[0][1].centerY(),
+        drawMenuChoice("ЗАДАНИЯ", utilityCards[0][1].centerX(), utilityCards[0][1].centerY(),
                 utilityCards[0][1].width, utilityCards[0][1].height, false);
-        drawMenuChoice("▣  МАГАЗИН · " + NumberFormatter.compact(economy.coins()),
+        drawMenuChoice("МАГАЗИН · " + NumberFormatter.compact(economy.coins()),
                 utilityCards[1][0].centerX(), utilityCards[1][0].centerY(),
                 utilityCards[1][0].width, utilityCards[1][0].height, false);
-        drawMenuChoice("★  ДОСТИЖЕНИЯ", utilityCards[1][1].centerX(), utilityCards[1][1].centerY(),
+        drawMenuChoice("ДОСТИЖЕНИЯ", utilityCards[1][1].centerX(), utilityCards[1][1].centerY(),
                 utilityCards[1][1].width, utilityCards[1][1].height, false);
 
         batch.begin();
