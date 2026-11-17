@@ -1314,6 +1314,15 @@ public final class UpMergeGame extends ApplicationAdapter {
         font.draw(batch, value, centerX - textLayout.width * 0.5f, baselineY);
     }
 
+    private void drawMenuHeading(String value, float centerX, float baselineY) {
+        // Dedicated bold face for section titles; body copy and numeric HUD
+        // retain the regular face so their measured widths remain predictable.
+        logoFont.setColor(font.getColor());
+        logoFont.getData().setScale(font.getData().scaleX, font.getData().scaleY);
+        textLayout.setText(logoFont, value);
+        logoFont.draw(batch, value, centerX - textLayout.width * .5f, baselineY);
+    }
+
     private void drawCenteredAt(String value, float centerX, float centerY) {
         textLayout.setText(font, value);
         font.draw(batch, value, centerX - textLayout.width * .5f,
@@ -1476,7 +1485,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         batch.begin();
         font.setColor(0.35f, 0.82f, 1f, 1f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 240f, 1.25f, 1.65f));
-        drawCentered("НОВАЯ ИГРА", screenW * 0.5f, screenH * 0.79f);
+        drawMenuHeading("НОВАЯ ИГРА", screenW * 0.5f, screenH * 0.79f);
         font.setColor(1f, 1f, 1f, 1f);
         batch.end();
 
@@ -1619,7 +1628,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         batch.begin();
         font.setColor(.94f, .97f, 1f, 1f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 245f, 1.25f, 1.65f));
-        drawCentered("ЗАДАНИЯ", screenW * .5f, screenH * .76f);
+        drawMenuHeading("ЗАДАНИЯ", screenW * .5f, screenH * .76f);
         font.setColor(.66f, .76f, .89f, 1f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 390f, .78f, .98f));
         drawCentered("ЕЖЕДНЕВНОЕ ИСПЫТАНИЕ", screenW * .5f, screenH * .66f);
@@ -1652,7 +1661,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         batch.begin();
         font.setColor(0.94f, 0.97f, 1f, 1f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 245f, 1.25f, 1.65f));
-        drawCentered("СТАТИСТИКА", screenW * .5f, screenH * .84f);
+        drawMenuHeading("СТАТИСТИКА", screenW * .5f, screenH * .84f);
         batch.end();
 
         String[] labels = {"СЫГРАНО ПАРТИЙ", "РЕКОРД", "ВСЕГО СЛИЯНИЙ",
@@ -1706,7 +1715,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         batch.begin();
         font.setColor(.35f, .82f, 1f, 1f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 250f, 1.15f, 1.45f));
-        drawCentered("ДОСТИЖЕНИЯ", screenW * .5f, screenH * .84f);
+        drawMenuHeading("ДОСТИЖЕНИЯ", screenW * .5f, screenH * .84f);
         font.setColor(1f, .82f, .38f, 1f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 350f, .82f, 1f));
         drawCentered("НАГРАДЫ ЗА ИГРОВЫЕ ЦЕЛИ", screenW * .5f, screenH * .75f);
@@ -1732,7 +1741,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         batch.begin();
         font.setColor(.35f, .82f, 1f, 1f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 240f, 1.2f, 1.55f));
-        drawCentered("МАГАЗИН", screenW * .5f, screenH * .84f);
+        drawMenuHeading("МАГАЗИН", screenW * .5f, screenH * .84f);
         font.setColor(1f, .82f, .38f, 1f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 330f, .9f, 1.1f));
         drawCentered("МОНЕТЫ: " + NumberFormatter.compact(economy.coins()), screenW * .5f, screenH * .75f);
@@ -1834,7 +1843,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         batch.begin();
         setFontHex(uiTheme.accent);
         font.getData().setScale(d * MathUtils.clamp(screenW / 245f, 1.15f, 1.45f));
-        drawCentered("ТЕМЫ", screenW * .5f, screenH * .88f);
+        drawMenuHeading("ТЕМЫ", screenW * .5f, screenH * .88f);
         font.setColor(.72f, .82f, .92f, 1f);
         font.getData().setScale(d * MathUtils.clamp(screenW / 430f, .62f, .78f));
         drawCenteredFit("Цвета и текстуры настраиваются отдельно. Можно выбрать яркую палитру и оставить кубики гладкими.",
@@ -1945,7 +1954,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         batch.begin();
         setFontHex(uiTheme.accent);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 240f, 1.25f, 1.65f));
-        drawCentered("НАСТРОЙКИ", screenW * .5f, screenH * .84f);
+        drawMenuHeading("НАСТРОЙКИ", screenW * .5f, screenH * .84f);
         font.setColor(.72f, .82f, .92f, 1f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 390f, .70f, .88f));
         drawCenteredFit("Направление и оформление можно менять прямо во время игры.",
@@ -2217,7 +2226,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         batch.begin();
         font.setColor(1f, 1f, 1f, 1f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 240f, 1.25f, 1.65f));
-        drawCentered("ПАУЗА", screenW * .5f, screenH * .72f);
+        drawMenuHeading("ПАУЗА", screenW * .5f, screenH * .72f);
         font.setColor(.62f, .70f, .82f, 1f);
         font.getData().setScale(uiScale * (13f / 24f));
         drawCenteredFit("Передохни. Твои кубики никуда не денутся.",
