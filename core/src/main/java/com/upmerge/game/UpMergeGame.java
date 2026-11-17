@@ -1751,18 +1751,12 @@ public final class UpMergeGame extends ApplicationAdapter {
         float radius = 27f * uiScale;
         drawRoundedFillHex(panelX - 2f * uiScale, panelY - 5f * uiScale,
                 panelWidth + 4f * uiScale, panelHeight + 10f * uiScale,
-                radius + 2f * uiScale, uiTheme.background, .92f);
-        drawRoundedFillHex(panelX, panelY, panelWidth, panelHeight,
-                radius, uiTheme.surface, 1f);
-        drawRoundedFillHex(panelX + 1f * uiScale, panelY + 1f * uiScale,
+                radius + 2f * uiScale, 0x000000, .34f);
+        drawRoundedGradientHex(panelX + 1f * uiScale, panelY + 1f * uiScale,
                 panelWidth - 2f * uiScale, panelHeight - 2f * uiScale,
-                radius - 1f * uiScale, uiTheme.panel, 1f);
+                radius - 1f * uiScale, uiTheme.surface, uiTheme.panel);
         drawRoundedOutlineHex(panelX, panelY, panelWidth, panelHeight, radius,
-                uiTheme.accent, .62f);
-        drawRoundedFillHex(panelX + 20f * uiScale, panelY + panelHeight - 2f * uiScale,
-                panelWidth - 40f * uiScale, 1f * uiScale, 1f, uiTheme.accent, .28f);
-        drawRoundedFillHex(panelX + 20f * uiScale, panelY + 1f * uiScale,
-                panelWidth - 40f * uiScale, 1f * uiScale, 1f, uiTheme.accentSecondary, .16f);
+                0x9cc7ff, .21f);
     }
 
     /** Small cyan vector icons keep the menu crisp without relying on missing Unicode glyphs. */
