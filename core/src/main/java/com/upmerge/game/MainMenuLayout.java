@@ -49,13 +49,13 @@ final class MainMenuLayout {
             newGameButton=topRect(cx,screenH*.615f,contentWidth,mainH);
         }
         float utilityW=half;
-        float utilityTop0=screenH*.735f,utilityTop1=screenH*.795f;
+        float utilityTop0=screenH*.735f,utilityTop1=screenH*.805f;
         for(int row=0;row<2;row++) for(int col=0;col<2;col++){
             float yTop=row==0?utilityTop0:utilityTop1;
             utilities[row][col]=topRect(cx+(col==0?-1:1)*(utilityW+8f*this.density)*.5f,
                     yTop,utilityW,rowH);
         }
-        footer=topRect(cx,screenH*.80f,contentWidth,18f*this.density);
+        footer=topRect(cx,screenH*.88f,contentWidth,18f*this.density);
     }
 
     private Rect topRect(float cx,float top,float w,float h){
