@@ -960,7 +960,7 @@ public final class UpMergeGame extends ApplicationAdapter {
                 queueY + 13f * uiScale,
                 queueCurrentW - previewW - 10f * uiScale, uiScale * (9f / 24f));
         drawCenteredFit("СЛЕДУЮЩИЙ", queueLeft + queueCurrentW + queueGap
-                        + (queueNextW - nextW) * .5f, queueY + queueH * .5f + 2f * uiScale,
+                        + (queueNextW - nextW) * .5f, queueY + 13f * uiScale,
                 queueNextW - nextW - 10f * uiScale, uiScale * (9f / 24f));
         font.setColor(.035f, .10f, .17f, 1f);
         font.getData().setScale(uiScale * (11f / 24f));
@@ -969,7 +969,7 @@ public final class UpMergeGame extends ApplicationAdapter {
                 queueY + queueH * .5f - 5f * uiScale);
         drawCentered(NumberFormatter.compact(cubeQueue.upcoming()),
                 queueLeft + queueCurrentW + queueGap + queueNextW - 5f * uiScale - nextW * .5f,
-                queueY + queueH * .5f - 1f * uiScale);
+                queueY + queueH * .5f - 5f * uiScale);
 
         // Footer follows the reference order: queue, power tools, instruction.
         String[] icons = {"↶", "✹", "✂", "↗", "⇄"};
@@ -986,8 +986,9 @@ public final class UpMergeGame extends ApplicationAdapter {
                     gameLayout.toolbarBottom + gameLayout.toolbarHeight * .46f);
             font.setColor(.88f, .94f, 1f, 1f);
             font.getData().setScale(uiScale * (7f / 24f));
-            drawCenteredFit(toolLabels[i], (i + .5f) * toolW, gameLayout.toolbarBottom + 4f * uiScale,
-                    toolW - 4f * uiScale, uiScale * (8f / 24f));
+            drawCenteredFit(toolLabels[i], toolLeft + i * (toolW + toolGap) + toolW * .5f,
+                    gameLayout.toolbarBottom + 4f * uiScale,
+                    toolW - 4f * uiScale, uiScale * (7f / 24f));
         }
 
         font.setColor(.58f, .68f, .78f, 1f);
@@ -1712,9 +1713,12 @@ public final class UpMergeGame extends ApplicationAdapter {
     }
 
     private void drawMenuButton(String label, float centerY, float heightRatio, boolean highlighted) {
+        boolean referenceMenu = menuVisible && !settingsVisible && !shopVisible
+                && !achievementsVisible && !statsVisible && !tasksVisible && !modeSelectionVisible;
+        float centerX = referenceMenu ? screenW * .469f : screenW * .5f;
         float width = mainMenuLayout != null ? mainMenuLayout.contentWidth : screenW * .76f;
         float height = Math.min(screenH * heightRatio, 54f * uiScale);
-        float left = (screenW - width) * .5f;
+        float left = centerX - width * .5f;
         float bottom = centerY - height * .5f;
         float radius = Math.min(17f * uiScale, height * .34f);
         drawRoundedFillHex(left, bottom - 4f * uiScale, width, height + 5f * uiScale,
@@ -1744,7 +1748,7 @@ public final class UpMergeGame extends ApplicationAdapter {
             font.getData().setScale(scale * width * .88f / textLayout.width);
             textLayout.setText(font, label);
         }
-        font.draw(batch, label, screenW * .5f - textLayout.width * .5f,
+        font.draw(batch, label, centerX - textLayout.width * .5f,
                 centerY + textLayout.height * .5f);
         batch.end();
     }
