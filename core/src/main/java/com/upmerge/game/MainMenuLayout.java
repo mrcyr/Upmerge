@@ -75,8 +75,8 @@ final class MainMenuLayout {
         if(continueButton!=null&&continueButton.contains(x,y))return Target.CONTINUE;
         if(newGameButton.contains(x,y))return Target.NEW_GAME;
         for(int row=0;row<2;row++)for(int col=0;col<2;col++)if(utilities[row][col].contains(x,y)){
-            if(row==0)return col==0?Target.STATISTICS:Target.TASKS;
-            return col==0?Target.SHOP:Target.ACHIEVEMENTS;
+            if(row==0)return col==0?Target.SHOP:Target.ACHIEVEMENTS;
+            return col==0?Target.STATISTICS:Target.TASKS;
         }
         return Target.NONE;
     }
