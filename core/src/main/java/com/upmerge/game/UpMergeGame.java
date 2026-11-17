@@ -628,13 +628,13 @@ public final class UpMergeGame extends ApplicationAdapter {
             shapes.setColor(.075f, .105f, .145f, 1f);
             roundedRectInBatch(topPad + i * (statW + statGap), statY, statW, statH, 14f * uiScale);
         }
-        float pillY = screenH - 165f * uiScale;
+        float pillY = gameLayout.pillBottom;
         float pillGap = 7f * uiScale;
         float pillW = (screenW - topPad * 2f - pillGap) * .5f;
         shapes.setColor(.065f, .095f, .14f, 1f);
-        roundedRectInBatch(topPad, pillY, pillW, 38f * uiScale, 11f * uiScale);
+        roundedRectInBatch(topPad, pillY, pillW, gameLayout.pillHeight, 11f * uiScale);
         shapes.setColor(.065f, .095f, .14f, 1f);
-        roundedRectInBatch(topPad + pillW + pillGap, pillY, pillW, 38f * uiScale, 11f * uiScale);
+        roundedRectInBatch(topPad + pillW + pillGap, pillY, pillW, gameLayout.pillHeight, 11f * uiScale);
 
         float toolW = screenW / 5f;
         for (int i = 0; i < 5; i++) {
@@ -648,7 +648,7 @@ public final class UpMergeGame extends ApplicationAdapter {
             shapes.setColor(selected ? .12f : available ? .075f : .045f,
                     selected ? .38f : available ? .12f : .065f,
                     selected ? .48f : available ? .17f : .09f, 1f);
-            roundedRectInBatch(i * toolW + 2f, 31f * uiScale, toolW - 4f, 55f * uiScale, 11f * uiScale);
+            roundedRectInBatch(i * toolW + 2f, gameLayout.toolbarBottom, toolW - 4f, gameLayout.toolbarHeight, 11f * uiScale);
         }
         // Queue cards mirror the HTML flex row: label on the left, colored cube on the right.
         float queueY = footerHeight - 54f * uiScale;
@@ -841,7 +841,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         float pad = Math.max(10f, screenW * .04f);
         float gap = 7f * uiScale;
         float statW = (screenW - pad * 2f - gap * 2f) / 3f;
-        float statY = screenH - 112f * uiScale, statH = 58f * uiScale;
+        float statY = gameLayout.statBottom, statH = gameLayout.statHeight;
 
         // Brand row, matching the reference's compact header.
         font.setColor(.91f, .96f, 1f, 1f);
@@ -866,7 +866,7 @@ public final class UpMergeGame extends ApplicationAdapter {
             font.draw(batch, values[i], x + 8f * uiScale, statY + 25f * uiScale);
         }
 
-        float pillY = screenH - 165f * uiScale, pillW = (screenW - pad * 2f - gap) * .5f;
+        float pillY = gameLayout.pillBottom, pillW = (screenW - pad * 2f - gap) * .5f;
         font.setColor(.58f, .70f, .82f, 1f);
         font.getData().setScale(uiScale * (10f / 24f));
         font.draw(batch, "МОНЕТЫ", pad + 8f * uiScale, pillY + 25f * uiScale);
@@ -907,17 +907,17 @@ public final class UpMergeGame extends ApplicationAdapter {
         for (int i = 0; i < icons.length; i++) {
             font.setColor(.45f, .86f, 1f, 1f);
             font.getData().setScale(uiScale * (18f / 24f));
-            drawCentered(icons[i], (i + .5f) * toolW, 72f * uiScale);
+            drawCentered(icons[i], (i + .5f) * toolW, gameLayout.toolbarBottom + gameLayout.toolbarHeight * .72f);
             font.setColor(.88f, .94f, 1f, 1f);
             font.getData().setScale(uiScale * (8f / 24f));
-            drawCenteredFit(toolLabels[i], (i + .5f) * toolW, 48f * uiScale,
+            drawCenteredFit(toolLabels[i], (i + .5f) * toolW, gameLayout.toolbarBottom + gameLayout.toolbarHeight * .27f,
                     toolW - 4f * uiScale, uiScale * (8f / 24f));
         }
 
         font.setColor(.58f, .68f, .78f, 1f);
         font.getData().setScale(uiScale * (11f / 24f));
         drawCenteredFit("НАЖМИ НА СТОЛБЕЦ, ЧТОБЫ БРОСИТЬ КУБИК",
-                screenW * .5f, 12f * uiScale, screenW * .94f,
+                screenW * .5f, gameLayout.hintBottom + gameLayout.hintHeight * .5f, screenW * .94f,
                 uiScale * (11f / 24f));
 
         for (BoardEngine.Cube cube : engine.cubes()) {
@@ -1009,10 +1009,10 @@ public final class UpMergeGame extends ApplicationAdapter {
                 actionCards[1].width, actionCards[1].height, false);
 
         if (hasSavedGame) {
-            drawMenuButton("ПРОДОЛЖИТЬ ИГРУ", mainMenuLayout.continueButton.centerY(), .070f, true);
-            drawMenuButton("НОВАЯ ИГРА", mainMenuLayout.newGameButton.centerY(), .075f, false);
+            drawMenuButton("ПРОДОЛЖИТЬ ИГРУ", mainMenuLayout.continueButton, true);
+            drawMenuButton("НОВАЯ ИГРА", mainMenuLayout.newGameButton, false);
         } else {
-            drawMenuButton("НОВАЯ ИГРА", mainMenuLayout.newGameButton.centerY(), .075f, false);
+            drawMenuButton("НОВАЯ ИГРА", mainMenuLayout.newGameButton, false);
         }
 
         MainMenuLayout.Rect[][] utilityCards = mainMenuLayout.utilities;
@@ -1030,7 +1030,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         font.setColor(.58f, .69f, .82f, 1f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 450f, .60f, .76f));
         drawCenteredFit("Цель растёт вдвое после каждого достижения · K / M / B / T",
-                center, screenH * (screenH / uiScale < 680f ? .07f : .13f), mainMenuLayout.contentWidth * .92f, uiScale * (11f / 24f));
+                center, mainMenuLayout.footer.centerY(), mainMenuLayout.contentWidth * .92f, uiScale * (11f / 24f));
         batch.end();
     }
 
@@ -1483,6 +1483,33 @@ public final class UpMergeGame extends ApplicationAdapter {
         shapes.setColor(.25f, .55f, .76f, .30f);
         shapes.rect(panelX, panelY, panelWidth, panelHeight);
         shapes.end();
+    }
+
+    private void drawMenuButton(String label, MainMenuLayout.Rect bounds, boolean highlighted) {
+        float left = bounds.x, bottom = bounds.y, width = bounds.width, height = bounds.height;
+        float radius = Math.min(16f * uiScale, height * .30f);
+        drawRoundedFill(left, bottom - 2f * uiScale, width, height, radius, 0f, 0f, 0f, .24f);
+        if (highlighted) {
+            final int strips = 18;
+            for (int i = 0; i < strips; i++) {
+                float t = i / (float) (strips - 1);
+                float red = MathUtils.lerp(.41f, .43f, t);
+                float green = MathUtils.lerp(.88f, .66f, t);
+                shapes.begin(ShapeRenderer.ShapeType.Filled);
+                shapes.setColor(red, green, 1f, 1f);
+                float stripX = left + width * i / strips;
+                float stripW = width / strips + 1f;
+                shapes.rect(stripX, bottom, stripW, height);
+                shapes.end();
+            }
+        } else {
+            drawRoundedFill(left, bottom, width, height, radius, .065f, .10f, .15f, 1f);
+        }
+        batch.begin();
+        font.setColor(.96f, .98f, 1f, 1f);
+        drawCenteredFit(label, screenW * .5f, bounds.centerY() - font.getCapHeight() * .30f,
+                width * .90f, uiScale * (16f / 24f));
+        batch.end();
     }
 
     private void drawMenuButton(String label, float centerY, float heightRatio, boolean highlighted) {
