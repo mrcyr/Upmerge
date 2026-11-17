@@ -151,11 +151,14 @@ public final class UpMergeGame extends ApplicationAdapter {
      * at startup so every native dialog and HUD label can render Russian text.
      */
     private BitmapFont createCyrillicFont() {
+        // Prefer the clean, compact Noto Sans family for UI copy.
+        // Keep Android font fallbacks for devices with different system images.
         String[] candidates = {
-                "/system/fonts/Roboto-Medium.ttf",
-                "/system/fonts/NotoSans-Medium.ttf",
+                "/system/fonts/NotoSans-Regular.ttf",
                 "/system/fonts/Roboto-Regular.ttf",
-                "/system/fonts/NotoSans-Regular.ttf"
+                "/system/fonts/NotoSans-Medium.ttf",
+                "/system/fonts/Roboto-Medium.ttf",
+                "/system/fonts/DroidSans.ttf"
         };
         for (String path : candidates) {
             FreeTypeFontGenerator generator = null;
@@ -163,7 +166,7 @@ public final class UpMergeGame extends ApplicationAdapter {
                 generator = new FreeTypeFontGenerator(Gdx.files.absolute(path));
                 FreeTypeFontGenerator.FreeTypeFontParameter parameter =
                         new FreeTypeFontGenerator.FreeTypeFontParameter();
-                parameter.size = 24;
+                parameter.size = 26;
                 parameter.characters = FreeTypeFontGenerator.DEFAULT_CHARS
                         + "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"
                         + "абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
@@ -183,10 +186,10 @@ public final class UpMergeGame extends ApplicationAdapter {
 
     private BitmapFont createLogoFont() {
         String[] candidates = {
-                "/system/fonts/Roboto-Black.ttf",
-                "/system/fonts/Roboto-Bold.ttf",
                 "/system/fonts/RobotoCondensed-Bold.ttf",
-                "/system/fonts/NotoSans-Bold.ttf"
+                "/system/fonts/NotoSans-Bold.ttf",
+                "/system/fonts/Roboto-Bold.ttf",
+                "/system/fonts/Roboto-Black.ttf"
         };
         for (String path : candidates) {
             FreeTypeFontGenerator generator = null;
@@ -654,7 +657,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         drawCentered(gameOver ? "ИГРА ОКОНЧЕНА" : "ПОЛЕ ЗАПОЛНЕНО",
                 screenW * .5f, screenH * .69f);
         font.setColor(.62f, .70f, .82f, 1f);
-        font.getData().setScale(uiScale * (13f / 24f));
+        font.getData().setScale(uiScale * (13f / 26f));
         if (gameOver) {
             drawCenteredFit("ТВОЙ РЕЗУЛЬТАТ", screenW * .5f, screenH * .615f,
                     screenW * .82f, uiScale * (13f / 24f));
@@ -666,7 +669,7 @@ public final class UpMergeGame extends ApplicationAdapter {
                     screenW * .5f, screenH * .615f, screenW * .82f, uiScale * (13f / 24f));
             drawCenteredFit(splitCharges > 0 ? "УДАЛИ ОДИН КУБИК, ЧТОБЫ ПРОДОЛЖИТЬ"
                     : "НЕТ ЗАРЯДОВ ДЛЯ УДАЛЕНИЯ",
-                    screenW * .5f, screenH * .56f, screenW * .82f, uiScale * (11f / 24f));
+                    screenW * .5f, screenH * .56f, screenW * .82f, uiScale * (12f / 26f));
         }
         batch.end();
 
@@ -2121,7 +2124,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         batch.begin();
         font.setColor(highlighted ? .018f : .91f, highlighted ? .075f : .95f,
                 highlighted ? .12f : 1f, 1f);
-        float scale = uiScale * (15f / 24f);
+        float scale = uiScale * (15f / 26f);
         font.getData().setScale(scale);
         textLayout.setText(font, label);
         if (textLayout.width > width * .88f && textLayout.width > 0f) {
