@@ -1121,15 +1121,17 @@ public final class UpMergeGame extends ApplicationAdapter {
         }
 
         MainMenuLayout.Rect[][] utilityCards = mainMenuLayout.utilities;
-        drawMenuChoice("СТАТИСТИКА", utilityCards[0][0].centerX(), utilityCards[0][0].centerY(),
-                utilityCards[0][0].width, utilityCards[0][0].height, false, 3);
-        drawMenuChoice("ЗАДАНИЯ", utilityCards[0][1].centerX(), utilityCards[0][1].centerY(),
-                utilityCards[0][1].width, utilityCards[0][1].height, false, 4);
+        // Match the HTML grid order exactly: shop/achievements first row,
+        // statistics/tasks second row.
         drawMenuChoice("МАГАЗИН · " + NumberFormatter.compact(economy.coins()),
-                utilityCards[1][0].centerX(), utilityCards[1][0].centerY(),
-                utilityCards[1][0].width, utilityCards[1][0].height, false, 5);
-        drawMenuChoice("ДОСТИЖЕНИЯ", utilityCards[1][1].centerX(), utilityCards[1][1].centerY(),
-                utilityCards[1][1].width, utilityCards[1][1].height, false, 6);
+                utilityCards[0][0].centerX(), utilityCards[0][0].centerY(),
+                utilityCards[0][0].width, utilityCards[0][0].height, false, 5);
+        drawMenuChoice("ДОСТИЖЕНИЯ", utilityCards[0][1].centerX(), utilityCards[0][1].centerY(),
+                utilityCards[0][1].width, utilityCards[0][1].height, false, 6);
+        drawMenuChoice("СТАТИСТИКА", utilityCards[1][0].centerX(), utilityCards[1][0].centerY(),
+                utilityCards[1][0].width, utilityCards[1][0].height, false, 3);
+        drawMenuChoice("ЗАДАНИЯ", utilityCards[1][1].centerX(), utilityCards[1][1].centerY(),
+                utilityCards[1][1].width, utilityCards[1][1].height, false, 4);
 
         batch.begin();
         font.setColor(.58f, .69f, .82f, 1f);
