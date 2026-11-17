@@ -50,7 +50,6 @@ final class MainMenuLayout {
         float actionH=40f;
         float buttonH=48f;
         float utilityH=42f;
-        float gap=7f;
         float utilityGap=8f;
         float bottomGap=14f;
         float heightDp=verticalPad*2f+logoH+3f+subH+12f
@@ -66,7 +65,6 @@ final class MainMenuLayout {
         panelLeft=(screenW-panelWidth)*.5f;
         panelBottom=(screenH-panelHeight)*.5f;
 
-        float cx=screenW*.5f;
         float innerLeft=panelLeft+horizontalPad*d;
         float innerW=contentWidth;
         float top=screenH-panelBottom-panelHeight+verticalPad*v;
@@ -96,7 +94,8 @@ final class MainMenuLayout {
             utilities[row][col]=topRect(innerLeft+col*(utilityW+utilityGapPx),
                     top+row*(utilityH*v+utilityGapPx*verticalScale),utilityW,utilityH*v);
         top+=2f*utilityH*v+utilityGapPx*verticalScale+bottomGap*v;
-        footer=topRect(cx,Math.min(top,screenH-panelBottom-verticalPad*v),innerW,18f*v);
+        // Footer spans the same content column as the other menu controls.
+        footer=topRect(innerLeft,Math.min(top,screenH-panelBottom-verticalPad*v),innerW,18f*v);
     }
 
     private Rect topRect(float x,float top,float w,float h){
