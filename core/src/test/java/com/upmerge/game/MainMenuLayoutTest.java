@@ -38,13 +38,13 @@ public class MainMenuLayoutTest {
                 layout.hit(layout.menuActions[0].centerX(), layout.menuActions[0].centerY()));
         assertEquals(MainMenuLayout.Target.DAILY,
                 layout.hit(layout.menuActions[1].centerX(), layout.menuActions[1].centerY()));
-        assertEquals(MainMenuLayout.Target.STATISTICS,
-                layout.hit(layout.utilities[0][0].centerX(), layout.utilities[0][0].centerY()));
-        assertEquals(MainMenuLayout.Target.TASKS,
-                layout.hit(layout.utilities[0][1].centerX(), layout.utilities[0][1].centerY()));
         assertEquals(MainMenuLayout.Target.SHOP,
-                layout.hit(layout.utilities[1][0].centerX(), layout.utilities[1][0].centerY()));
+                layout.hit(layout.utilities[0][0].centerX(), layout.utilities[0][0].centerY()));
         assertEquals(MainMenuLayout.Target.ACHIEVEMENTS,
+                layout.hit(layout.utilities[0][1].centerX(), layout.utilities[0][1].centerY()));
+        assertEquals(MainMenuLayout.Target.STATISTICS,
+                layout.hit(layout.utilities[1][0].centerX(), layout.utilities[1][0].centerY()));
+        assertEquals(MainMenuLayout.Target.TASKS,
                 layout.hit(layout.utilities[1][1].centerX(), layout.utilities[1][1].centerY()));
     }
 
