@@ -1046,7 +1046,8 @@ public final class UpMergeGame extends ApplicationAdapter {
                     statW * .86f, uiScale);
         }
 
-        float pillY = gameLayout.pillBottom, pillW = (screenW - pad * 2f - gap) * .5f;
+        float pillGap = 7f * uiScale;
+        float pillY = gameLayout.pillBottom, pillW = (screenW - pad * 2f - pillGap) * .5f;
         font.setColor(.58f, .70f, .82f, 1f);
         font.getData().setScale(uiScale * (10f / 24f));
         font.draw(batch, "МОНЕТЫ", pad + 8f * uiScale, pillY + 15f * uiScale);
@@ -1057,11 +1058,11 @@ public final class UpMergeGame extends ApplicationAdapter {
                 uiScale * (16f / 24f));
         font.setColor(.58f, .70f, .82f, 1f);
         font.getData().setScale(uiScale * (10f / 24f));
-        font.draw(batch, "УРОВЕНЬ", pad + pillW + gap + 8f * uiScale, pillY + 15f * uiScale);
+        font.draw(batch, "УРОВЕНЬ", pad + pillW + pillGap + 8f * uiScale, pillY + 15f * uiScale);
         font.setColor(.94f, .97f, 1f, 1f);
         font.getData().setScale(uiScale * (16f / 24f));
         drawCenteredFit(NumberFormatter.compact(cubeQueue.goalTarget()),
-                pad + pillW + gap + pillW * .5f, pillY + 2f * uiScale,
+                pad + pillW + pillGap + pillW * .5f, pillY + 2f * uiScale,
                 pillW - 12f * uiScale, uiScale * (16f / 24f));
 
         // Queue labels sit beside their cube previews, not above them.
