@@ -1559,6 +1559,7 @@ public final class UpMergeGame extends ApplicationAdapter {
                                      float r2, float g2, float b2) {
         float r = Math.max(0f, Math.min(radius, Math.min(width, height) * .5f));
         int strips = 24;
+        shapes.begin(ShapeRenderer.ShapeType.Filled);
         for (int i = 0; i < strips; i++) {
             float t = (i + .5f) / strips;
             float sx = x + width * i / strips;
@@ -1572,12 +1573,11 @@ public final class UpMergeGame extends ApplicationAdapter {
                 float dx = r - (x + width - centerX);
                 inset = r - (float) Math.sqrt(Math.max(0f, r * r - dx * dx));
             }
-            shapes.begin(ShapeRenderer.ShapeType.Filled);
             shapes.setColor(MathUtils.lerp(r1, r2, t),
                     MathUtils.lerp(g1, g2, t), MathUtils.lerp(b1, b2, t), 1f);
             shapes.rect(sx, y + inset, sw, height - inset * 2f);
-            shapes.end();
         }
+        shapes.end();
     }
 
     private void drawRoundedOutline(float x, float y, float width, float height, float radius,
