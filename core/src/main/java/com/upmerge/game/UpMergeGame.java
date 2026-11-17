@@ -1188,7 +1188,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         logoFont.setColor(.93f, .97f, 1f, 1f);
         logoFont.draw(batch, "UP", logoLeft, logoBaseline);
         setLogoFontHex(uiTheme.accent);
-        logoFont.draw(batch, "MERGE", logoLeft + upWidth, screenH * .745f);
+        logoFont.draw(batch, "MERGE", logoLeft + upWidth, logoBaseline);
         font.setColor(.66f, .76f, .89f, 1f);
         font.getData().setScale(uiScale * (13f / 24f));
         drawCenteredFit("Запускай кубики вверх. Объединяй одинаковые", center,
