@@ -9,6 +9,8 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.math.MathUtils;
@@ -68,6 +70,8 @@ public final class UpMergeGame extends ApplicationAdapter {
     private OrthographicCamera camera;
     private ShapeRenderer shapes;
     private SpriteBatch batch;
+    private Texture whitePixel;
+    private ShaderProgram radialBackdropShader;
     private BitmapFont font;
     private BitmapFont logoFont;
 
@@ -98,6 +102,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         batch = new SpriteBatch();
+        createBackdropShader();
         font = createCyrillicFont();
         logoFont = createLogoFont();
         for (com.badlogic.gdx.graphics.g2d.TextureRegion region : font.getRegions()) {
@@ -656,25 +661,63 @@ public final class UpMergeGame extends ApplicationAdapter {
         }
     }
 
-    /** Theme-driven radial backdrop matching the HTML game's 50% / 25% gradient. */
-    private void drawGameBackdrop() {
-        float centerX = screenW * .5f;
-        float centerY = screenH * .75f;
-        float radiusX = screenW * .85f;
-        float radiusY = screenH * .85f;
-        beginShapes(ShapeRenderer.ShapeType.Filled);
-        for (int i = 0; i < 36; i++) {
-            float t = i / 35f;
-            int color = t < .52f
-                    ? UiTheme.mix(uiTheme.background, uiTheme.panel, t / .52f)
-                    : UiTheme.mix(uiTheme.panel, uiTheme.surface, (t - .52f) / .48f);
-            float scale = 1f - t;
-            if (scale <= .001f) continue;
-            setShapeHex(color, 1f);
-            shapes.ellipse(centerX - radiusX * scale, centerY - radiusY * scale,
-                    radiusX * 2f * scale, radiusY * 2f * scale);
+    /** Exact smooth CSS radial-gradient(ellipse at 50% 25%) from the HTML body. */
+    private void createBackdropShader() {
+        Pixmap pixel = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        pixel.setColor(1f, 1f, 1f, 1f);
+        pixel.fill();
+        whitePixel = new Texture(pixel);
+        pixel.dispose();
+        String vertex =
+                "attribute vec4 a_position;\\n" +
+                "attribute vec4 a_color;\\n" +
+                "attribute vec2 a_texCoord0;\\n" +
+                "uniform mat4 u_projTrans;\\n" +
+                "varying vec2 v_uv;\\n" +
+                "void main(){ v_uv=a_texCoord0; gl_Position=u_projTrans*a_position; }";
+        String fragment =
+                "#ifdef GL_ES\\nprecision mediump float;\\n#endif\\n" +
+                "varying vec2 v_uv;\\n" +
+                "uniform vec3 u_surface; uniform vec3 u_panel; uniform vec3 u_background;\\n" +
+                "void main(){\\n" +
+                " vec2 p=(v_uv-vec2(0.5,0.75))/vec2(0.85,0.85);\\n" +
+                " float r=length(p);\\n" +
+                " float a=clamp(r/0.48,0.0,1.0);\\n" +
+                " float b=clamp((r-0.48)/0.52,0.0,1.0);\\n" +
+                " vec3 c=mix(u_surface,u_panel,a);\\n" +
+                " c=mix(c,u_background,b);\\n" +
+                " gl_FragColor=vec4(c,1.0);\\n" +
+                "}";
+        ShaderProgram.pedantic = false;
+        radialBackdropShader = new ShaderProgram(vertex, fragment);
+        if (!radialBackdropShader.isCompiled()) {
+            Gdx.app.error("UpMergeBackdrop", radialBackdropShader.getLog());
+            radialBackdropShader.dispose();
+            radialBackdropShader = null;
         }
-        shapes.end();
+    }
+
+    private static float colorChannel(int hex, int shift) {
+        return ((hex >>> shift) & 255) / 255f;
+    }
+
+    private void drawGameBackdrop() {
+        if (radialBackdropShader == null || whitePixel == null) {
+            ScreenUtils.clear(colorChannel(uiTheme.background,16),
+                    colorChannel(uiTheme.background,8), colorChannel(uiTheme.background,0),1f);
+            return;
+        }
+        batch.setShader(radialBackdropShader);
+        batch.begin();
+        radialBackdropShader.setUniformf("u_surface",
+                colorChannel(uiTheme.surface,16),colorChannel(uiTheme.surface,8),colorChannel(uiTheme.surface,0));
+        radialBackdropShader.setUniformf("u_panel",
+                colorChannel(uiTheme.panel,16),colorChannel(uiTheme.panel,8),colorChannel(uiTheme.panel,0));
+        radialBackdropShader.setUniformf("u_background",
+                colorChannel(uiTheme.background,16),colorChannel(uiTheme.background,8),colorChannel(uiTheme.background,0));
+        batch.draw(whitePixel,0f,0f,screenW,screenH);
+        batch.end();
+        batch.setShader(null);
     }
 
     private void drawPanels() {
