@@ -680,7 +680,7 @@ public final class UpMergeGame extends ApplicationAdapter {
                 "varying vec2 v_uv;\n" +
                 "uniform vec3 u_surface; uniform vec3 u_panel; uniform vec3 u_background;\n" +
                 "void main(){\n" +
-                " vec2 p=(v_uv-vec2(0.5,0.75))/vec2(0.5,0.75);\n" +
+                " vec2 p=(v_uv-vec2(0.5,0.25))/vec2(0.5,0.75);\n" +
                 " float r=length(p);\n" +
                 " float a=clamp(r/0.48,0.0,1.0);\n" +
                 " float b=clamp((r-0.48)/0.52,0.0,1.0);\n" +
