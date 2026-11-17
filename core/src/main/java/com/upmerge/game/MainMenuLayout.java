@@ -41,8 +41,8 @@ final class MainMenuLayout {
         menuActions[1]=topRect(cx+(half+4f*this.density),top,half,rowH);
         float mainH=48f*this.density;
         if(saved){
-            continueButton=topRect(cx,screenH*.575f,contentWidth,mainH);
-            newGameButton=topRect(cx,screenH*.655f,contentWidth,mainH);
+            continueButton=topRect(cx,screenH*.57f,contentWidth,mainH);
+            newGameButton=topRect(cx,screenH*.665f,contentWidth,mainH);
         }else{
             continueButton=null;
             newGameButton=topRect(cx,screenH*.615f,contentWidth,mainH);
