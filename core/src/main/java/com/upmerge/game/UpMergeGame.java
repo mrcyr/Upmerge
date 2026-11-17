@@ -893,8 +893,30 @@ public final class UpMergeGame extends ApplicationAdapter {
             float x = MathUtils.lerp(startX, targetX, progress);
             float y = MathUtils.lerp(startY, targetY, progress);
             float size = cell * 0.72f * (1f - progress * 0.38f);
-            shapes.setColor(0.20f, 0.72f, 0.82f, 1f - progress * 0.25f);
-            shapes.rect(x - size * 0.5f, y - size * 0.5f, size, size);
+            float alpha = 1f - progress * .25f;
+            float left = x - size * .5f, bottom = y - size * .5f;
+            float radius = Math.max(4f, size * .16f);
+            shapes.setColor(.005f, .012f, .025f, .32f * alpha);
+            roundedRectInBatch(left + 1f, bottom - 2f, size, size, radius);
+            setCubeFaceColor(source.value, alpha);
+            roundedRectInBatch(left, bottom, size, size, radius);
+            float red = .39f, green = .85f, blue = 1f;
+            switch ((int) source.value) {
+                case 4: red=.376f; green=.898f; blue=.769f; break;
+                case 8: red=.561f; green=.890f; blue=.431f; break;
+                case 16: red=1f; green=.859f; blue=.412f; break;
+                case 32: red=1f; green=.608f; blue=.341f; break;
+                case 64: red=1f; green=.396f; blue=.490f; break;
+                case 128: red=.733f; green=.525f; blue=1f; break;
+                case 256: red=.510f; green=.573f; blue=1f; break;
+                case 512: red=1f; green=.459f; blue=.784f; break;
+                default: break;
+            }
+            drawCubeConvexGradient(left + 1f, bottom + 1f, size - 2f, radius - 1f,
+                    red, green, blue);
+            shapes.setColor(1f, 1f, 1f, .16f * alpha);
+            roundedRectInBatch(left + size * .12f, bottom + size * .82f,
+                    size * .76f, Math.max(1f, size * .035f), 2f);
         }
         shapes.end();
     }
