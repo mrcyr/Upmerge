@@ -37,8 +37,9 @@ final class MainMenuLayout {
         for(int i=0;i<2;i++) directions[i]=topRect(cx+(i==0?-1:1)*(dirW+gap)*.5f,top,dirW,rowH);
         float half=(contentWidth-8f*this.density)*.5f;
         top=screenH*.485f;
-        menuActions[0]=topRect(cx-(half+4f*this.density),top,half,rowH);
-        menuActions[1]=topRect(cx+(half+4f*this.density),top,half,rowH);
+        float actionOffset=(half+4f*this.density)*.5f;
+        menuActions[0]=topRect(cx-actionOffset,top,half,rowH);
+        menuActions[1]=topRect(cx+actionOffset,top,half,rowH);
         float mainH=48f*this.density;
         if(saved){
             continueButton=topRect(cx,screenH*.57f,contentWidth,mainH);
