@@ -1,42 +1,52 @@
 package com.upmerge.game;
 
-/** Responsive geometry shared by the native game renderer and input handling. */
+/** Pixel-space gameplay layout. Every visual region and hit target comes from these bounds. */
 final class GameScreenLayout {
-    final float screenW, screenH, density;
-    final float headerHeight, footerHeight, cell;
-    final float boardLeft, boardBottom, boardTop, boardRight;
-    final float toolbarHitBottom, toolbarHitHeight;
+    final float screenW,screenH,density;
+    final float headerHeight,footerHeight,cell;
+    final float boardLeft,boardBottom,boardTop,boardRight;
+    final float statBottom,statHeight,pillBottom,pillHeight;
+    final float queueBottom,queueHeight,queueWidth,queueGap;
+    final float toolbarBottom,toolbarHeight,hintBottom,hintHeight,pauseSize;
 
-    GameScreenLayout(float width, float height, float density) {
-        screenW = Math.max(1f, width);
-        screenH = Math.max(1f, height);
-        this.density = Math.max(.75f, density);
-        headerHeight = Math.max(174f * this.density, screenH * .223f);
-        footerHeight = Math.max(146f * this.density, screenH * .19f);
-        float sideMargin = Math.max(10f * this.density, screenW * .035f);
-        float availableHeight = Math.max(7f * this.density,
-                screenH - headerHeight - footerHeight - 20f * this.density);
-        cell = Math.max(1f, Math.min((screenW - sideMargin * 2f) / BoardEngine.COLUMNS,
-                availableHeight / BoardEngine.ROWS));
-        boardLeft = (screenW - cell * BoardEngine.COLUMNS) * .5f;
-        boardRight = boardLeft + cell * BoardEngine.COLUMNS;
-        boardBottom = footerHeight + 10f * this.density
-                + (availableHeight - cell * BoardEngine.ROWS) * .5f;
-        boardTop = boardBottom + cell * BoardEngine.ROWS;
-        toolbarHitBottom = 28f * this.density;
-        toolbarHitHeight = 90f * this.density;
+    GameScreenLayout(float width,float height,float density){
+        screenW=Math.max(1f,width);screenH=Math.max(1f,height);this.density=Math.max(.75f,density);
+        float d=this.density;
+        headerHeight=Math.max(174f*d,screenH*.225f);
+        footerHeight=Math.max(154f*d,screenH*.205f);
+        float gap=10f*d;
+        statHeight=58f*d;statBottom=screenH-112f*d;
+        pillHeight=38f*d;pillBottom=screenH-165f*d;
+        queueHeight=46f*d;queueWidth=Math.min(112f*d,(screenW-32f*d-12f*d)*.5f);queueGap=12f*d;
+        toolbarHeight=55f*d;toolbarBottom=31f*d;
+        hintHeight=18f*d;hintBottom=7f*d;
+        pauseSize=44f*d;
+        float headerContentBottom=screenH-headerHeight+8f*d;
+        float headerContentTop=screenH-8f*d;
+        float headerNeedBottom=Math.min(pillBottom,statBottom);
+        float footerContentTop=footerHeight-8f*d;
+        float footerNeedTop=Math.max(queueBottomCandidate(footerHeight,d),toolbarBottom+toolbarHeight)+gap;
+        float boardAreaBottom=footerContentTop+gap;
+        float boardAreaTop=headerNeedBottom-gap;
+        float usable=Math.max(1f,boardAreaTop-boardAreaBottom);
+        float side=Math.max(8f*d,screenW*.025f);
+        cell=Math.max(1f,Math.min((screenW-2f*side)/BoardEngine.COLUMNS,
+                usable/BoardEngine.ROWS));
+        float boardH=cell*BoardEngine.ROWS;
+        boardLeft=(screenW-cell*BoardEngine.COLUMNS)*.5f;
+        boardRight=boardLeft+cell*BoardEngine.COLUMNS;
+        boardBottom=boardAreaBottom+(usable-boardH)*.5f;
+        boardTop=boardBottom+boardH;
+        queueBottom=Math.max(toolbarBottom+toolbarHeight+gap,
+                footerHeight-queueHeight-18f*d);
+        // Keep queue, tools and hint within the footer, with explicit gaps.
+        if(queueBottom+queueHeight>footerHeight-6f*d) queueBottom=footerHeight-queueHeight-6f*d;
     }
-
-    boolean boardContains(float x, float y) {
-        return x >= boardLeft && x <= boardRight && y >= boardBottom && y <= boardTop;
+    private static float queueBottomCandidate(float footer,float d){return footer-64f*d;}
+    boolean boardContains(float x,float y){return x>=boardLeft&&x<=boardRight&&y>=boardBottom&&y<=boardTop;}
+    int toolbarIndex(float x,float y){
+        if(y<toolbarBottom||y>toolbarBottom+toolbarHeight)return -1;
+        return Math.max(0,Math.min(4,(int)(x/(screenW/5f))));
     }
-
-    int toolbarIndex(float x, float y) {
-        if (y < toolbarHitBottom || y > toolbarHitHeight) return -1;
-        return Math.max(0, Math.min(4, (int) (x / (screenW / 5f))));
-    }
-
-    boolean pauseContains(float x, float y) {
-        return x >= screenW * .78f && y >= screenH - 48f * density;
-    }
+    boolean pauseContains(float x,float y){return x>=screenW-pauseSize-8f*density&&y>=screenH-pauseSize-8f*density;}
 }
