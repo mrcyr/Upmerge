@@ -73,7 +73,7 @@ final class GameScreenLayout {
         // HTML canvas bounds(): largest square cell fitting inside the actual
         // arena inner box (10px horizontal margin on both sides).
         float arenaW = Math.max(1f, w - 20f);
-        float arenaH = Math.max(1f, arenaTopDp - arenaBottomDp);
+        float arenaH = Math.max(1f, (arenaTop - arenaBottom) / d);
         float cellDp = Math.min(arenaW / BoardEngine.COLUMNS, arenaH / BoardEngine.ROWS);
         cell = Math.max(1f, cellDp * d);
         float boardW = cell * BoardEngine.COLUMNS;
