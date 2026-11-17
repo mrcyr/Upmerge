@@ -830,12 +830,12 @@ public final class UpMergeGame extends ApplicationAdapter {
         float cubePreview = Math.min(34f * uiScale,
                 Math.min(queueH - 6f * uiScale, queueCurrentW * .37f));
         setCubeFaceColor(cubeQueue.current(), 1f);
-        roundedRectInBatch(queueLeft + queueCurrentW - cubePreview - 5f * uiScale,
+        drawCubeShapeInBatch(queueLeft + queueCurrentW - cubePreview - 5f * uiScale,
                 queueY + (queueH - cubePreview) * .5f, cubePreview, cubePreview, 6f * uiScale);
         float nextPreview = Math.min(32f * uiScale,
                 Math.min(queueH - 7f * uiScale, queueNextW * .30f));
         setCubeFaceColor(cubeQueue.upcoming(), 1f);
-        roundedRectInBatch(queueLeft + queueCurrentW + queueGap + queueNextW - nextPreview - 5f * uiScale,
+        drawCubeShapeInBatch(queueLeft + queueCurrentW + queueGap + queueNextW - nextPreview - 5f * uiScale,
                 queueY + (queueH - nextPreview) * .5f, nextPreview, nextPreview, 6f * uiScale);
         shapes.end();
     }
@@ -911,14 +911,10 @@ public final class UpMergeGame extends ApplicationAdapter {
             }
             float x = boardLeft + (cube.lane + .5f) * cell - size * .5f;
             float y = boardBottom + (BoardEngine.ROWS - .5f - cube.visualRow) * cell - size * .5f;
-            float radius = Math.max(7f, Math.min(14f, size * .16f));
             int rgb = uiTheme.cubeColor(cube.value);
-            float red = ((rgb >>> 16) & 0xff) / 255f;
-            float green = ((rgb >>> 8) & 0xff) / 255f;
-            float blue = (rgb & 0xff) / 255f;
-            // Base theme: deliberately flat solid-color tiles.
-            shapes.setColor(red, green, blue, 1f);
-            roundedRectInBatch(x, y, size, size, radius);
+            shapes.setColor(((rgb >>> 16) & 0xff) / 255f,
+                    ((rgb >>> 8) & 0xff) / 255f, (rgb & 0xff) / 255f, 1f);
+            drawCubeShapeInBatch(x, y, size, size, Math.max(7f, Math.min(14f, size * .16f)));
         }
         shapes.end();
 
@@ -967,6 +963,23 @@ public final class UpMergeGame extends ApplicationAdapter {
             shapes.circle(x, y, size, 12);
         }
         shapes.end();
+    }
+
+    /** Applies the selected HTML cube shape and optional glossy finish. */
+    private void drawCubeShapeInBatch(float x, float y, float width, float height, float radius) {
+        if ("circle".equals(cubeShape)) {
+            shapes.circle(x + width*.5f, y + height*.5f, Math.min(width,height)*.5f, 28);
+        } else if ("square".equals(cubeShape)) {
+            shapes.rect(x, y, width, height);
+        } else {
+            roundedRectInBatch(x, y, width, height, radius);
+        }
+        if ("convex".equals(cubeFinish)) {
+            float inset = Math.max(1f, width*.10f);
+            shapes.setColor(1f,1f,1f,.16f);
+            roundedRectInBatch(x+inset, y+height*.62f, width-2f*inset,
+                    Math.max(1f,height*.16f), Math.max(1f,radius*.35f));
+        }
     }
 
     /** Rounded rectangle primitive that can be drawn inside an active ShapeRenderer batch. */
