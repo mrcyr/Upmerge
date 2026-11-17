@@ -48,27 +48,32 @@ final class MainMenuLayout {
                 +rowH+12f+rowH+8f+actionH
                 +(saved?8f+buttonH:0f)+8f+buttonH+8f
                 +utilityH*2f+utilityGap+bottomGap+24f;
-        panelHeight=Math.min(h-24f,Math.max(1f,heightDp))*d;
+        // The HTML panel scrolls on short viewports. In the native fixed
+        // canvas we compress vertical rhythm proportionally so every control
+        // remains visible and keeps the same order without clipping.
+        float verticalScale=Math.min(1f,Math.max(.78f,(h-24f)/Math.max(1f,heightDp)));
+        float v=d*verticalScale;
+        panelHeight=Math.min(h-24f,Math.max(1f,heightDp*verticalScale))*d;
         panelLeft=(screenW-panelWidth)*.5f;
         panelBottom=(screenH-panelHeight)*.5f;
 
         float cx=screenW*.5f;
         float innerLeft=panelLeft+horizontalPad*d;
         float innerW=contentWidth;
-        float top=screenH-panelBottom-panelHeight+verticalPad*d;
+        float top=screenH-panelBottom-panelHeight+verticalPad*v;
         // Top-down CSS flow: logo, subtitle, mode row, direction row, actions,
         // continue/new game, utility grid and footer.
-        top+=logoH*d+3f*d+subH*d+12f*d;
+        top+=logoH*v+3f*v+subH*v+12f*v;
         float modeGap=7f*d, modeW=(innerW-2f*modeGap)/3f;
-        for(int i=0;i<3;i++)modes[i]=topRect(innerLeft+i*(modeW+modeGap),top,modeW,rowH*d);
-        top+=rowH*d+12f*d;
+        for(int i=0;i<3;i++)modes[i]=topRect(innerLeft+i*(modeW+modeGap),top,modeW,rowH*v);
+        top+=rowH*v+12f*v;
         float dirGap=7f*d, dirW=(innerW-dirGap)*.5f;
-        directions[0]=topRect(innerLeft,top,dirW,rowH*d);
-        directions[1]=topRect(innerLeft+dirW+dirGap,top,dirW,rowH*d);
-        top+=rowH*d+8f*d;
-        menuActions[0]=topRect(innerLeft,top,dirW,actionH*d);
-        menuActions[1]=topRect(innerLeft+dirW+dirGap,top,dirW,actionH*d);
-        top+=actionH*d;
+        directions[0]=topRect(innerLeft,top,dirW,rowH*v);
+        directions[1]=topRect(innerLeft+dirW+dirGap,top,dirW,rowH*v);
+        top+=rowH*v+8f*v;
+        menuActions[0]=topRect(innerLeft,top,dirW,actionH*v);
+        menuActions[1]=topRect(innerLeft+dirW+dirGap,top,dirW,actionH*v);
+        top+=actionH*v;
         if(saved){
             top+=8f*d;
             continueButton=topRect(innerLeft,top,innerW,buttonH*d);
@@ -80,9 +85,9 @@ final class MainMenuLayout {
         float utilityGapPx=utilityGap*d, utilityW=(innerW-utilityGapPx)*.5f;
         for(int row=0;row<2;row++)for(int col=0;col<2;col++)
             utilities[row][col]=topRect(innerLeft+col*(utilityW+utilityGapPx),
-                    top+row*(utilityH*d+utilityGapPx),utilityW,utilityH*d);
-        top+=2f*utilityH*d+utilityGapPx+bottomGap*d;
-        footer=topRect(cx,Math.min(top,screenH-panelBottom-verticalPad*d),innerW,18f*d);
+                    top+row*(utilityH*v+utilityGapPx*verticalScale),utilityW,utilityH*v);
+        top+=2f*utilityH*v+utilityGapPx*verticalScale+bottomGap*v;
+        footer=topRect(cx,Math.min(top,screenH-panelBottom-verticalPad*v),innerW,18f*v);
     }
 
     private Rect topRect(float x,float top,float w,float h){
