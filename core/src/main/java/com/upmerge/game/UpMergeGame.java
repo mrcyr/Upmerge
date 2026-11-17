@@ -1887,13 +1887,23 @@ public final class UpMergeGame extends ApplicationAdapter {
             }
         }
         if(y<screenH*.075f){themesVisible=false;return;}
-        // Keep the HTML's two selectable finishes functional; other material
-        // labels remain visual presets until their texture assets are ported.
-        if(y>screenH*.17f&&y<screenH*.33f){
-            cubeFinish=y>screenH*.27f?"convex":"flat";
-            preferences.putString("cubeFinish",cubeFinish);preferences.flush();return;
+        String[] materials={"flat","convex","stone","marble","carbon",
+                "metal","wood","crystal","ceramic","holo"};
+        float selectorTop=screenH*.335f;
+        float bw=(width-gapX)*.5f,bh=31f*uiScale;
+        for(int i=0;i<materials.length;i++){
+            int col=i%2,row=i/2;
+            float bx=left+col*(bw+gapX);
+            float by=selectorTop-25f*uiScale-row*(bh+5f*uiScale)-bh;
+            if(x>=bx&&x<=bx+bw&&y>=by&&y<=by+bh){
+                cubeFinish=materials[i];
+                preferences.putString("cubeFinish",cubeFinish);
+                preferences.flush();
+                return;
+            }
         }
-        if(y>screenH*.07f&&y<screenH*.16f){
+        float shapeCenterY=screenH*.105f+12f*uiScale;
+        if(y>=shapeCenterY-16f*uiScale&&y<=shapeCenterY+16f*uiScale){
             int index=MathUtils.clamp((int)((x-left)/(width/3f)),0,2);
             cubeShape=index==0?"rounded":index==1?"square":"circle";
             preferences.putString("cubeShape",cubeShape);preferences.flush();
