@@ -25,7 +25,7 @@ final class GameScreenLayout {
         toolbarLeft=screenW*.062f;toolbarGap=screenW*.027f;
         toolbarCardWidth=(screenW-2f*toolbarLeft-4f*toolbarGap)/5f;
         hintHeight=Math.min(18f*d,screenH*.036f);hintBottom=screenH*.025f;
-        pauseSize=44f*d;
+        pauseSize=29f*d;
         float headerNeedBottom=Math.min(screenH-headerHeight,Math.min(pillBottom,statBottom));
         float footerContentTop=footerHeight-8f*d;
         float boardAreaBottom=footerContentTop+gap;
@@ -53,5 +53,8 @@ final class GameScreenLayout {
         float cardX = toolbarLeft + index * (toolbarCardWidth + toolbarGap);
         return x <= cardX + toolbarCardWidth ? index : -1;
     }
-    boolean pauseContains(float x,float y){return x>=screenW-pauseSize-8f*density&&y>=screenH-pauseSize-8f*density;}
+    boolean pauseContains(float x,float y){
+        float left=screenW-35f*density,bottom=screenH-72f*density;
+        return x>=left&&x<=left+pauseSize&&y>=bottom&&y<=bottom+pauseSize;
+    }
 }
