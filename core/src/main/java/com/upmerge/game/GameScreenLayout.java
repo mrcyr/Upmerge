@@ -21,11 +21,8 @@ final class GameScreenLayout {
         toolbarHeight=55f*d;toolbarBottom=31f*d;
         hintHeight=18f*d;hintBottom=7f*d;
         pauseSize=44f*d;
-        float headerContentBottom=screenH-headerHeight+8f*d;
-        float headerContentTop=screenH-8f*d;
         float headerNeedBottom=Math.min(screenH-headerHeight,Math.min(pillBottom,statBottom));
         float footerContentTop=footerHeight-8f*d;
-        float footerNeedTop=Math.max(queueBottomCandidate(footerHeight,d),toolbarBottom+toolbarHeight)+gap;
         float boardAreaBottom=footerContentTop+gap;
         float boardAreaTop=headerNeedBottom-gap;
         float usable=Math.max(1f,boardAreaTop-boardAreaBottom);
@@ -42,7 +39,6 @@ final class GameScreenLayout {
         // Keep queue, tools and hint within the footer, with explicit gaps.
         if(queueBottom+queueHeight>footerHeight-6f*d) queueBottom=footerHeight-queueHeight-6f*d;
     }
-    private static float queueBottomCandidate(float footer,float d){return footer-64f*d;}
     boolean boardContains(float x,float y){return x>=boardLeft&&x<=boardRight&&y>=boardBottom&&y<=boardTop;}
     int toolbarIndex(float x,float y){
         if(y<toolbarBottom||y>toolbarBottom+toolbarHeight)return -1;
