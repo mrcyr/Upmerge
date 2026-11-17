@@ -1169,6 +1169,9 @@ public final class UpMergeGame extends ApplicationAdapter {
     private void drawMainMenu() {
         drawMenuBackdrop();
         float center = screenW * .5f;
+        float panelTop = mainMenuLayout.panelBottom + mainMenuLayout.panelHeight;
+        float verticalPad = Math.max(16f, Math.min(25f, (screenW / uiScale) * .045f)) * uiScale;
+        float logoBaseline = panelTop - verticalPad - 39f * uiScale;
         batch.begin();
         float logoScale = uiScale * (30f / 24f);
         logoFont.getData().setScale(logoScale);
@@ -1179,19 +1182,19 @@ public final class UpMergeGame extends ApplicationAdapter {
         float logoLeft = center - (upWidth + mergeWidth) * .5f;
         // Soft offset shadow keeps the wordmark legible against the navy panel.
         logoFont.setColor(.005f, .018f, .035f, .92f);
-        logoFont.draw(batch, "UP", logoLeft + 1.5f * uiScale, screenH * .73f - 2f * uiScale);
+        logoFont.draw(batch, "UP", logoLeft + 1.5f * uiScale, logoBaseline - 2f * uiScale);
         logoFont.draw(batch, "MERGE", logoLeft + upWidth + 1.5f * uiScale,
-                screenH * .745f - 2f * uiScale);
+                logoBaseline - 2f * uiScale);
         logoFont.setColor(.93f, .97f, 1f, 1f);
-        logoFont.draw(batch, "UP", logoLeft, screenH * .745f);
+        logoFont.draw(batch, "UP", logoLeft, logoBaseline);
         setLogoFontHex(uiTheme.accent);
         logoFont.draw(batch, "MERGE", logoLeft + upWidth, screenH * .745f);
         font.setColor(.66f, .76f, .89f, 1f);
         font.getData().setScale(uiScale * (13f / 24f));
         drawCenteredFit("Запускай кубики вверх. Объединяй одинаковые", center,
-                screenH * .69f, screenW * .84f, uiScale * (13f / 24f));
+                logoBaseline - 50f * uiScale, screenW * .84f, uiScale * (13f / 24f));
         drawCenteredFit("числа и создавай цепные реакции.", center,
-                screenH * .665f, screenW * .84f, uiScale * (13f / 24f));
+                logoBaseline - 70f * uiScale, screenW * .84f, uiScale * (13f / 24f));
         batch.end();
 
         MainMenuLayout.Rect[] modeCards = mainMenuLayout.modes;
