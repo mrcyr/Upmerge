@@ -1131,11 +1131,12 @@ public final class UpMergeGame extends ApplicationAdapter {
             float x = pad + i * (statW + gap);
             font.setColor(.62f, .76f, .89f, 1f);
             font.getData().setScale(uiScale * (10f / 24f));
-            drawCentered(labels[i], x + statW * .5f, statY + statH - 15f * uiScale);
+            drawCenteredAt(labels[i], x + statW * .5f, statY + statH * .73f);
             font.setColor(.97f, .99f, 1f, 1f);
             font.getData().setScale(uiScale * (19f / 24f));
-            drawCenteredFit(values[i], x + statW * .5f, statY + 8f * uiScale,
-                    statW * .86f, uiScale);
+            drawCenteredFit(values[i], x + statW * .5f,
+                    statY + statH * .12f + font.getCapHeight() * .5f,
+                    statW * .86f, uiScale * (19f / 24f));
         }
 
         float pillGap = 7f * uiScale;
@@ -1415,8 +1416,9 @@ public final class UpMergeGame extends ApplicationAdapter {
         batch.begin();
         font.setColor(.58f, .69f, .82f, 1f);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 410f, .68f, .82f));
-        drawCenteredFit("Цель растёт вдвое после каждого достижения · K / M / B / T",
-                center, mainMenuLayout.footer.centerY(), mainMenuLayout.contentWidth * .94f, uiScale * (12f / 24f));
+        drawCenteredFit("ОБЪЕДИНЯЙ КУБИКИ И ОТКРЫВАЙ НОВЫЕ УРОВНИ",
+                center, mainMenuLayout.footer.centerY() + 2f * uiScale,
+                mainMenuLayout.contentWidth * .94f, uiScale * (10f / 24f));
         batch.end();
     }
 
