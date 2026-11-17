@@ -45,14 +45,17 @@ final class MainMenuLayout {
                 +rowH+12f+rowH+8f+actionH
                 +(saved?8f+buttonH:0f)+8f+buttonH+8f
                 +utilityH*2f+utilityGap+bottomGap+24f;
-        float verticalScale=Math.min(1f,Math.max(.78f,(h-24f)/Math.max(1f,heightDp)));
+        // Scale the complete vertical stack to the actual available viewport.
+        // The previous .78 lower bound forced rows outside short screens.
+        float verticalScale=Math.min(1f,Math.max(.55f,(h-2f*verticalPad)/Math.max(1f,heightDp)));
         float v=d*verticalScale;
 
         // The native menu uses the full safe viewport, like the HTML app's
         // 100svh root. Content remains in a centered max-width column.
-        panelHeight=Math.max(1f,screenH-24f*d);
+        // The main menu panel now occupies the entire screen height.
+        panelHeight=screenH;
         panelLeft=(screenW-panelWidth)*.5f;
-        panelBottom=12f*d;
+        panelBottom=0f;
 
         float innerLeft=panelLeft+horizontalPad*d;
         float innerW=contentWidth;
