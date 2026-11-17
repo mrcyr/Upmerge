@@ -662,6 +662,47 @@ public final class UpMergeGame extends ApplicationAdapter {
         roundedRectInBatch(queueLeft, queueY, queueW, queueH, 10f * uiScale);
         shapes.setColor(.065f, .095f, .14f, 1f);
         roundedRectInBatch(queueLeft + queueW + queueGap, queueY, queueW, queueH, 10f * uiScale);
+        shapes.end();
+
+        // Repaint the HUD surfaces with subtle vertical gradients and crisp edges.
+        for (int i = 0; i < 3; i++) {
+            float x = topPad + i * (statW + statGap);
+            drawRoundedGradient(x + 1f, statY + 1f, statW - 2f, statH - 2f,
+                    14f * uiScale, .09f, .17f, .26f, .035f, .075f, .13f);
+            drawRoundedOutline(x + 1f, statY + 1f, statW - 2f, statH - 2f,
+                    14f * uiScale, .25f, .49f, .66f, .66f);
+        }
+        float[] pillX = {topPad, topPad + pillW + pillGap};
+        for (float x : pillX) {
+            drawRoundedGradient(x + 1f, pillY + 1f, pillW - 2f, gameLayout.pillHeight - 2f,
+                    11f * uiScale, .08f, .16f, .25f, .03f, .065f, .12f);
+            drawRoundedOutline(x + 1f, pillY + 1f, pillW - 2f, gameLayout.pillHeight - 2f,
+                    11f * uiScale, .23f, .46f, .63f, .62f);
+        }
+        for (int i = 0; i < 5; i++) {
+            float x = i * toolW + 2f;
+            boolean selected = (i == 2 && activeTool == Tool.SPLIT)
+                    || (i == 3 && activeTool == Tool.MOVE)
+                    || (i == 4 && activeTool == Tool.SWAP)
+                    || (i == 1 && activeTool == Tool.BOMB);
+            drawRoundedGradient(x + 1f, gameLayout.toolbarBottom + 1f, toolW - 6f,
+                    gameLayout.toolbarHeight - 2f, 11f * uiScale,
+                    selected ? .10f : .075f, selected ? .32f : .15f,
+                    selected ? .42f : .23f, .025f, .055f, .10f);
+            drawRoundedOutline(x + 1f, gameLayout.toolbarBottom + 1f, toolW - 6f,
+                    gameLayout.toolbarHeight - 2f, 11f * uiScale,
+                    selected ? .25f : .18f, selected ? .78f : .43f,
+                    selected ? .94f : .60f, selected ? .92f : .54f);
+        }
+        for (int i = 0; i < 2; i++) {
+            float x = queueLeft + i * (queueW + queueGap);
+            drawRoundedGradient(x + 1f, queueY + 1f, queueW - 2f, queueH - 2f,
+                    10f * uiScale, .09f, .17f, .26f, .03f, .065f, .12f);
+            drawRoundedOutline(x + 1f, queueY + 1f, queueW - 2f, queueH - 2f,
+                    10f * uiScale, .22f, .46f, .64f, .62f);
+        }
+
+        shapes.begin(ShapeRenderer.ShapeType.Filled);
         float cubePreview = Math.min(34f * uiScale, Math.min(queueH - 12f * uiScale, queueW * .34f));
         setCubeFaceColor(cubeQueue.current(), 1f);
         roundedRectInBatch(queueLeft + queueW - cubePreview - 5f * uiScale,
