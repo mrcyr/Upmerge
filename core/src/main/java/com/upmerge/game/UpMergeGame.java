@@ -621,8 +621,7 @@ public final class UpMergeGame extends ApplicationAdapter {
 
         float topPad = Math.max(10f, screenW * .04f);
         float statGap = 7f * uiScale;
-        float statY = screenH - 112f * uiScale;
-        float statH = 58f * uiScale;
+        float statY = gameLayout.statBottom;\n        float statH = gameLayout.statHeight;
         float statW = (screenW - topPad * 2f - statGap * 2f) / 3f;
         for (int i = 0; i < 3; i++) {
             shapes.setColor(.075f, .105f, .145f, 1f);
@@ -651,8 +650,7 @@ public final class UpMergeGame extends ApplicationAdapter {
             roundedRectInBatch(i * toolW + 2f, gameLayout.toolbarBottom, toolW - 4f, gameLayout.toolbarHeight, 11f * uiScale);
         }
         // Queue cards mirror the HTML flex row: label on the left, colored cube on the right.
-        float queueY = footerHeight - 54f * uiScale;
-        float queueW = 112f * uiScale, queueH = 46f * uiScale, queueGap = 12f * uiScale;
+        float queueY = gameLayout.queueBottom;\n        float queueW = gameLayout.queueWidth, queueH = gameLayout.queueHeight, queueGap = gameLayout.queueGap;
         float queueLeft = (screenW - queueW * 2f - queueGap) * .5f;
         shapes.setColor(.065f, .095f, .14f, 1f);
         roundedRectInBatch(queueLeft, queueY, queueW, queueH, 10f * uiScale);
@@ -882,8 +880,7 @@ public final class UpMergeGame extends ApplicationAdapter {
                 pad + pillW + gap + pillW - 52f * uiScale, pillY + 13f * uiScale);
 
         // Queue labels sit beside their cube previews, not above them.
-        float queueY = footerHeight - 54f * uiScale;
-        float queueW = 112f * uiScale, queueGap = 12f * uiScale;
+        float queueY = gameLayout.queueBottom;\n        float queueW = gameLayout.queueWidth, queueGap = gameLayout.queueGap;
         float queueLeft = (screenW - queueW * 2f - queueGap) * .5f;
         font.setColor(.62f, .72f, .84f, 1f);
         font.getData().setScale(uiScale * (9f / 24f));
