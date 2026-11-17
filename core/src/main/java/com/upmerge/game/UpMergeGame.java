@@ -649,7 +649,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         float pillW = (screenW - topPad * 2f - pillGap) * .5f;
         setShapeHex(uiTheme.panel, 1f);
         roundedRectInBatch(topPad, pillY, pillW, gameLayout.pillHeight, 11f * uiScale);
-        shapes.setColor(.065f, .095f, .14f, 1f);
+        setShapeHex(uiTheme.panel, 1f);
         roundedRectInBatch(topPad + pillW + pillGap, pillY, pillW, gameLayout.pillHeight, 11f * uiScale);
 
         float toolW = screenW / 5f;
@@ -669,9 +669,9 @@ public final class UpMergeGame extends ApplicationAdapter {
         float queueY = gameLayout.queueBottom;
         float queueW = gameLayout.queueWidth, queueH = gameLayout.queueHeight, queueGap = gameLayout.queueGap;
         float queueLeft = (screenW - queueW * 2f - queueGap) * .5f;
-        shapes.setColor(.065f, .095f, .14f, 1f);
+        setShapeHex(uiTheme.panel, 1f);
         roundedRectInBatch(queueLeft, queueY, queueW, queueH, 10f * uiScale);
-        shapes.setColor(.065f, .095f, .14f, 1f);
+        setShapeHex(uiTheme.panel, 1f);
         roundedRectInBatch(queueLeft + queueW + queueGap, queueY, queueW, queueH, 10f * uiScale);
         shapes.end();
 
