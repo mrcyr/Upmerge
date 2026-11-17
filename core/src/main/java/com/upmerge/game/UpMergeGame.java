@@ -995,18 +995,13 @@ public final class UpMergeGame extends ApplicationAdapter {
                 queueY + queueH * .5f - 5f * uiScale);
 
         // Footer follows the reference order: queue, power tools, instruction.
-        String[] icons = {"↶", "✹", "✂", "↗", "⇄"};
         String[] toolLabels = {"ОТМЕНА", "БОМБА ×" + bombCharges,
                 "УДАЛИТЬ ×" + splitCharges, "ПЕРЕМЕСТИТЬ ×" + moveCharges,
                 "ПОМЕНЯТЬ 2 ×" + swapCharges};
         float toolW = gameLayout.toolbarCardWidth;
         float toolGap = gameLayout.toolbarGap;
         float toolLeft = gameLayout.toolbarLeft;
-        for (int i = 0; i < icons.length; i++) {
-            setFontHex(uiTheme.accent);
-            font.getData().setScale(uiScale * (17f / 24f));
-            drawCentered(icons[i], toolLeft + i * (toolW + toolGap) + toolW * .5f,
-                    gameLayout.toolbarBottom + gameLayout.toolbarHeight * .46f);
+        for (int i = 0; i < toolLabels.length; i++) {
             font.setColor(.88f, .94f, 1f, 1f);
             font.getData().setScale(uiScale * (7f / 24f));
             drawCenteredFit(toolLabels[i], toolLeft + i * (toolW + toolGap) + toolW * .5f,
@@ -1037,6 +1032,61 @@ public final class UpMergeGame extends ApplicationAdapter {
             drawCentered(value, centerX, centerY + font.getCapHeight() * 0.35f);
         }
         batch.end();
+        drawToolIcons();
+    }
+
+    /** Crisp vector equivalents of the five compact HTML toolbar glyphs. */
+    private void drawToolIcons() {
+        float width = gameLayout.toolbarCardWidth;
+        float step = width + gameLayout.toolbarGap;
+        float left = gameLayout.toolbarLeft;
+        float cy = gameLayout.toolbarBottom + gameLayout.toolbarHeight * .66f;
+        float s = Math.min(13f * uiScale, gameLayout.toolbarHeight * .34f);
+        shapes.begin(ShapeRenderer.ShapeType.Line);
+        // Undo: curved return arrow.
+        setShapeHex(uiTheme.accent, .98f);
+        float ux = left + width * .5f;
+        shapes.arc(ux, cy, s * .48f, 35f, 285f, 18);
+        shapes.line(ux - s * .42f, cy + s * .22f, ux - s * .48f, cy - s * .12f);
+        shapes.line(ux - s * .42f, cy + s * .22f, ux - s * .08f, cy + s * .20f);
+
+        // Scissors: two loops and crossed blades.
+        float sx = left + 2f * step + width * .5f;
+        setShapeHex(uiTheme.accent, .98f);
+        shapes.circle(sx - s * .25f, cy - s * .22f, s * .16f, 14);
+        shapes.circle(sx + s * .25f, cy - s * .22f, s * .16f, 14);
+        shapes.line(sx - s * .14f, cy - s * .10f, sx + s * .43f, cy + s * .40f);
+        shapes.line(sx + s * .14f, cy - s * .10f, sx - s * .43f, cy + s * .40f);
+
+        // Move: diagonal arrow.
+        float mx = left + 3f * step + width * .5f;
+        shapes.line(mx - s * .38f, cy - s * .34f, mx + s * .34f, cy + s * .38f);
+        shapes.line(mx + s * .02f, cy + s * .38f, mx + s * .34f, cy + s * .38f);
+        shapes.line(mx + s * .34f, cy + s * .38f, mx + s * .34f, cy + s * .06f);
+
+        // Swap: two opposing horizontal arrows.
+        float wx = left + 4f * step + width * .5f;
+        shapes.line(wx - s * .42f, cy + s * .18f, wx + s * .42f, cy + s * .18f);
+        shapes.line(wx + s * .42f, cy + s * .18f, wx + s * .20f, cy + s * .38f);
+        shapes.line(wx + s * .42f, cy + s * .18f, wx + s * .20f, cy - s * .02f);
+        shapes.line(wx + s * .42f, cy - s * .20f, wx - s * .42f, cy - s * .20f);
+        shapes.line(wx - s * .42f, cy - s * .20f, wx - s * .20f, cy + s * .02f);
+        shapes.line(wx - s * .42f, cy - s * .20f, wx - s * .20f, cy - s * .40f);
+        shapes.end();
+
+        // Bomb uses a warm fuse/body color, like the emoji in the reference.
+        float bx = left + step + width * .5f;
+        shapes.begin(ShapeRenderer.ShapeType.Filled);
+        shapes.setColor(1f, .55f, .22f, 1f);
+        shapes.circle(bx, cy - s * .04f, s * .31f, 20);
+        shapes.setColor(.96f, .76f, .38f, 1f);
+        shapes.circle(bx - s * .10f, cy + s * .08f, s * .08f, 12);
+        shapes.end();
+        shapes.begin(ShapeRenderer.ShapeType.Line);
+        shapes.setColor(1f, .70f, .30f, 1f);
+        shapes.line(bx + s * .16f, cy + s * .22f, bx + s * .34f, cy + s * .43f);
+        shapes.line(bx + s * .34f, cy + s * .43f, bx + s * .46f, cy + s * .36f);
+        shapes.end();
     }
 
     private void drawCentered(String value, float centerX, float baselineY) {
