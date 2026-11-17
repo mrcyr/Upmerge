@@ -1522,6 +1522,11 @@ public final class UpMergeGame extends ApplicationAdapter {
                 ((hex >>> 8) & 255) / 255f, (hex & 255) / 255f, 1f);
     }
 
+    private void setLogoFontHex(int hex) {
+        logoFont.setColor(((hex >>> 16) & 255) / 255f,
+                ((hex >>> 8) & 255) / 255f, (hex & 255) / 255f, 1f);
+    }
+
     private void setShapeHex(int hex, float alpha) {
         shapes.setColor(((hex >>> 16) & 255) / 255f,
                 ((hex >>> 8) & 255) / 255f, (hex & 255) / 255f, alpha);
