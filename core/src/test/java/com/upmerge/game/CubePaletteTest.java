@@ -17,9 +17,15 @@ public class CubePaletteTest {
         assertEquals(0xF5F5FF, CubePalette.rgb(1024));
     }
 
-    @Test public void unsupportedAndLargeTiersUseReadableFallbackColor() {
-        assertEquals(0xF5F5FF, CubePalette.rgb(2048));
-        assertEquals(0xF5F5FF, CubePalette.rgb(1L << 40));
+    @Test public void highTiersKeepTheirDeterministicFlatColorProgression() {
+        assertEquals(0x85C4F2, CubePalette.rgb(2048));
+        assertEquals(0x91BFF2, CubePalette.rgb(4096));
+        assertEquals(0x8AC2F2, CubePalette.rgb(1L << 40));
+    }
+
+    @Test public void invalidValuesUseReadableFallbackColor() {
+        assertEquals(0xF5F5FF, CubePalette.rgb(0));
+        assertEquals(0xF5F5FF, CubePalette.rgb(3));
     }
 
     @Test public void paletteValuesAreOpaqueRgbWithoutAlphaBits() {
