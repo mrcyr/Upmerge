@@ -667,12 +667,15 @@ public final class UpMergeGame extends ApplicationAdapter {
         }
         // Queue cards mirror the HTML flex row: label on the left, colored cube on the right.
         float queueY = gameLayout.queueBottom;
-        float queueW = gameLayout.queueWidth, queueH = gameLayout.queueHeight, queueGap = gameLayout.queueGap;
-        float queueLeft = (screenW - queueW * 2f - queueGap) * .5f;
+        float queueCurrentW = gameLayout.queueCurrentWidth;
+        float queueNextW = gameLayout.queueNextWidth;
+        float queueH = gameLayout.queueHeight, queueGap = gameLayout.queueGap;
+        float queueLeft = gameLayout.queueLeft;
         setShapeHex(uiTheme.panel, 1f);
-        roundedRectInBatch(queueLeft, queueY, queueW, queueH, 10f * uiScale);
+        roundedRectInBatch(queueLeft, queueY, queueCurrentW, queueH, 10f * uiScale);
         setShapeHex(uiTheme.panel, 1f);
-        roundedRectInBatch(queueLeft + queueW + queueGap, queueY, queueW, queueH, 10f * uiScale);
+        roundedRectInBatch(queueLeft + queueCurrentW + queueGap, queueY,
+                queueNextW, queueH, 10f * uiScale);
         shapes.end();
 
         // Repaint the HUD surfaces with subtle vertical gradients and crisp edges.
@@ -713,14 +716,16 @@ public final class UpMergeGame extends ApplicationAdapter {
         }
 
         shapes.begin(ShapeRenderer.ShapeType.Filled);
-        float cubePreview = Math.min(34f * uiScale, Math.min(queueH - 12f * uiScale, queueW * .34f));
+        float cubePreview = Math.min(34f * uiScale,
+                Math.min(queueH - 6f * uiScale, queueCurrentW * .37f));
         setCubeFaceColor(cubeQueue.current(), 1f);
-        roundedRectInBatch(queueLeft + queueW - cubePreview - 5f * uiScale,
-                queueY + 6f * uiScale, cubePreview, cubePreview, 6f * uiScale);
-        float nextPreview = Math.min(32f * uiScale, Math.min(queueH - 14f * uiScale, queueW * .32f));
+        roundedRectInBatch(queueLeft + queueCurrentW - cubePreview - 5f * uiScale,
+                queueY + (queueH - cubePreview) * .5f, cubePreview, cubePreview, 6f * uiScale);
+        float nextPreview = Math.min(32f * uiScale,
+                Math.min(queueH - 7f * uiScale, queueNextW * .30f));
         setCubeFaceColor(cubeQueue.upcoming(), 1f);
-        roundedRectInBatch(queueLeft + queueW + queueGap + queueW - nextPreview - 5f * uiScale,
-                queueY + 7f * uiScale, nextPreview, nextPreview, 6f * uiScale);
+        roundedRectInBatch(queueLeft + queueCurrentW + queueGap + queueNextW - nextPreview - 5f * uiScale,
+                queueY + (queueH - nextPreview) * .5f, nextPreview, nextPreview, 6f * uiScale);
         shapes.end();
     }
 
@@ -936,25 +941,29 @@ public final class UpMergeGame extends ApplicationAdapter {
 
         // Queue labels sit beside their cube previews, not above them.
         float queueY = gameLayout.queueBottom;
-        float queueW = gameLayout.queueWidth, queueGap = gameLayout.queueGap;
-        float previewW = Math.min(34f * uiScale, Math.min(gameLayout.queueHeight - 12f * uiScale, queueW * .34f));
-        float nextW = Math.min(32f * uiScale, Math.min(gameLayout.queueHeight - 14f * uiScale, queueW * .32f));
-        float queueLeft = (screenW - queueW * 2f - queueGap) * .5f;
+        float queueCurrentW = gameLayout.queueCurrentWidth;
+        float queueNextW = gameLayout.queueNextWidth, queueGap = gameLayout.queueGap;
+        float previewW = Math.min(34f * uiScale,
+                Math.min(gameLayout.queueHeight - 6f * uiScale, queueCurrentW * .37f));
+        float nextW = Math.min(32f * uiScale,
+                Math.min(gameLayout.queueHeight - 7f * uiScale, queueNextW * .30f));
+        float queueLeft = gameLayout.queueLeft;
         font.setColor(.62f, .72f, .84f, 1f);
         font.getData().setScale(uiScale * (9f / 24f));
-        drawCenteredFit("СЕЙЧАС", queueLeft + (queueW - previewW) * .5f,
-                queueY + 21f * uiScale, queueW - previewW - 10f * uiScale,
-                uiScale * (9f / 24f));
-        drawCenteredFit("СЛЕДУЮЩИЙ", queueLeft + queueW + queueGap
-                        + (queueW - nextW) * .5f, queueY + 21f * uiScale,
-                queueW - nextW - 10f * uiScale, uiScale * (9f / 24f));
+        drawCenteredFit("СЕЙЧАС", queueLeft + (queueCurrentW - previewW) * .5f,
+                queueY + queueH * .5f + 2f * uiScale,
+                queueCurrentW - previewW - 10f * uiScale, uiScale * (9f / 24f));
+        drawCenteredFit("СЛЕДУЮЩИЙ", queueLeft + queueCurrentW + queueGap
+                        + (queueNextW - nextW) * .5f, queueY + queueH * .5f + 2f * uiScale,
+                queueNextW - nextW - 10f * uiScale, uiScale * (9f / 24f));
         font.setColor(.035f, .10f, .17f, 1f);
         font.getData().setScale(uiScale * (11f / 24f));
         drawCentered(NumberFormatter.compact(cubeQueue.current()),
-                queueLeft + queueW - 5f * uiScale - previewW * .5f, queueY + 17f * uiScale);
+                queueLeft + queueCurrentW - 5f * uiScale - previewW * .5f,
+                queueY + queueH * .5f - 1f * uiScale);
         drawCentered(NumberFormatter.compact(cubeQueue.upcoming()),
-                queueLeft + queueW + queueGap + queueW - 5f * uiScale - nextW * .5f,
-                queueY + 17f * uiScale);
+                queueLeft + queueCurrentW + queueGap + queueNextW - 5f * uiScale - nextW * .5f,
+                queueY + queueH * .5f - 1f * uiScale);
 
         // Footer follows the reference order: queue, power tools, instruction.
         String[] icons = {"↶", "✹", "✂", "↗", "⇄"};
