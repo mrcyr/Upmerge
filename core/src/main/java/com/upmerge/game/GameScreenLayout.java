@@ -23,7 +23,7 @@ final class GameScreenLayout {
         pauseSize=44f*d;
         float headerContentBottom=screenH-headerHeight+8f*d;
         float headerContentTop=screenH-8f*d;
-        float headerNeedBottom=Math.min(pillBottom,statBottom);
+        float headerNeedBottom=Math.min(screenH-headerHeight,Math.min(pillBottom,statBottom));
         float footerContentTop=footerHeight-8f*d;
         float footerNeedTop=Math.max(queueBottomCandidate(footerHeight,d),toolbarBottom+toolbarHeight)+gap;
         float boardAreaBottom=footerContentTop+gap;
