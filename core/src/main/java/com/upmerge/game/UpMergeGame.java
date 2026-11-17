@@ -761,7 +761,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         // The HTML canvas has its own top-to-bottom theme gradient inside the arena.
         for (int band = 0; band < 28; band++) {
             float t = band / 27f;
-            setShapeHex(UiTheme.mix(uiTheme.surface, uiTheme.background, t), 1f);
+            setShapeHex(UiTheme.mix(uiTheme.background, uiTheme.surface, t), 1f);
             float y = boardBottom + boardHeight * band / 28f;
             shapes.rect(boardLeft, y, boardWidth, boardHeight / 28f + 1f);
         }
