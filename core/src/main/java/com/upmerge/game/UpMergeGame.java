@@ -628,9 +628,9 @@ public final class UpMergeGame extends ApplicationAdapter {
 
     private void drawPanels() {
         shapes.begin(ShapeRenderer.ShapeType.Filled);
-        shapes.setColor(0.045f, 0.065f, 0.095f, 1f);
+        setShapeHex(uiTheme.surface, 1f);
         shapes.rect(0, screenH - headerHeight, screenW, headerHeight);
-        shapes.setColor(0.035f, 0.050f, 0.075f, 1f);
+        setShapeHex(uiTheme.background, 1f);
         shapes.rect(0, 0, screenW, footerHeight);
 
         float topPad = Math.max(10f, screenW * .04f);
@@ -639,13 +639,13 @@ public final class UpMergeGame extends ApplicationAdapter {
         float statH = gameLayout.statHeight;
         float statW = (screenW - topPad * 2f - statGap * 2f) / 3f;
         for (int i = 0; i < 3; i++) {
-            shapes.setColor(.075f, .105f, .145f, 1f);
+            setShapeHex(UiTheme.mix(uiTheme.surface, uiTheme.panel, .45f), 1f);
             roundedRectInBatch(topPad + i * (statW + statGap), statY, statW, statH, 14f * uiScale);
         }
         float pillY = gameLayout.pillBottom;
         float pillGap = 7f * uiScale;
         float pillW = (screenW - topPad * 2f - pillGap) * .5f;
-        shapes.setColor(.065f, .095f, .14f, 1f);
+        setShapeHex(uiTheme.panel, 1f);
         roundedRectInBatch(topPad, pillY, pillW, gameLayout.pillHeight, 11f * uiScale);
         shapes.setColor(.065f, .095f, .14f, 1f);
         roundedRectInBatch(topPad + pillW + pillGap, pillY, pillW, gameLayout.pillHeight, 11f * uiScale);
@@ -659,9 +659,8 @@ public final class UpMergeGame extends ApplicationAdapter {
             boolean available = i == 0 ? undoCharges > 0 && undoBoardState != null
                     : i == 1 ? bombCharges > 0 : i == 2 ? splitCharges > 0
                     : i == 3 ? moveCharges > 0 : swapCharges > 0;
-            shapes.setColor(selected ? .12f : available ? .075f : .045f,
-                    selected ? .38f : available ? .12f : .065f,
-                    selected ? .48f : available ? .17f : .09f, 1f);
+            setShapeHex(selected ? UiTheme.mix(uiTheme.accent, uiTheme.panel, .42f)
+                    : available ? UiTheme.mix(uiTheme.surface, uiTheme.panel, .35f) : uiTheme.panel, 1f);
             roundedRectInBatch(i * toolW + 2f, gameLayout.toolbarBottom, toolW - 4f, gameLayout.toolbarHeight, 11f * uiScale);
         }
         // Queue cards mirror the HTML flex row: label on the left, colored cube on the right.
@@ -677,17 +676,17 @@ public final class UpMergeGame extends ApplicationAdapter {
         // Repaint the HUD surfaces with subtle vertical gradients and crisp edges.
         for (int i = 0; i < 3; i++) {
             float x = topPad + i * (statW + statGap);
-            drawRoundedGradient(x + 1f, statY + 1f, statW - 2f, statH - 2f,
-                    14f * uiScale, .09f, .17f, .26f, .035f, .075f, .13f);
-            drawRoundedOutline(x + 1f, statY + 1f, statW - 2f, statH - 2f,
-                    14f * uiScale, .25f, .49f, .66f, .66f);
+            drawRoundedGradientHex(x + 1f, statY + 1f, statW - 2f, statH - 2f,
+                    14f * uiScale, UiTheme.mix(uiTheme.surface, 0xffffff, .04f), uiTheme.panel);
+            drawRoundedOutlineHex(x + 1f, statY + 1f, statW - 2f, statH - 2f,
+                    14f * uiScale, uiTheme.accentSecondary, .55f);
         }
         float[] pillX = {topPad, topPad + pillW + pillGap};
         for (float x : pillX) {
-            drawRoundedGradient(x + 1f, pillY + 1f, pillW - 2f, gameLayout.pillHeight - 2f,
-                    11f * uiScale, .08f, .16f, .25f, .03f, .065f, .12f);
-            drawRoundedOutline(x + 1f, pillY + 1f, pillW - 2f, gameLayout.pillHeight - 2f,
-                    11f * uiScale, .23f, .46f, .63f, .62f);
+            drawRoundedGradientHex(x + 1f, pillY + 1f, pillW - 2f, gameLayout.pillHeight - 2f,
+                    11f * uiScale, UiTheme.mix(uiTheme.surface, 0xffffff, .03f), uiTheme.panel);
+            drawRoundedOutlineHex(x + 1f, pillY + 1f, pillW - 2f, gameLayout.pillHeight - 2f,
+                    11f * uiScale, uiTheme.accentSecondary, .55f);
         }
         for (int i = 0; i < 5; i++) {
             float x = i * toolW + 2f;
@@ -695,21 +694,20 @@ public final class UpMergeGame extends ApplicationAdapter {
                     || (i == 3 && activeTool == Tool.MOVE)
                     || (i == 4 && activeTool == Tool.SWAP)
                     || (i == 1 && activeTool == Tool.BOMB);
-            drawRoundedGradient(x + 1f, gameLayout.toolbarBottom + 1f, toolW - 6f,
+            drawRoundedGradientHex(x + 1f, gameLayout.toolbarBottom + 1f, toolW - 6f,
                     gameLayout.toolbarHeight - 2f, 11f * uiScale,
-                    selected ? .10f : .075f, selected ? .32f : .15f,
-                    selected ? .42f : .23f, .025f, .055f, .10f);
-            drawRoundedOutline(x + 1f, gameLayout.toolbarBottom + 1f, toolW - 6f,
+                    selected ? UiTheme.mix(uiTheme.accent, uiTheme.panel, .30f)
+                            : UiTheme.mix(uiTheme.surface, uiTheme.panel, .35f), uiTheme.panel);
+            drawRoundedOutlineHex(x + 1f, gameLayout.toolbarBottom + 1f, toolW - 6f,
                     gameLayout.toolbarHeight - 2f, 11f * uiScale,
-                    selected ? .25f : .18f, selected ? .78f : .43f,
-                    selected ? .94f : .60f, selected ? .92f : .54f);
+                    selected ? uiTheme.accent : uiTheme.accentSecondary, selected ? .90f : .40f);
         }
         for (int i = 0; i < 2; i++) {
             float x = queueLeft + i * (queueW + queueGap);
-            drawRoundedGradient(x + 1f, queueY + 1f, queueW - 2f, queueH - 2f,
-                    10f * uiScale, .09f, .17f, .26f, .03f, .065f, .12f);
-            drawRoundedOutline(x + 1f, queueY + 1f, queueW - 2f, queueH - 2f,
-                    10f * uiScale, .22f, .46f, .64f, .62f);
+            drawRoundedGradientHex(x + 1f, queueY + 1f, queueW - 2f, queueH - 2f,
+                    10f * uiScale, UiTheme.mix(uiTheme.surface, 0xffffff, .04f), uiTheme.panel);
+            drawRoundedOutlineHex(x + 1f, queueY + 1f, queueW - 2f, queueH - 2f,
+                    10f * uiScale, uiTheme.accentSecondary, .55f);
         }
 
         shapes.begin(ShapeRenderer.ShapeType.Filled);
@@ -726,13 +724,13 @@ public final class UpMergeGame extends ApplicationAdapter {
 
     private void drawBoard() {
         shapes.begin(ShapeRenderer.ShapeType.Filled);
-        shapes.setColor(.035f, .055f, .085f, 1f);
+        setShapeHex(uiTheme.background, 1f);
         shapes.rect(boardLeft, boardBottom, cell * BoardEngine.COLUMNS, cell * BoardEngine.ROWS);
         for (int row = 0; row < BoardEngine.ROWS; row++) {
             for (int column = 0; column < BoardEngine.COLUMNS; column++) {
                 boolean alternate = ((row + column) & 1) == 0;
-                shapes.setColor(alternate ? .055f : .045f,
-                        alternate ? .095f : .075f, alternate ? .135f : .11f, 1f);
+                setShapeHex(alternate ? UiTheme.mix(uiTheme.panel, uiTheme.surface, .18f)
+                        : UiTheme.mix(uiTheme.background, uiTheme.panel, .35f), 1f);
                 shapes.rect(boardLeft + column * cell + .5f,
                         boardBottom + row * cell + .5f, cell - 1f, cell - 1f);
             }
@@ -742,13 +740,13 @@ public final class UpMergeGame extends ApplicationAdapter {
         float boardHeight = cell * BoardEngine.ROWS;
         drawRoundedFill(boardLeft - 4f * uiScale, boardBottom - 4f * uiScale,
                 boardWidth + 8f * uiScale, boardHeight + 8f * uiScale,
-                17f * uiScale, .008f, .022f, .045f, .98f);
+                17f * uiScale, uiTheme.background, .98f);
         drawRoundedOutline(boardLeft - 3f * uiScale, boardBottom - 3f * uiScale,
                 boardWidth + 6f * uiScale, boardHeight + 6f * uiScale,
-                16f * uiScale, .22f, .52f, .73f, .92f);
+                16f * uiScale, uiTheme.accent, .92f);
         drawRoundedFill(boardLeft + 8f * uiScale, boardBottom + boardHeight - 2f * uiScale,
                 boardWidth - 16f * uiScale, 1.4f * uiScale, 1f,
-                .34f, .74f, .98f, .26f);
+                uiTheme.accent, .26f);
     }
 
     private void drawCubes() {
@@ -1600,7 +1598,7 @@ public final class UpMergeGame extends ApplicationAdapter {
     /** Small cyan vector icons keep the menu crisp without relying on missing Unicode glyphs. */
     private void drawMenuIcon(int icon, float cx, float cy, float size) {
         float r = Math.max(2f * uiScale, size * .10f);
-        shapes.setColor(.42f, .88f, 1f, .96f);
+        setShapeHex(uiTheme.accent, .96f);
         if (icon == 1) {
             shapes.begin(ShapeRenderer.ShapeType.Filled);
             shapes.circle(cx - size * .16f, cy + size * .10f, r, 12);
