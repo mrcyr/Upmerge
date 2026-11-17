@@ -1102,24 +1102,25 @@ public final class UpMergeGame extends ApplicationAdapter {
                                 float width, float height, boolean selected, int icon) {
         float left = centerX - width * .5f, bottom = centerY - height * .5f;
         float radius = Math.min(15f * uiScale, height * .32f);
-        drawRoundedFill(left, bottom - 3f * uiScale, width, height + 3f * uiScale,
-                radius, .008f, .025f, .055f, .82f);
-        drawRoundedFill(left, bottom, width, height, radius,
-                .045f, .085f, .145f, 1f);
+        drawRoundedFillHex(left, bottom - 3f * uiScale, width, height + 3f * uiScale,
+                radius, uiTheme.background, .82f);
+        drawRoundedFillHex(left, bottom, width, height, radius, uiTheme.panel, 1f);
         if (selected) {
-            drawRoundedGradient(left + 1f, bottom + 1f, width - 2f, height - 2f,
-                    radius - 1f, .04f, .48f, .68f, .02f, .72f, .91f);
-            drawRoundedFill(left + 2f * uiScale, bottom + height - 4f * uiScale,
-                    width - 4f * uiScale, 1.5f * uiScale, 1f, .48f, .91f, 1f, .52f);
-            drawRoundedOutline(left + 1f, bottom + 1f, width - 2f, height - 2f,
-                    radius - 1f, .18f, .82f, 1f, .95f);
+            drawRoundedGradientHex(left + 1f, bottom + 1f, width - 2f, height - 2f,
+                    radius - 1f, UiTheme.mix(uiTheme.accent, 0xffffff, .18f),
+                    UiTheme.mix(uiTheme.accentSecondary, uiTheme.panel, .12f));
+            drawRoundedFillHex(left + 2f * uiScale, bottom + height - 4f * uiScale,
+                    width - 4f * uiScale, 1.5f * uiScale, 1f, uiTheme.accent, .52f);
+            drawRoundedOutlineHex(left + 1f, bottom + 1f, width - 2f, height - 2f,
+                    radius - 1f, uiTheme.accent, .95f);
         } else {
-            drawRoundedGradient(left + 1f, bottom + 1f, width - 2f, height - 2f,
-                    radius - 1f, .075f, .14f, .22f, .035f, .075f, .13f);
-            drawRoundedOutline(left + 1f, bottom + 1f, width - 2f, height - 2f,
-                    radius - 1f, .27f, .48f, .66f, .58f);
-            drawRoundedFill(left + 5f * uiScale, bottom + height - 3f * uiScale,
-                    width - 10f * uiScale, 1f * uiScale, 1f, .48f, .68f, .84f, .15f);
+            drawRoundedGradientHex(left + 1f, bottom + 1f, width - 2f, height - 2f,
+                    radius - 1f, UiTheme.mix(uiTheme.surface, 0xffffff, .05f),
+                    uiTheme.panel);
+            drawRoundedOutlineHex(left + 1f, bottom + 1f, width - 2f, height - 2f,
+                    radius - 1f, uiTheme.accentSecondary, .40f);
+            drawRoundedFillHex(left + 5f * uiScale, bottom + height - 3f * uiScale,
+                    width - 10f * uiScale, 1f * uiScale, 1f, uiTheme.accent, .15f);
         }
         batch.begin();
         font.setColor(selected ? .92f : .86f, selected ? .99f : .92f,
@@ -1564,39 +1565,36 @@ public final class UpMergeGame extends ApplicationAdapter {
     }
 
     private void drawMenuBackdrop() {
-        // Deep navy canvas with a restrained cyan bloom behind the brand.
+        // Theme colors change; the reference geometry remains fixed.
         shapes.begin(ShapeRenderer.ShapeType.Filled);
         for (int i = 0; i < 28; i++) {
             float t = i / 27f;
-            shapes.setColor(.006f + .008f * t, .014f + .018f * t,
-                    .030f + .032f * t, 1f);
+            setShapeHex(UiTheme.mix(uiTheme.background, uiTheme.surface, t), 1f);
             shapes.rect(0, screenH * i / 28f, screenW, screenH / 28f + 1f);
         }
-        shapes.setColor(.02f, .16f, .25f, .10f);
+        setShapeHex(uiTheme.accent, .08f);
         shapes.circle(screenW * .5f, screenH * .84f, Math.min(screenW, screenH) * .42f, 48);
         shapes.end();
 
         float panelWidth = screenW * .868f;
-        boolean compact = screenH / uiScale < 680f;
         float panelHeight = screenH * .666f;
         float panelX = (screenW - panelWidth) * .5f;
         float panelY = (screenH - panelHeight) * .5f;
         float radius = 27f * uiScale;
-        drawRoundedFill(panelX - 2f * uiScale, panelY - 5f * uiScale,
+        drawRoundedFillHex(panelX - 2f * uiScale, panelY - 5f * uiScale,
                 panelWidth + 4f * uiScale, panelHeight + 10f * uiScale,
-                radius + 2f * uiScale, .002f, .008f, .022f, .92f);
-        drawRoundedFill(panelX, panelY, panelWidth, panelHeight,
-                radius, .025f, .052f, .092f, 1f);
-        drawRoundedFill(panelX + 1f * uiScale, panelY + 1f * uiScale,
+                radius + 2f * uiScale, uiTheme.background, .92f);
+        drawRoundedFillHex(panelX, panelY, panelWidth, panelHeight,
+                radius, uiTheme.surface, 1f);
+        drawRoundedFillHex(panelX + 1f * uiScale, panelY + 1f * uiScale,
                 panelWidth - 2f * uiScale, panelHeight - 2f * uiScale,
-                radius - 1f * uiScale, .018f, .038f, .070f, 1f);
-        drawRoundedOutline(panelX, panelY, panelWidth, panelHeight, radius,
-                .19f, .49f, .72f, .62f);
-        // Subtle top and bottom inner highlights create a framed, finished surface.
-        drawRoundedFill(panelX + 20f * uiScale, panelY + panelHeight - 2f * uiScale,
-                panelWidth - 40f * uiScale, 1f * uiScale, 1f, .24f, .66f, .92f, .28f);
-        drawRoundedFill(panelX + 20f * uiScale, panelY + 1f * uiScale,
-                panelWidth - 40f * uiScale, 1f * uiScale, 1f, .18f, .42f, .66f, .16f);
+                radius - 1f * uiScale, uiTheme.panel, 1f);
+        drawRoundedOutlineHex(panelX, panelY, panelWidth, panelHeight, radius,
+                uiTheme.accent, .62f);
+        drawRoundedFillHex(panelX + 20f * uiScale, panelY + panelHeight - 2f * uiScale,
+                panelWidth - 40f * uiScale, 1f * uiScale, 1f, uiTheme.accent, .28f);
+        drawRoundedFillHex(panelX + 20f * uiScale, panelY + 1f * uiScale,
+                panelWidth - 40f * uiScale, 1f * uiScale, 1f, uiTheme.accentSecondary, .16f);
     }
 
     /** Small cyan vector icons keep the menu crisp without relying on missing Unicode glyphs. */
@@ -1677,19 +1675,19 @@ public final class UpMergeGame extends ApplicationAdapter {
         drawRoundedFill(left, bottom - 4f * uiScale, width, height + 5f * uiScale,
                 radius, .002f, .012f, .030f, .88f);
         if (highlighted) {
-            drawRoundedGradient(left, bottom, width, height, radius,
-                    .35f, .84f, .99f, .28f, .57f, .98f);
-            drawRoundedFill(left + 5f * uiScale, bottom + height - 4f * uiScale,
-                    width - 10f * uiScale, 1.5f * uiScale, 1f, .82f, .98f, 1f, .55f);
-            drawRoundedOutline(left + 1f, bottom + 1f, width - 2f, height - 2f,
-                    radius - 1f, .48f, .88f, 1f, .88f);
+            drawRoundedGradientHex(left, bottom, width, height, radius,
+                    0x69e2ff, 0x6ea8ff);
+            drawRoundedFillHex(left + 5f * uiScale, bottom + height - 4f * uiScale,
+                    width - 10f * uiScale, 1.5f * uiScale, 1f, 0xffffff, .55f);
+            drawRoundedOutlineHex(left + 1f, bottom + 1f, width - 2f, height - 2f,
+                    radius - 1f, uiTheme.accent, .60f);
         } else {
-            drawRoundedGradient(left, bottom, width, height, radius,
-                    .09f, .20f, .32f, .035f, .085f, .15f);
-            drawRoundedOutline(left + 1f, bottom + 1f, width - 2f, height - 2f,
-                    radius - 1f, .30f, .57f, .78f, .72f);
-            drawRoundedFill(left + 6f * uiScale, bottom + height - 4f * uiScale,
-                    width - 12f * uiScale, 1.2f * uiScale, 1f, .55f, .78f, .96f, .22f);
+            drawRoundedGradientHex(left, bottom, width, height, radius,
+                    UiTheme.mix(uiTheme.surface, 0xffffff, .05f), uiTheme.panel);
+            drawRoundedOutlineHex(left + 1f, bottom + 1f, width - 2f, height - 2f,
+                    radius - 1f, uiTheme.accentSecondary, .50f);
+            drawRoundedFillHex(left + 6f * uiScale, bottom + height - 4f * uiScale,
+                    width - 12f * uiScale, 1.2f * uiScale, 1f, uiTheme.accent, .18f);
         }
         batch.begin();
         font.setColor(highlighted ? .018f : .91f, highlighted ? .075f : .95f,
