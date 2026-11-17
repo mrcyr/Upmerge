@@ -1018,9 +1018,9 @@ public final class UpMergeGame extends ApplicationAdapter {
 
         MainMenuLayout.Rect[] actionCards = mainMenuLayout.menuActions;
         drawMenuChoice("ТЕМЫ", actionCards[0].centerX(), actionCards[0].centerY(),
-                actionCards[0].width, actionCards[0].height, false);
+                actionCards[0].width, actionCards[0].height, false, 1);
         drawMenuChoice("ЕЖЕДНЕВНО", actionCards[1].centerX(), actionCards[1].centerY(),
-                actionCards[1].width, actionCards[1].height, false);
+                actionCards[1].width, actionCards[1].height, false, 2);
 
         if (hasSavedGame) {
             drawMenuButton("ПРОДОЛЖИТЬ ИГРУ", mainMenuLayout.continueButton, false);
@@ -1031,14 +1031,14 @@ public final class UpMergeGame extends ApplicationAdapter {
 
         MainMenuLayout.Rect[][] utilityCards = mainMenuLayout.utilities;
         drawMenuChoice("СТАТИСТИКА", utilityCards[0][0].centerX(), utilityCards[0][0].centerY(),
-                utilityCards[0][0].width, utilityCards[0][0].height, false);
+                utilityCards[0][0].width, utilityCards[0][0].height, false, 3);
         drawMenuChoice("ЗАДАНИЯ", utilityCards[0][1].centerX(), utilityCards[0][1].centerY(),
-                utilityCards[0][1].width, utilityCards[0][1].height, false);
+                utilityCards[0][1].width, utilityCards[0][1].height, false, 4);
         drawMenuChoice("МАГАЗИН · " + NumberFormatter.compact(economy.coins()),
                 utilityCards[1][0].centerX(), utilityCards[1][0].centerY(),
-                utilityCards[1][0].width, utilityCards[1][0].height, false);
+                utilityCards[1][0].width, utilityCards[1][0].height, false, 5);
         drawMenuChoice("ДОСТИЖЕНИЯ", utilityCards[1][1].centerX(), utilityCards[1][1].centerY(),
-                utilityCards[1][1].width, utilityCards[1][1].height, false);
+                utilityCards[1][1].width, utilityCards[1][1].height, false, 6);
 
         batch.begin();
         font.setColor(.58f, .69f, .82f, 1f);
@@ -1061,6 +1061,11 @@ public final class UpMergeGame extends ApplicationAdapter {
 
     private void drawMenuChoice(String label, float centerX, float centerY,
                                 float width, float height, boolean selected) {
+        drawMenuChoice(label, centerX, centerY, width, height, selected, 0);
+    }
+
+    private void drawMenuChoice(String label, float centerX, float centerY,
+                                float width, float height, boolean selected, int icon) {
         float left = centerX - width * .5f, bottom = centerY - height * .5f;
         float radius = Math.min(15f * uiScale, height * .32f);
         drawRoundedFill(left, bottom - 3f * uiScale, width, height + 3f * uiScale,
@@ -1092,9 +1097,11 @@ public final class UpMergeGame extends ApplicationAdapter {
             font.getData().setScale(scale * width * .86f / textLayout.width);
             textLayout.setText(font, label);
         }
-        font.draw(batch, label, centerX - textLayout.width * .5f,
+        float labelCenterX = centerX + (icon == 0 ? 0f : height * .13f);
+        font.draw(batch, label, labelCenterX - textLayout.width * .5f,
                 centerY + textLayout.height * .5f);
         batch.end();
+        if (icon != 0) drawMenuIcon(icon, left + height * .52f, centerY, height * .48f);
     }
 
     private void drawModeMenu() {
@@ -1517,6 +1524,71 @@ public final class UpMergeGame extends ApplicationAdapter {
                 panelWidth - 40f * uiScale, 1f * uiScale, 1f, .24f, .66f, .92f, .28f);
         drawRoundedFill(panelX + 20f * uiScale, panelY + 1f * uiScale,
                 panelWidth - 40f * uiScale, 1f * uiScale, 1f, .18f, .42f, .66f, .16f);
+    }
+
+    /** Small cyan vector icons keep the menu crisp without relying on missing Unicode glyphs. */
+    private void drawMenuIcon(int icon, float cx, float cy, float size) {
+        float r = Math.max(2f * uiScale, size * .10f);
+        shapes.setColor(.42f, .88f, 1f, .96f);
+        if (icon == 1) {
+            shapes.begin(ShapeRenderer.ShapeType.Filled);
+            shapes.circle(cx - size * .16f, cy + size * .10f, r, 12);
+            shapes.circle(cx + size * .12f, cy + size * .18f, r, 12);
+            shapes.circle(cx + size * .22f, cy - size * .10f, r, 12);
+            shapes.circle(cx - size * .08f, cy - size * .20f, r, 12);
+            shapes.circle(cx - size * .28f, cy - size * .04f, r, 12);
+            shapes.end();
+        } else if (icon == 2) {
+            shapes.begin(ShapeRenderer.ShapeType.Line);
+            shapes.rect(cx - size * .30f, cy - size * .27f, size * .60f, size * .54f);
+            shapes.line(cx - size * .18f, cy + size * .37f, cx - size * .18f, cy + size * .19f);
+            shapes.line(cx + size * .18f, cy + size * .37f, cx + size * .18f, cy + size * .19f);
+            shapes.end();
+            shapes.begin(ShapeRenderer.ShapeType.Filled);
+            for (int row = 0; row < 2; row++)
+                for (int col = 0; col < 3; col++)
+                    shapes.circle(cx - size * .17f + col * size * .17f,
+                            cy + size * .06f - row * size * .19f, r * .48f, 8);
+            shapes.end();
+        } else if (icon == 3) {
+            shapes.begin(ShapeRenderer.ShapeType.Filled);
+            shapes.rect(cx - size * .30f, cy - size * .28f, size * .13f, size * .34f);
+            shapes.rect(cx - size * .06f, cy - size * .28f, size * .13f, size * .56f);
+            shapes.rect(cx + size * .18f, cy - size * .28f, size * .13f, size * .78f);
+            shapes.end();
+        } else if (icon == 4) {
+            shapes.begin(ShapeRenderer.ShapeType.Line);
+            shapes.rect(cx - size * .25f, cy - size * .32f, size * .50f, size * .62f);
+            shapes.rect(cx - size * .12f, cy + size * .25f, size * .24f, size * .13f);
+            shapes.line(cx - size * .14f, cy + size * .08f, cx + size * .14f, cy + size * .08f);
+            shapes.line(cx - size * .14f, cy - size * .06f, cx + size * .14f, cy - size * .06f);
+            shapes.line(cx - size * .14f, cy - size * .20f, cx + size * .06f, cy - size * .20f);
+            shapes.end();
+        } else if (icon == 5) {
+            shapes.begin(ShapeRenderer.ShapeType.Line);
+            shapes.line(cx - size * .34f, cy + size * .18f, cx + size * .30f, cy + size * .18f);
+            shapes.line(cx - size * .34f, cy + size * .18f, cx - size * .22f, cy - size * .12f);
+            shapes.line(cx - size * .22f, cy - size * .12f, cx + size * .26f, cy - size * .12f);
+            shapes.line(cx + size * .26f, cy - size * .12f, cx + size * .34f, cy + size * .18f);
+            shapes.line(cx - size * .18f, cy + size * .18f, cx - size * .12f, cy + size * .30f);
+            shapes.line(cx + size * .18f, cy + size * .18f, cx + size * .12f, cy + size * .30f);
+            shapes.end();
+            shapes.begin(ShapeRenderer.ShapeType.Filled);
+            shapes.circle(cx - size * .18f, cy - size * .25f, r * .72f, 12);
+            shapes.circle(cx + size * .20f, cy - size * .25f, r * .72f, 12);
+            shapes.end();
+        } else if (icon == 6) {
+            shapes.begin(ShapeRenderer.ShapeType.Line);
+            shapes.line(cx - size * .22f, cy + size * .28f, cx + size * .22f, cy + size * .28f);
+            shapes.line(cx - size * .22f, cy + size * .28f, cx - size * .15f, cy - size * .02f);
+            shapes.line(cx + size * .22f, cy + size * .28f, cx + size * .15f, cy - size * .02f);
+            shapes.line(cx - size * .15f, cy - size * .02f, cx + size * .15f, cy - size * .02f);
+            shapes.line(cx, cy - size * .02f, cx, cy - size * .18f);
+            shapes.line(cx - size * .16f, cy - size * .18f, cx + size * .16f, cy - size * .18f);
+            shapes.line(cx - size * .22f, cy + size * .20f, cx - size * .36f, cy + size * .20f);
+            shapes.line(cx + size * .22f, cy + size * .20f, cx + size * .36f, cy + size * .20f);
+            shapes.end();
+        }
     }
 
     private void drawMenuButton(String label, MainMenuLayout.Rect bounds, boolean highlighted) {
