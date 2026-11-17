@@ -28,10 +28,10 @@ final class MainMenuLayout {
         // Ratios keep the same pixel geometry on other screen sizes.
         panelWidth=screenW*.868f;
         panelHeight=screenH*.666f;
-        panelLeft=(screenW-panelWidth)*.5f;
+        panelLeft=screenW*.036f;
         panelBottom=screenH*.133f;
         contentWidth=screenW*.774f;
-        float cx=screenW*.5f;
+        float cx=screenW*.469f;
         float rowH=Math.min(screenH*.048f,46f*this.density);
         float modeW=(contentWidth-2f*gap)/3f;
         // Top-down anchors are converted once to bottom-left coordinates.
