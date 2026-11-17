@@ -921,28 +921,28 @@ public final class UpMergeGame extends ApplicationAdapter {
                 NumberFormatter.compact(bestScore), "×" + runMaxCombo};
         for (int i = 0; i < 3; i++) {
             float x = pad + i * (statW + gap);
-            font.setColor(.58f, .70f, .82f, 1f);
+            font.setColor(.62f, .76f, .89f, 1f);
             font.getData().setScale(uiScale * (10f / 24f));
-            font.draw(batch, labels[i], x + 8f * uiScale, statY + statH - 10f * uiScale);
-            font.setColor(.96f, .98f, 1f, 1f);
-            font.getData().setScale(uiScale * (22f / 24f));
-            font.draw(batch, values[i], x + 8f * uiScale, statY + 25f * uiScale);
+            drawCentered(labels[i], x + statW * .5f, statY + statH - 10f * uiScale);
+            font.setColor(.97f, .99f, 1f, 1f);
+            font.getData().setScale(uiScale);
+            drawCenteredFit(values[i], x + statW * .5f, statY + 23f * uiScale,
+                    statW * .86f, uiScale);
         }
 
         float pillY = gameLayout.pillBottom, pillW = (screenW - pad * 2f - gap) * .5f;
         font.setColor(.58f, .70f, .82f, 1f);
         font.getData().setScale(uiScale * (10f / 24f));
-        font.draw(batch, "МОНЕТЫ", pad + 8f * uiScale, pillY + 25f * uiScale);
+        font.draw(batch, "ЦЕЛЬ", pad + 8f * uiScale, pillY + 25f * uiScale);
         font.setColor(.94f, .97f, 1f, 1f);
         font.getData().setScale(uiScale * (16f / 24f));
-        font.draw(batch, NumberFormatter.compact(economy.coins()), pad + pillW - 42f * uiScale, pillY + 13f * uiScale);
+        font.draw(batch, NumberFormatter.compact(cubeQueue.goalTarget()), pad + pillW - 52f * uiScale, pillY + 13f * uiScale);
         font.setColor(.58f, .70f, .82f, 1f);
         font.getData().setScale(uiScale * (10f / 24f));
-        font.draw(batch, "УРОВЕНЬ", pad + pillW + gap + 8f * uiScale, pillY + 25f * uiScale);
+        font.draw(batch, "ДАЛЬШЕ", pad + pillW + gap + 8f * uiScale, pillY + 25f * uiScale);
         font.setColor(.45f, .82f, 1f, 1f);
         font.getData().setScale(uiScale * (16f / 24f));
-        font.draw(batch, NumberFormatter.compact(cubeQueue.goalTarget()),
-                pad + pillW + gap + pillW - 52f * uiScale, pillY + 13f * uiScale);
+        font.draw(batch, "×2", pad + pillW + gap + pillW - 34f * uiScale, pillY + 13f * uiScale);
 
         // Queue labels sit beside their cube previews, not above them.
         float queueY = gameLayout.queueBottom;
