@@ -281,6 +281,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         ScreenUtils.clear(((uiTheme.background >>> 16) & 255) / 255f,
                 ((uiTheme.background >>> 8) & 255) / 255f,
                 (uiTheme.background & 255) / 255f, 1f);
+        drawGameBackdrop();
         drawPanels();
         drawBoard();
         drawCubes();
@@ -626,6 +627,26 @@ public final class UpMergeGame extends ApplicationAdapter {
             drawCentered("ВЫБЕРИ ЛЮБОЙ КУБИК НА ПОЛЕ", screenW * 0.5f, screenH * 0.45f);
         }
         batch.end();
+    }
+
+    /** Theme-driven radial backdrop matching the HTML game's 50% / 25% gradient. */
+    private void drawGameBackdrop() {
+        float centerX = screenW * .5f;
+        float centerY = screenH * .75f;
+        float radiusX = screenW * 1.45f;
+        float radiusY = screenH * 1.22f;
+        shapes.begin(ShapeRenderer.ShapeType.Filled);
+        for (int i = 0; i < 36; i++) {
+            float t = i / 35f;
+            int color = t < .52f
+                    ? UiTheme.mix(uiTheme.background, uiTheme.panel, t / .52f)
+                    : UiTheme.mix(uiTheme.panel, uiTheme.surface, (t - .52f) / .48f);
+            float scale = 1f - t;
+            setShapeHex(color, 1f);
+            shapes.ellipse(centerX - radiusX * scale, centerY - radiusY * scale,
+                    radiusX * 2f * scale, radiusY * 2f * scale);
+        }
+        shapes.end();
     }
 
     private void drawPanels() {
