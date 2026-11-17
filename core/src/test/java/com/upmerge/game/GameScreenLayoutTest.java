@@ -21,9 +21,11 @@ public class GameScreenLayoutTest {
         for(float[] d:new float[][]{{320,568,1},{349,749,1},{384,828,1},
                 {765,1226,1},{1080,2400,3}}){
             GameScreenLayout l=new GameScreenLayout(d[0],d[1],d[2]);
-            assertTrue(l.statBottom>=l.pillBottom+l.pillHeight);\n            assertTrue(l.statBottom+l.statHeight<=l.screenH);
+            assertTrue(l.statBottom>=l.pillBottom+l.pillHeight);
+            assertTrue(l.statBottom+l.statHeight<=l.screenH);
             assertTrue(l.pillBottom+l.pillHeight<=l.screenH-l.headerHeight+l.headerHeight);
-            assertTrue(l.pillBottom>l.boardTop);\n            assertTrue(l.boardTop<=l.screenH-l.headerHeight);
+            assertTrue(l.pillBottom>l.boardTop);
+            assertTrue(l.boardTop<=l.screenH-l.headerHeight);
             assertTrue(l.statBottom+l.statHeight<=l.screenH);
         }
     }
