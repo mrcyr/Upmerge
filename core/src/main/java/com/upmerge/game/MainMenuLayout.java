@@ -57,7 +57,7 @@ final class MainMenuLayout {
             utilities[row][col]=topRect(cx+(col==0?-1:1)*(utilityW+8f*this.density)*.5f,
                     yTop,utilityW,utilityH);
         }
-        footer=topRect(cx,screenH*.837f,contentWidth,Math.min(18f*this.density,screenH*.034f));
+        footer=topRect(cx,screenH*.82f,contentWidth,Math.min(18f*this.density,screenH*.034f));
     }
 
     private Rect topRect(float cx,float top,float w,float h){
