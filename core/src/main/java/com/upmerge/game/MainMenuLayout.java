@@ -23,9 +23,9 @@ final class MainMenuLayout {
     MainMenuLayout(float width,float height,boolean saved){this(width,height,saved,1f);}
     MainMenuLayout(float width,float height,boolean saved,float density){
         screenW=Math.max(1f,width);screenH=Math.max(1f,height);this.density=Math.max(.75f,density);
-        float margin=16f*this.density;
+        float margin=22f*this.density;
         float panelW=Math.min(390f*this.density,screenW-2f*margin);
-        contentWidth=Math.max(100f*this.density,panelW-32f*this.density);
+        contentWidth=Math.max(100f*this.density,panelW-44f*this.density);
         float cx=screenW*.5f, gap=7f*this.density;
         float rowH=40f*this.density;
         float modeW=(contentWidth-2f*gap)/3f;
