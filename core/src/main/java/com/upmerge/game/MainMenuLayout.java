@@ -30,13 +30,13 @@ final class MainMenuLayout {
         float rowH=Math.min(46f*this.density,screenH*.07f);
         float modeW=(contentWidth-2f*gap)/3f;
         // Top-down anchors are converted once to bottom-left coordinates.
-        float top=screenH*.36f;
+        float top=screenH*.35f;
         for(int i=0;i<3;i++) modes[i]=topRect(cx+(i-1)*(modeW+gap),top,modeW,rowH);
         float dirW=(contentWidth-gap)*.5f;
         top=screenH*.43f;
         for(int i=0;i<2;i++) directions[i]=topRect(cx+(i==0?-1:1)*(dirW+gap)*.5f,top,dirW,rowH);
         float half=(contentWidth-8f*this.density)*.5f;
-        top=screenH*.50f;
+        top=screenH*.51f;
         float actionOffset=(half+4f*this.density)*.5f;
         menuActions[0]=topRect(cx-actionOffset,top,half,rowH);
         menuActions[1]=topRect(cx+actionOffset,top,half,rowH);
