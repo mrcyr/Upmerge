@@ -774,22 +774,9 @@ public final class UpMergeGame extends ApplicationAdapter {
                     red = .45f + .45f * hue; green = .80f - .20f * hue; blue = .95f;
                     break;
             }
-            shapes.setColor(.005f, .012f, .025f, .55f);
-            roundedRectInBatch(x + 1.5f, y - 3f, size, size, radius);
-            shapes.setColor(red * .70f, green * .70f, blue * .72f, 1f);
+            // Base theme: deliberately flat solid-color tiles.
+            shapes.setColor(red, green, blue, 1f);
             roundedRectInBatch(x, y, size, size, radius);
-            drawCubeConvexGradient(x + 1.5f, y + 1.5f, size - 3f, radius - 1.5f,
-                    red, green, blue);
-            // Soft top sheen and lower bevel are the original convex finish.
-            shapes.setColor(1f, 1f, 1f, .18f);
-            roundedRectInBatch(x + size * .10f, y + size * .82f,
-                    size * .80f, Math.max(2f, size * .035f), 2f);
-            shapes.setColor(1f, 1f, 1f, .13f);
-            shapes.rect(x + size * .12f, y + size * .12f, size * .76f, Math.max(1f, size * .018f));
-            shapes.setColor(.02f, .07f, .13f, .18f);
-            shapes.rect(x + size * .08f, y + size * .07f, size * .84f, Math.max(1f, size * .03f));
-            shapes.setColor(.02f, .07f, .13f, .10f);
-            shapes.rect(x + size * .91f, y + size * .12f, Math.max(1f, size * .018f), size * .76f);
         }
         shapes.end();
 
@@ -818,37 +805,6 @@ public final class UpMergeGame extends ApplicationAdapter {
             shapes.setColor(.78f, .96f, 1f, pulse * .58f);
             shapes.circle(centerX, centerY, cell * (.18f + progress * .34f), 32);
             shapes.end();
-        }
-    }
-
-    /** Approximate the source canvas' diagonal convex face gradient with clipped bands. */
-    private void drawCubeConvexGradient(float x, float y, float size, float radius,
-                                        float red, float green, float blue) {
-        final int strips = 12;
-        float r = Math.max(0f, Math.min(radius, size * .5f));
-        for (int i = 0; i < strips; i++) {
-            float t = (i + .5f) / strips;
-            float cr, cg, cb;
-            if (t < .48f) {
-                float p = t / .48f;
-                cr = MathUtils.lerp(Math.min(1f, red + .14f), red, p);
-                cg = MathUtils.lerp(Math.min(1f, green + .14f), green, p);
-                cb = MathUtils.lerp(Math.min(1f, blue + .14f), blue, p);
-            } else {
-                float p = (t - .48f) / .52f;
-                cr = MathUtils.lerp(red, Math.max(0f, red - .137f), p);
-                cg = MathUtils.lerp(green, Math.max(0f, green - .137f), p);
-                cb = MathUtils.lerp(blue, Math.max(0f, blue - .137f), p);
-            }
-            float stripY = y + size * i / strips;
-            float stripH = size / strips + .5f;
-            float centerY = stripY + stripH * .5f;
-            float edge = Math.min(centerY - y, y + size - centerY);
-            float inset = edge < r
-                    ? r - (float) Math.sqrt(Math.max(0f, r * r - (r - edge) * (r - edge)))
-                    : 0f;
-            shapes.setColor(cr, cg, cb, 1f);
-            shapes.rect(x + inset, stripY, size - inset * 2f, stripH);
         }
     }
 
@@ -896,27 +852,9 @@ public final class UpMergeGame extends ApplicationAdapter {
             float alpha = 1f - progress * .25f;
             float left = x - size * .5f, bottom = y - size * .5f;
             float radius = Math.max(4f, size * .16f);
-            shapes.setColor(.005f, .012f, .025f, .32f * alpha);
-            roundedRectInBatch(left + 1f, bottom - 2f, size, size, radius);
+            // Merge-flight tiles use the same flat palette as the base theme.
             setCubeFaceColor(source.value, alpha);
             roundedRectInBatch(left, bottom, size, size, radius);
-            float red = .39f, green = .85f, blue = 1f;
-            switch ((int) source.value) {
-                case 4: red=.376f; green=.898f; blue=.769f; break;
-                case 8: red=.561f; green=.890f; blue=.431f; break;
-                case 16: red=1f; green=.859f; blue=.412f; break;
-                case 32: red=1f; green=.608f; blue=.341f; break;
-                case 64: red=1f; green=.396f; blue=.490f; break;
-                case 128: red=.733f; green=.525f; blue=1f; break;
-                case 256: red=.510f; green=.573f; blue=1f; break;
-                case 512: red=1f; green=.459f; blue=.784f; break;
-                default: break;
-            }
-            drawCubeConvexGradient(left + 1f, bottom + 1f, size - 2f, radius - 1f,
-                    red, green, blue);
-            shapes.setColor(1f, 1f, 1f, .16f * alpha);
-            roundedRectInBatch(left + size * .12f, bottom + size * .82f,
-                    size * .76f, Math.max(1f, size * .035f), 2f);
         }
         shapes.end();
     }
