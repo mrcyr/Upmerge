@@ -40,11 +40,15 @@ final class MainMenuLayout {
         float logoH=Math.max(38f,Math.min(48f,w*.105f));
         float subH=Math.max(48f,Math.min(62f,w*.155f));
         float rowH=38f, actionH=40f, buttonH=48f, utilityH=42f;
-        float utilityGap=8f, bottomGap=14f;
-        float heightDp=verticalPad*2f+logoH+3f+subH+12f
-                +rowH+12f+rowH+8f+actionH
-                +(saved?8f+buttonH:0f)+8f+buttonH+8f
-                +utilityH*2f+utilityGap+bottomGap+24f;
+        float utilityGap=12f, bottomGap=18f;
+        // Give the title breathing room and separate the control groups.
+        // Extra vertical space is absorbed by verticalScale on short screens.
+        float titleToControls = 24f;
+        float groupGap = 16f;
+        float heightDp=verticalPad*2f+logoH+3f+subH+titleToControls
+                +rowH+groupGap+rowH+groupGap+actionH
+                +(saved?12f+buttonH:0f)+14f+buttonH+14f
+                +utilityH*2f+12f+bottomGap+24f;
         // Scale the complete vertical stack to the actual available viewport.
         // The previous .78 lower bound forced rows outside short screens.
         float verticalScale=Math.min(1f,Math.max(.55f,(h-2f*verticalPad)/Math.max(1f,heightDp)));
@@ -60,14 +64,14 @@ final class MainMenuLayout {
         float innerLeft=panelLeft+horizontalPad*d;
         float innerW=contentWidth;
         float top=screenH-panelBottom-panelHeight+verticalPad*v;
-        top+=logoH*v+3f*v+subH*v+12f*v;
+        top+=logoH*v+3f*v+subH*v+titleToControls*v;
         float modeGap=7f*d, modeW=(innerW-2f*modeGap)/3f;
         for(int i=0;i<3;i++)modes[i]=topRect(innerLeft+i*(modeW+modeGap),top,modeW,rowH*v);
-        top+=rowH*v+12f*v;
+        top+=rowH*v+groupGap*v;
         float dirGap=7f*d, dirW=(innerW-dirGap)*.5f;
         directions[0]=topRect(innerLeft,top,dirW,rowH*v);
         directions[1]=topRect(innerLeft+dirW+dirGap,top,dirW,rowH*v);
-        top+=rowH*v+8f*v;
+        top+=rowH*v+groupGap*v;
         menuActions[0]=topRect(innerLeft,top,dirW,actionH*v);
         menuActions[1]=topRect(innerLeft+dirW+dirGap,top,dirW,actionH*v);
         top+=actionH*v;
@@ -76,9 +80,9 @@ final class MainMenuLayout {
             continueButton=topRect(innerLeft,top,innerW,buttonH*v);
             top+=buttonH*v;
         }else continueButton=null;
-        top+=8f*v;
+        top+=14f*v;
         newGameButton=topRect(innerLeft,top,innerW,buttonH*v);
-        top+=buttonH*v+8f*v;
+        top+=buttonH*v+14f*v;
         float utilityGapPx=utilityGap*d, utilityW=(innerW-utilityGapPx)*.5f;
         for(int row=0;row<2;row++)for(int col=0;col<2;col++)
             utilities[row][col]=topRect(innerLeft+col*(utilityW+utilityGapPx),
