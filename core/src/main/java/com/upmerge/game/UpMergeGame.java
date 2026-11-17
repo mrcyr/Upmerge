@@ -1511,6 +1511,44 @@ public final class UpMergeGame extends ApplicationAdapter {
         drawMenuButton("НАЗАД", screenH * 0.25f, 0.11f, false);
     }
 
+    private void cycleUiTheme() {
+        uiTheme = UiTheme.fromIndex(uiTheme.index + 1);
+        preferences.putInteger("uiTheme", uiTheme.index);
+        preferences.flush();
+    }
+
+    private void setFontHex(int hex) {
+        font.setColor(((hex >>> 16) & 255) / 255f,
+                ((hex >>> 8) & 255) / 255f, (hex & 255) / 255f, 1f);
+    }
+
+    private void setShapeHex(int hex, float alpha) {
+        shapes.setColor(((hex >>> 16) & 255) / 255f,
+                ((hex >>> 8) & 255) / 255f, (hex & 255) / 255f, alpha);
+    }
+
+    private void drawRoundedFillHex(float x, float y, float width, float height,
+                                    float radius, int hex, float alpha) {
+        drawRoundedFill(x, y, width, height, radius,
+                ((hex >>> 16) & 255) / 255f, ((hex >>> 8) & 255) / 255f,
+                (hex & 255) / 255f, alpha);
+    }
+
+    private void drawRoundedOutlineHex(float x, float y, float width, float height,
+                                       float radius, int hex, float alpha) {
+        drawRoundedOutline(x, y, width, height, radius,
+                ((hex >>> 16) & 255) / 255f, ((hex >>> 8) & 255) / 255f,
+                (hex & 255) / 255f, alpha);
+    }
+
+    private void drawRoundedGradientHex(float x, float y, float width, float height,
+                                        float radius, int top, int bottom) {
+        drawRoundedGradient(x, y, width, height, radius,
+                ((top >>> 16) & 255) / 255f, ((top >>> 8) & 255) / 255f, (top & 255) / 255f,
+                ((bottom >>> 16) & 255) / 255f, ((bottom >>> 8) & 255) / 255f,
+                (bottom & 255) / 255f);
+    }
+
     private void drawRoundedFill(float x, float y, float width, float height, float radius,
                                  float red, float green, float blue, float alpha) {
         float r = Math.min(radius, Math.min(width, height) * 0.5f);
