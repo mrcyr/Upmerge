@@ -687,10 +687,17 @@ public final class UpMergeGame extends ApplicationAdapter {
             }
         }
         shapes.end();
-        shapes.begin(ShapeRenderer.ShapeType.Line);
-        shapes.setColor(.39f, .85f, 1f, .30f);
-        shapes.rect(boardLeft, boardBottom, cell * BoardEngine.COLUMNS, cell * BoardEngine.ROWS);
-        shapes.end();
+        float boardWidth = cell * BoardEngine.COLUMNS;
+        float boardHeight = cell * BoardEngine.ROWS;
+        drawRoundedFill(boardLeft - 4f * uiScale, boardBottom - 4f * uiScale,
+                boardWidth + 8f * uiScale, boardHeight + 8f * uiScale,
+                17f * uiScale, .008f, .022f, .045f, .98f);
+        drawRoundedOutline(boardLeft - 3f * uiScale, boardBottom - 3f * uiScale,
+                boardWidth + 6f * uiScale, boardHeight + 6f * uiScale,
+                16f * uiScale, .22f, .52f, .73f, .92f);
+        drawRoundedFill(boardLeft + 8f * uiScale, boardBottom + boardHeight - 2f * uiScale,
+                boardWidth - 16f * uiScale, 1.4f * uiScale, 1f,
+                .34f, .74f, .98f, .26f);
     }
 
     private void drawCubes() {
@@ -736,8 +743,12 @@ public final class UpMergeGame extends ApplicationAdapter {
             shapes.setColor(1f, 1f, 1f, .18f);
             roundedRectInBatch(x + size * .10f, y + size * .82f,
                     size * .80f, Math.max(2f, size * .035f), 2f);
-            shapes.setColor(.02f, .07f, .13f, .13f);
-            shapes.rect(x + size * .08f, y + size * .07f, size * .84f, Math.max(1f, size * .025f));
+            shapes.setColor(1f, 1f, 1f, .13f);
+            shapes.rect(x + size * .12f, y + size * .12f, size * .76f, Math.max(1f, size * .018f));
+            shapes.setColor(.02f, .07f, .13f, .18f);
+            shapes.rect(x + size * .08f, y + size * .07f, size * .84f, Math.max(1f, size * .03f));
+            shapes.setColor(.02f, .07f, .13f, .10f);
+            shapes.rect(x + size * .91f, y + size * .12f, Math.max(1f, size * .018f), size * .76f);
         }
         shapes.end();
 
@@ -755,9 +766,16 @@ public final class UpMergeGame extends ApplicationAdapter {
             float progress = 1f - mergeFlashTime / .42f;
             float centerX = boardLeft + (mergeFlashLane + .5f) * cell;
             float centerY = boardBottom + (BoardEngine.ROWS - .5f - mergeFlashRow) * cell;
+            float pulse = 1f - progress;
+            shapes.begin(ShapeRenderer.ShapeType.Filled);
+            shapes.setColor(.20f, .78f, 1f, .10f * pulse);
+            shapes.circle(centerX, centerY, cell * (.34f + progress * .30f), 32);
+            shapes.end();
             shapes.begin(ShapeRenderer.ShapeType.Line);
-            shapes.setColor(.45f, .90f, 1f, 1f - progress);
-            shapes.circle(centerX, centerY, cell * (.28f + progress * .48f), 32);
+            shapes.setColor(.45f, .90f, 1f, pulse);
+            shapes.circle(centerX, centerY, cell * (.28f + progress * .48f), 40);
+            shapes.setColor(.78f, .96f, 1f, pulse * .58f);
+            shapes.circle(centerX, centerY, cell * (.18f + progress * .34f), 32);
             shapes.end();
         }
     }
