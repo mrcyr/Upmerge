@@ -726,7 +726,7 @@ public final class UpMergeGame extends ApplicationAdapter {
 
     private void drawBoard() {
         shapes.begin(ShapeRenderer.ShapeType.Filled);
-        setShapeHex(uiTheme.background, 1f);
+        setShapeHex(UiTheme.mix(uiTheme.accentSecondary, uiTheme.background, .45f), 1f);
         shapes.rect(boardLeft, boardBottom, cell * BoardEngine.COLUMNS, cell * BoardEngine.ROWS);
         for (int row = 0; row < BoardEngine.ROWS; row++) {
             for (int column = 0; column < BoardEngine.COLUMNS; column++) {
