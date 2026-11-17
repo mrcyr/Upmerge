@@ -985,7 +985,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         float logoLeft = center - (upWidth + mergeWidth) * .5f;
         // Soft offset shadow keeps the wordmark legible against the navy panel.
         logoFont.setColor(.005f, .018f, .035f, .92f);
-        logoFont.draw(batch, "UP", logoLeft + 1.5f * uiScale, screenH * .855f - 2f * uiScale);
+        logoFont.draw(batch, "UP", logoLeft + 1.5f * uiScale, screenH * .755f - 2f * uiScale);
         logoFont.draw(batch, "MERGE", logoLeft + upWidth + 1.5f * uiScale,
                 screenH * .855f - 2f * uiScale);
         logoFont.setColor(.93f, .97f, 1f, 1f);
@@ -994,9 +994,9 @@ public final class UpMergeGame extends ApplicationAdapter {
         logoFont.draw(batch, "MERGE", logoLeft + upWidth, screenH * .855f);
         font.setColor(.66f, .76f, .89f, 1f);
         font.getData().setScale(uiScale * (15f / 24f));
-        drawCentered("Запускай кубики вверх.", center, screenH * .79f);
-        drawCentered("Объединяй одинаковые числа", center, screenH * .765f);
-        drawCentered("и создавай цепные реакции.", center, screenH * .74f);
+        drawCentered("Запускай кубики вверх.", center, screenH * .705f);
+        drawCentered("Объединяй одинаковые числа", center, screenH * .680f);
+        drawCentered("и создавай цепные реакции.", center, screenH * .655f);
         batch.end();
 
         MainMenuLayout.Rect[] modeCards = mainMenuLayout.modes;
@@ -1502,7 +1502,7 @@ public final class UpMergeGame extends ApplicationAdapter {
 
         float panelWidth = Math.min(390f * uiScale, screenW - 44f * uiScale);
         boolean compact = screenH / uiScale < 680f;
-        float panelHeight = Math.min(screenH - 24f * uiScale, screenH * (compact ? .97f : .89f));
+        float panelHeight = Math.min(screenH - 24f * uiScale, screenH * (compact ? .78f : .68f));
         float panelX = (screenW - panelWidth) * .5f;
         float panelY = (screenH - panelHeight) * .5f;
         float radius = 27f * uiScale;
