@@ -14,7 +14,7 @@ final class MainMenuLayout {
         boolean overlaps(Rect r){return x<r.x+r.width&&x+width>r.x&&y<r.y+r.height&&y+height>r.y;}
     }
 
-    final float screenW,screenH,density,contentWidth;
+    final float screenW,screenH,density,contentWidth,panelLeft,panelBottom,panelWidth,panelHeight;
     final Rect[] modes=new Rect[3],directions=new Rect[2],menuActions=new Rect[2];
     final Rect continueButton,newGameButton;
     final Rect[][] utilities=new Rect[2][2];
@@ -26,6 +26,10 @@ final class MainMenuLayout {
         float gap=7f*this.density;
         // Reference layout is authored against the supplied 279x527 menu mockup.
         // Ratios keep the same pixel geometry on other screen sizes.
+        panelWidth=screenW*.868f;
+        panelHeight=screenH*.666f;
+        panelLeft=(screenW-panelWidth)*.5f;
+        panelBottom=screenH*.133f;
         contentWidth=screenW*.774f;
         float cx=screenW*.5f;
         float rowH=Math.min(screenH*.048f,46f*this.density);
