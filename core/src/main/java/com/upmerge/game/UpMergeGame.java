@@ -1852,8 +1852,8 @@ public final class UpMergeGame extends ApplicationAdapter {
                 "КАРБОН", "МЕТАЛЛ", "ДЕРЕВО", "КРИСТАЛЛ", "КЕРАМИКА", "ГОЛОГРАФИК"};
         for (int i=0;i<textureNames.length;i++) {
             int col=i%2,row=i/2;
-            float bw=(width-gapX)*.5f, bh=31f*d;
-            float x=left+col*(bw+gapX), y=selectorTop-25f*d-row*(bh+5f*d);
+            float bw=(width-gapX)*.5f, bh=22f*d;
+            float x=left+col*(bw+gapX), y=selectorTop-25f*d-row*(bh+4f*d);
             boolean selected=(i==0 && "flat".equals(cubeFinish)) || (i==1 && "convex".equals(cubeFinish));
             drawMenuChoice(textureNames[i],x+bw*.5f,y-bh*.5f,bw,bh,selected);
         }
@@ -1890,11 +1890,11 @@ public final class UpMergeGame extends ApplicationAdapter {
         String[] materials={"flat","convex","stone","marble","carbon",
                 "metal","wood","crystal","ceramic","holo"};
         float selectorTop=screenH*.335f;
-        float bw=(width-gapX)*.5f,bh=31f*uiScale;
+        float bw=(width-gapX)*.5f,bh=22f*uiScale;
         for(int i=0;i<materials.length;i++){
             int col=i%2,row=i/2;
             float bx=left+col*(bw+gapX);
-            float by=selectorTop-25f*uiScale-row*(bh+5f*uiScale)-bh;
+            float by=selectorTop-25f*uiScale-row*(bh+4f*uiScale)-bh;
             if(x>=bx&&x<=bx+bw&&y>=by&&y<=by+bh){
                 cubeFinish=materials[i];
                 preferences.putString("cubeFinish",cubeFinish);
