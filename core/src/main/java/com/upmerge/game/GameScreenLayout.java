@@ -33,20 +33,19 @@ final class GameScreenLayout {
         // and .stat padding with the responsive typography from the media rules.
         float statSmall = veryCompact ? 8f : compact ? 8f : 10f;
         float statStrong = veryCompact ? 17f : compact ? 19f : 22f;
-        float statH = (veryCompact ? 6f : compact ? 6f : 9f) * 2f
-                + statSmall * 1.25f + statStrong * 1.25f
-                + (compact ? 6f : 10f);
+        float statPadding = (compact ? 6f : 9f);
+        float statContentH = statPadding * 2f
+                + statSmall * 1.25f + statStrong * 1.25f;
+        float hudBottomPadding = compact ? 6f : 10f;
         float hudTop = h - headerDp;
-        float hudBottom = hudTop - statH;
-        statHeight = statH * d;
-        statBottom = (hudBottom) * d;
-        float hudPad = (compact ? 12f : 16f) * d;
-        float statGap = (compact ? 7f : 10f) * d;
+        float hudBottom = hudTop - statContentH - hudBottomPadding;
+        statHeight = statContentH * d;
+        statBottom = (hudBottom + hudBottomPadding) * d;
 
         float pillH = (veryCompact ? 5f : compact ? 5f : 7f) * 2f
                 + (veryCompact ? 8f : compact ? 8f : 10f) * 1.2f
                 + (veryCompact ? 13f : 16f) * 1.2f;
-        float pillTop = hudBottom - (compact ? 5f : 8f);
+        float pillTop = hudBottom;
         pillHeight = pillH * d;
         pillBottom = (pillTop - pillH) * d;
 
