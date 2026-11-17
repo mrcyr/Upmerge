@@ -12,14 +12,16 @@ final class GameScreenLayout {
     GameScreenLayout(float width,float height,float density){
         screenW=Math.max(1f,width);screenH=Math.max(1f,height);this.density=Math.max(.75f,density);
         float d=this.density;
-        headerHeight=Math.max(174f*d,screenH*.145f);
-        footerHeight=Math.max(154f*d,screenH*.14f);
+        // Proportions sampled from the supplied 259x554 gameplay reference.
+        headerHeight=Math.max(155f*d,screenH*.28f);
+        footerHeight=Math.max(116f*d,screenH*.21f);
         float gap=10f*d;
-        statHeight=58f*d;statBottom=screenH-112f*d;
-        pillHeight=38f*d;pillBottom=screenH-165f*d;
-        queueHeight=46f*d;queueWidth=Math.min(112f*d,(screenW-32f*d-12f*d)*.5f);queueGap=12f*d;
-        toolbarHeight=55f*d;toolbarBottom=31f*d;
-        hintHeight=18f*d;hintBottom=7f*d;
+        statHeight=Math.min(58f*d,screenH*.071f);statBottom=screenH-120f*d;
+        pillHeight=Math.min(38f*d,screenH*.056f);pillBottom=screenH-158f*d;
+        queueHeight=Math.min(46f*d,screenH*.056f);
+        queueWidth=Math.min(112f*d,(screenW-32f*d-12f*d)*.5f);queueGap=12f*d;
+        toolbarHeight=Math.min(55f*d,screenH*.063f);toolbarBottom=screenH*.074f;
+        hintHeight=Math.min(18f*d,screenH*.036f);hintBottom=screenH*.025f;
         pauseSize=44f*d;
         float headerNeedBottom=Math.min(screenH-headerHeight,Math.min(pillBottom,statBottom));
         float footerContentTop=footerHeight-8f*d;
@@ -34,11 +36,10 @@ final class GameScreenLayout {
         boardRight=boardLeft+cell*BoardEngine.COLUMNS;
         boardBottom=boardAreaBottom+(usable-boardH)*.5f;
         boardTop=boardBottom+boardH;
+        // Queue sits immediately above the power row, matching the mockup.
         float queueBottomValue=Math.max(toolbarBottom+toolbarHeight+gap,
-                footerHeight-queueHeight-18f*d);
-        // Keep queue, tools and hint within the footer, with explicit gaps.
-        queueBottomValue=Math.min(queueBottomValue,footerHeight-queueHeight-6f*d);
-        queueBottom=queueBottomValue;
+                screenH*.148f);
+        queueBottom=Math.min(queueBottomValue,footerHeight-queueHeight-3f*d);
     }
     boolean boardContains(float x,float y){return x>=boardLeft&&x<=boardRight&&y>=boardBottom&&y<=boardTop;}
     int toolbarIndex(float x,float y){
