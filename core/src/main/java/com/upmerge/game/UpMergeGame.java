@@ -836,10 +836,10 @@ public final class UpMergeGame extends ApplicationAdapter {
         float arenaHeight = Math.max(1f, arenaTop - arenaBottom);
         beginShapes(ShapeRenderer.ShapeType.Filled);
         for (int band = 0; band < 36; band++) {
-            float t = 1f - band / 35f; // HTML canvas is top-to-bottom.
+            float t = band / 35f; // Bottom-left renderer: background to surface.
             int color = t < .55f
-                    ? UiTheme.mix(uiTheme.panel, uiTheme.background, t / .55f)
-                    : UiTheme.mix(uiTheme.surface, uiTheme.panel, (t - .55f) / .45f);
+                    ? UiTheme.mix(uiTheme.background, uiTheme.panel, t / .55f)
+                    : UiTheme.mix(uiTheme.panel, uiTheme.surface, (t - .55f) / .45f);
             setShapeHex(color, 1f);
             float y = arenaBottom + arenaHeight * band / 36f;
             shapes.rect(arenaLeft, y, arenaRight - arenaLeft, arenaHeight / 36f + 1f);
