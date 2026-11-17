@@ -30,32 +30,32 @@ final class MainMenuLayout {
         float rowH=Math.min(46f*this.density,screenH*.07f);
         float modeW=(contentWidth-2f*gap)/3f;
         // Top-down anchors are converted once to bottom-left coordinates.
-        float top=screenH*.64f;
+        float top=screenH*.36f
         for(int i=0;i<3;i++) modes[i]=topRect(cx+(i-1)*(modeW+gap),top,modeW,rowH);
         float dirW=(contentWidth-gap)*.5f;
-        top=screenH*.57f;
+        top=screenH*.43f
         for(int i=0;i<2;i++) directions[i]=topRect(cx+(i==0?-1:1)*(dirW+gap)*.5f,top,dirW,rowH);
         float half=(contentWidth-8f*this.density)*.5f;
-        top=screenH*.50f;
+        top=screenH*.50f
         float actionOffset=(half+4f*this.density)*.5f;
         menuActions[0]=topRect(cx-actionOffset,top,half,rowH);
         menuActions[1]=topRect(cx+actionOffset,top,half,rowH);
         float mainH=Math.min(52f*this.density,screenH*.085f);
         if(saved){
-            continueButton=topRect(cx,screenH*.425f,contentWidth,mainH);
-            newGameButton=topRect(cx,screenH*.345f,contentWidth,mainH);
+            continueButton=topRect(cx,screenH*.575f,contentWidth,mainH);
+            newGameButton=topRect(cx,screenH*.655f,contentWidth,mainH);
         }else{
             continueButton=null;
-            newGameButton=topRect(cx,screenH*.405f,contentWidth,mainH);
+            newGameButton=topRect(cx,screenH*.615f,contentWidth,mainH);
         }
         float utilityW=half;
-        float utilityTop0=screenH*.265f,utilityTop1=screenH*.195f;
+        float utilityTop0=screenH*.735f,utilityTop1=screenH*.795f;
         for(int row=0;row<2;row++) for(int col=0;col<2;col++){
             float yTop=row==0?utilityTop0:utilityTop1;
             utilities[row][col]=topRect(cx+(col==0?-1:1)*(utilityW+8f*this.density)*.5f,
                     yTop,utilityW,rowH);
         }
-        footer=topRect(cx,screenH*.13f,contentWidth,18f*this.density);
+        footer=topRect(cx,screenH*.80f,contentWidth,18f*this.density);
     }
 
     private Rect topRect(float cx,float top,float w,float h){
