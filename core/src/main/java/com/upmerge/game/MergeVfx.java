@@ -51,7 +51,7 @@ final class MergeVfx {
 
     void update(float delta) {
         if (!active) return;
-        float dt = Math.max(0f, Math.min(.05f, delta));
+        float dt = Math.max(0f, delta);
         elapsed += dt;
         for (int i = 0; i < count; i++) {
             previousX[i] = x[i];
