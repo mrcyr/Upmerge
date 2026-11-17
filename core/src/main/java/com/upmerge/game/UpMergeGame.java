@@ -387,7 +387,8 @@ public final class UpMergeGame extends ApplicationAdapter {
                 else if (tasksVisible) tasksVisible = false;
                 else if (modeSelectionVisible) modeSelectionVisible = false;
             } else if (paused) {
-                paused = false;
+                if (settingsVisible) settingsVisible = false;
+                else paused = false;
             } else if (!gameOver && !emergencyDialog && !splitSelecting) {
                 paused = true;
                 saveGame();
