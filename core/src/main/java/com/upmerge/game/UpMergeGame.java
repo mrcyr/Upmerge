@@ -1109,9 +1109,9 @@ public final class UpMergeGame extends ApplicationAdapter {
 
         MainMenuLayout.Rect[] actionCards = mainMenuLayout.menuActions;
         drawMenuChoice("ТЕМЫ", actionCards[0].centerX(), actionCards[0].centerY(),
-                actionCards[0].width, actionCards[0].height, false, 1);
+                actionCards[0].width, actionCards[0].height, false);
         drawMenuChoice("ЕЖЕДНЕВНО", actionCards[1].centerX(), actionCards[1].centerY(),
-                actionCards[1].width, actionCards[1].height, false, 2);
+                actionCards[1].width, actionCards[1].height, false);
 
         if (hasSavedGame) {
             drawMenuButton("ПРОДОЛЖИТЬ ИГРУ", mainMenuLayout.continueButton, false);
@@ -1125,13 +1125,13 @@ public final class UpMergeGame extends ApplicationAdapter {
         // statistics/tasks second row.
         drawMenuChoice("МАГАЗИН · " + NumberFormatter.compact(economy.coins()),
                 utilityCards[0][0].centerX(), utilityCards[0][0].centerY(),
-                utilityCards[0][0].width, utilityCards[0][0].height, false, 5);
+                utilityCards[0][0].width, utilityCards[0][0].height, false);
         drawMenuChoice("ДОСТИЖЕНИЯ", utilityCards[0][1].centerX(), utilityCards[0][1].centerY(),
-                utilityCards[0][1].width, utilityCards[0][1].height, false, 6);
+                utilityCards[0][1].width, utilityCards[0][1].height, false);
         drawMenuChoice("СТАТИСТИКА", utilityCards[1][0].centerX(), utilityCards[1][0].centerY(),
-                utilityCards[1][0].width, utilityCards[1][0].height, false, 3);
+                utilityCards[1][0].width, utilityCards[1][0].height, false);
         drawMenuChoice("ЗАДАНИЯ", utilityCards[1][1].centerX(), utilityCards[1][1].centerY(),
-                utilityCards[1][1].width, utilityCards[1][1].height, false, 4);
+                utilityCards[1][1].width, utilityCards[1][1].height, false);
 
         batch.begin();
         font.setColor(.58f, .69f, .82f, 1f);
