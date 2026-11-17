@@ -1035,7 +1035,7 @@ public final class UpMergeGame extends ApplicationAdapter {
 
         String[] labels = {"СЧЁТ", "РЕКОРД", "КОМБО"};
         String[] values = {NumberFormatter.compact(engine.score()),
-                NumberFormatter.compact(bestScore), "×" + combo};
+                NumberFormatter.compact(bestScore), "×" + runMaxCombo};
         for (int i = 0; i < 3; i++) {
             float x = pad + i * (statW + gap);
             font.setColor(.62f, .76f, .89f, 1f);
