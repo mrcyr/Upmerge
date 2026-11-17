@@ -34,10 +34,11 @@ final class GameScreenLayout {
         boardRight=boardLeft+cell*BoardEngine.COLUMNS;
         boardBottom=boardAreaBottom+(usable-boardH)*.5f;
         boardTop=boardBottom+boardH;
-        queueBottom=Math.max(toolbarBottom+toolbarHeight+gap,
+        float queueBottomValue=Math.max(toolbarBottom+toolbarHeight+gap,
                 footerHeight-queueHeight-18f*d);
         // Keep queue, tools and hint within the footer, with explicit gaps.
-        if(queueBottom+queueHeight>footerHeight-6f*d) queueBottom=footerHeight-queueHeight-6f*d;
+        queueBottomValue=Math.min(queueBottomValue,footerHeight-queueHeight-6f*d);
+        queueBottom=queueBottomValue;
     }
     boolean boardContains(float x,float y){return x>=boardLeft&&x<=boardRight&&y>=boardBottom&&y<=boardTop;}
     int toolbarIndex(float x,float y){
