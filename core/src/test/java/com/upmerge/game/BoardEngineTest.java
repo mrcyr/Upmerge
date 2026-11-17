@@ -575,10 +575,11 @@ public class BoardEngineTest {
     @Test public void directLaunchesStackInConsecutiveCellsWithoutFreePhysics() {
         BoardEngine engine = new BoardEngine();
         for (int expectedRow = 0; expectedRow < BoardEngine.ROWS; expectedRow++) {
+            final int targetRow = expectedRow;
             assertTrue(engine.launch(2, 2L << (expectedRow % 3)));
             settle(engine);
             BoardEngine.Cube landed = engine.cubes().stream()
-                    .filter(c -> c.lane == 2 && c.row == expectedRow)
+                    .filter(c -> c.lane == 2 && c.row == targetRow)
                     .findFirst().orElse(null);
             assertNotNull("Each launch must land in the next cell of its lane", landed);
             assertFalse("A settled cube must no longer be moving", landed.moving);
