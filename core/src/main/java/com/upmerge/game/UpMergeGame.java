@@ -669,24 +669,24 @@ public final class UpMergeGame extends ApplicationAdapter {
         whitePixel = new Texture(pixel);
         pixel.dispose();
         String vertex =
-                "attribute vec4 a_position;\\n" +
-                "attribute vec4 a_color;\\n" +
-                "attribute vec2 a_texCoord0;\\n" +
-                "uniform mat4 u_projTrans;\\n" +
-                "varying vec2 v_uv;\\n" +
+                "attribute vec4 a_position;\n" +
+                "attribute vec4 a_color;\n" +
+                "attribute vec2 a_texCoord0;\n" +
+                "uniform mat4 u_projTrans;\n" +
+                "varying vec2 v_uv;\n" +
                 "void main(){ v_uv=a_texCoord0; gl_Position=u_projTrans*a_position; }";
         String fragment =
-                "#ifdef GL_ES\\nprecision mediump float;\\n#endif\\n" +
-                "varying vec2 v_uv;\\n" +
-                "uniform vec3 u_surface; uniform vec3 u_panel; uniform vec3 u_background;\\n" +
-                "void main(){\\n" +
-                " vec2 p=(v_uv-vec2(0.5,0.75))/vec2(0.85,0.85);\\n" +
-                " float r=length(p);\\n" +
-                " float a=clamp(r/0.48,0.0,1.0);\\n" +
-                " float b=clamp((r-0.48)/0.52,0.0,1.0);\\n" +
-                " vec3 c=mix(u_surface,u_panel,a);\\n" +
-                " c=mix(c,u_background,b);\\n" +
-                " gl_FragColor=vec4(c,1.0);\\n" +
+                "#ifdef GL_ES\nprecision mediump float;\n#endif\n" +
+                "varying vec2 v_uv;\n" +
+                "uniform vec3 u_surface; uniform vec3 u_panel; uniform vec3 u_background;\n" +
+                "void main(){\n" +
+                " vec2 p=(v_uv-vec2(0.5,0.75))/vec2(0.85,0.85);\n" +
+                " float r=length(p);\n" +
+                " float a=clamp(r/0.48,0.0,1.0);\n" +
+                " float b=clamp((r-0.48)/0.52,0.0,1.0);\n" +
+                " vec3 c=mix(u_surface,u_panel,a);\n" +
+                " c=mix(c,u_background,b);\n" +
+                " gl_FragColor=vec4(c,1.0);\n" +
                 "}";
         ShaderProgram.pedantic = false;
         radialBackdropShader = new ShaderProgram(vertex, fragment);
