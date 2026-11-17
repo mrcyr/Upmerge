@@ -2085,5 +2085,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         batch.dispose();
         font.dispose();
         if (logoFont != null) logoFont.dispose();
+        if (radialBackdropShader != null) radialBackdropShader.dispose();
+        if (whitePixel != null) whitePixel.dispose();
     }
 }
