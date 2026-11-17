@@ -943,6 +943,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         float queueY = gameLayout.queueBottom;
         float queueCurrentW = gameLayout.queueCurrentWidth;
         float queueNextW = gameLayout.queueNextWidth, queueGap = gameLayout.queueGap;
+        float queueH = gameLayout.queueHeight;
         float previewW = Math.min(34f * uiScale,
                 Math.min(gameLayout.queueHeight - 6f * uiScale, queueCurrentW * .37f));
         float nextW = Math.min(32f * uiScale,
