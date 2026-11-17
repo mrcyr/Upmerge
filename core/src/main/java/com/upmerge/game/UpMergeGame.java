@@ -1009,7 +1009,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         drawMenuBackdrop();
         float center = screenW * .5f;
         batch.begin();
-        float logoScale = uiScale * (42f / 24f);
+        float logoScale = uiScale * (30f / 24f);
         logoFont.getData().setScale(logoScale);
         textLayout.setText(logoFont, "UP");
         float upWidth = textLayout.width;
@@ -1018,13 +1018,13 @@ public final class UpMergeGame extends ApplicationAdapter {
         float logoLeft = center - (upWidth + mergeWidth) * .5f;
         // Soft offset shadow keeps the wordmark legible against the navy panel.
         logoFont.setColor(.005f, .018f, .035f, .92f);
-        logoFont.draw(batch, "UP", logoLeft + 1.5f * uiScale, screenH * .755f - 2f * uiScale);
+        logoFont.draw(batch, "UP", logoLeft + 1.5f * uiScale, screenH * .745f - 2f * uiScale);
         logoFont.draw(batch, "MERGE", logoLeft + upWidth + 1.5f * uiScale,
-                screenH * .855f - 2f * uiScale);
+                screenH * .745f - 2f * uiScale);
         logoFont.setColor(.93f, .97f, 1f, 1f);
-        logoFont.draw(batch, "UP", logoLeft, screenH * .855f);
+        logoFont.draw(batch, "UP", logoLeft, screenH * .745f);
         logoFont.setColor(.20f, .82f, 1f, 1f);
-        logoFont.draw(batch, "MERGE", logoLeft + upWidth, screenH * .855f);
+        logoFont.draw(batch, "MERGE", logoLeft + upWidth, screenH * .745f);
         font.setColor(.66f, .76f, .89f, 1f);
         font.getData().setScale(uiScale * (15f / 24f));
         drawCentered("Запускай кубики вверх.", center, screenH * .705f);
@@ -1533,9 +1533,9 @@ public final class UpMergeGame extends ApplicationAdapter {
         shapes.circle(screenW * .5f, screenH * .84f, Math.min(screenW, screenH) * .42f, 48);
         shapes.end();
 
-        float panelWidth = Math.min(390f * uiScale, screenW - 44f * uiScale);
+        float panelWidth = screenW * .868f;
         boolean compact = screenH / uiScale < 680f;
-        float panelHeight = Math.min(screenH - 24f * uiScale, screenH * .78f);
+        float panelHeight = screenH * .666f;
         float panelX = (screenW - panelWidth) * .5f;
         float panelY = (screenH - panelHeight) * .5f;
         float radius = 27f * uiScale;
