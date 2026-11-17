@@ -1,99 +1,76 @@
 package com.upmerge.game;
 
-/** Shared responsive geometry for the main menu. Coordinates use libGDX's
- * bottom-left origin so rendering and touch hit-testing use identical bounds. */
+/** Single source of truth for menu geometry. All rectangles use libGDX bottom-left coordinates. */
 final class MainMenuLayout {
     enum Target { MODE_CLASSIC, MODE_TIMED, MODE_CHALLENGE, DIRECTION_UP, DIRECTION_DOWN,
         THEMES, DAILY, CONTINUE, NEW_GAME, SHOP, ACHIEVEMENTS, STATISTICS, TASKS, NONE }
 
     static final class Rect {
         final float x, y, width, height;
-        Rect(float x, float y, float width, float height) {
-            this.x = x; this.y = y; this.width = width; this.height = height;
-        }
-        float centerX() { return x + width * .5f; }
-        float centerY() { return y + height * .5f; }
-        boolean contains(float px, float py) {
-            return px >= x && px <= x + width && py >= y && py <= y + height;
-        }
-        boolean overlaps(Rect other) {
-            return x < other.x + other.width && x + width > other.x
-                    && y < other.y + other.height && y + height > other.y;
-        }
+        Rect(float x,float y,float width,float height){this.x=x;this.y=y;this.width=width;this.height=height;}
+        float centerX(){return x+width*.5f;}
+        float centerY(){return y+height*.5f;}
+        boolean contains(float px,float py){return px>=x&&px<=x+width&&py>=y&&py<=y+height;}
+        boolean overlaps(Rect r){return x<r.x+r.width&&x+width>r.x&&y<r.y+r.height&&y+height>r.y;}
     }
 
-    final float screenW, screenH, density, contentWidth;
-    final Rect[] modes = new Rect[3];
-    final Rect[] directions = new Rect[2];
-    final Rect[] menuActions = new Rect[2];
-    final Rect continueButton, newGameButton;
-    final Rect[][] utilities = new Rect[2][2];
+    final float screenW,screenH,density,contentWidth;
+    final Rect[] modes=new Rect[3],directions=new Rect[2],menuActions=new Rect[2];
+    final Rect continueButton,newGameButton;
+    final Rect[][] utilities=new Rect[2][2];
+    final Rect footer;
 
-    MainMenuLayout(float width, float height, boolean hasSavedGame) {
-        this(width, height, hasSavedGame, 1f);
+    MainMenuLayout(float width,float height,boolean saved){this(width,height,saved,1f);}
+    MainMenuLayout(float width,float height,boolean saved,float density){
+        screenW=Math.max(1f,width);screenH=Math.max(1f,height);this.density=Math.max(.75f,density);
+        float margin=16f*this.density;
+        float panelW=Math.min(390f*this.density,screenW-2f*margin);
+        contentWidth=Math.max(100f*this.density,panelW-32f*this.density);
+        float cx=screenW*.5f, gap=7f*this.density;
+        float rowH=40f*this.density;
+        float modeW=(contentWidth-2f*gap)/3f;
+        // Top-down anchors are converted once to bottom-left coordinates.
+        float top=screenH*.285f;
+        for(int i=0;i<3;i++) modes[i]=topRect(cx+(i-1)*(modeW+gap),top,modeW,rowH);
+        float dirW=(contentWidth-gap)*.5f;
+        top=screenH*.395f;
+        for(int i=0;i<2;i++) directions[i]=topRect(cx+(i==0?-1:1)*(dirW+gap)*.5f,top,dirW,rowH);
+        float half=(contentWidth-8f*this.density)*.5f;
+        top=screenH*.485f;
+        menuActions[0]=topRect(cx-(half+4f*this.density),top,half,rowH);
+        menuActions[1]=topRect(cx+(half+4f*this.density),top,half,rowH);
+        float mainH=48f*this.density;
+        if(saved){
+            continueButton=topRect(cx,screenH*.575f,contentWidth,mainH);
+            newGameButton=topRect(cx,screenH*.655f,contentWidth,mainH);
+        }else{
+            continueButton=null;
+            newGameButton=topRect(cx,screenH*.615f,contentWidth,mainH);
+        }
+        float utilityW=half;
+        float utilityTop0=screenH*.755f,utilityTop1=screenH*.835f;
+        for(int row=0;row<2;row++) for(int col=0;col<2;col++){
+            float yTop=row==0?utilityTop0:utilityTop1;
+            utilities[row][col]=topRect(cx+(col==0?-1:1)*(utilityW+8f*this.density)*.5f,
+                    yTop,utilityW,rowH);
+        }
+        footer=topRect(cx,screenH*.925f,contentWidth,22f*this.density);
     }
 
-    MainMenuLayout(float width, float height, boolean hasSavedGame, float density) {
-        screenW = Math.max(1f, width);
-        screenH = Math.max(1f, height);
-        this.density = Math.max(.75f, density);
-        float panelWidth = Math.min(390f * this.density, screenW - 44f * this.density);
-        contentWidth = Math.max(120f * this.density, panelWidth - 44f * this.density);
-        float center = screenW * .5f;
-        float modeGap = 7f * this.density;
-        float modeW = (contentWidth - modeGap * 2f) / 3f;
-        float modeH = 40f * this.density;
-        float modeY = screenH * .615f - modeH * .5f;
-        for (int i = 0; i < 3; i++) {
-            float cx = center + (i - 1) * (modeW + modeGap);
-            modes[i] = new Rect(cx - modeW * .5f, modeY, modeW, modeH);
-        }
-        boolean compact = screenH / this.density < 680f;
-        float dirGap = 7f * this.density;
-        float dirW = (contentWidth - dirGap) * .5f, dirH = 40f * this.density;
-        for (int i = 0; i < 2; i++) {
-            float cx = center + (i == 0 ? -1f : 1f) * (dirW + dirGap) * .5f;
-            directions[i] = new Rect(cx - dirW * .5f,
-                    screenH * (compact ? .54f : .545f) - dirH * .5f, dirW, dirH);
-        }
-        float actionGap = 8f * this.density;
-        float actionW = (contentWidth - actionGap) * .5f, actionH = 40f * this.density;
-        float actionsY = screenH * (compact ? .465f : .48f);
-        menuActions[0] = centered(center - (actionW + actionGap) * .5f,
-                actionsY, actionW, actionH);
-        menuActions[1] = centered(center + (actionW + actionGap) * .5f,
-                actionsY, actionW, actionH);
-        continueButton = hasSavedGame
-                ? centered(center, screenH * (compact ? .385f : .415f), contentWidth, 48f * this.density) : null;
-        newGameButton = centered(center, screenH * (hasSavedGame ? (compact ? .30f : .345f) : (compact ? .385f : .415f)),
-                contentWidth, 48f * this.density);
-        float utilityGap = 8f * this.density;
-        float utilityW = (contentWidth - utilityGap) * .5f, utilityH = 40f * this.density;
-        float[] ys = compact ? new float[]{screenH * .22f, screenH * .145f}
-                : new float[]{screenH * .275f, screenH * .205f};
-        for (int row = 0; row < 2; row++) for (int col = 0; col < 2; col++) {
-            float cx = center + (col == 0 ? -1f : 1f) * (utilityW + utilityGap) * .5f;
-            utilities[row][col] = centered(cx, ys[row], utilityW, utilityH);
-        }
+    private Rect topRect(float cx,float top,float w,float h){
+        return new Rect(cx-w*.5f,screenH-top-h,w,h);
     }
 
-    private static Rect centered(float cx, float cy, float width, float height) {
-        return new Rect(cx - width * .5f, cy - height * .5f, width, height);
-    }
-
-    Target hit(float x, float y) {
-        for (int i = 0; i < modes.length; i++) if (modes[i].contains(x, y))
-            return Target.values()[i];
-        for (int i = 0; i < directions.length; i++) if (directions[i].contains(x, y))
-            return i == 0 ? Target.DIRECTION_UP : Target.DIRECTION_DOWN;
-        for (int i = 0; i < menuActions.length; i++) if (menuActions[i].contains(x, y)) return i == 0 ? Target.THEMES : Target.DAILY;
-        if (continueButton != null && continueButton.contains(x, y)) return Target.CONTINUE;
-        if (newGameButton.contains(x, y)) return Target.NEW_GAME;
-        for (int row = 0; row < 2; row++) for (int col = 0; col < 2; col++)
-            if (utilities[row][col].contains(x, y)) {
-                if (row == 0) return col == 0 ? Target.SHOP : Target.ACHIEVEMENTS;
-                return col == 0 ? Target.STATISTICS : Target.TASKS;
-            }
+    Target hit(float x,float y){
+        for(int i=0;i<3;i++)if(modes[i].contains(x,y))return Target.values()[i];
+        for(int i=0;i<2;i++)if(directions[i].contains(x,y))return i==0?Target.DIRECTION_UP:Target.DIRECTION_DOWN;
+        for(int i=0;i<2;i++)if(menuActions[i].contains(x,y))return i==0?Target.THEMES:Target.DAILY;
+        if(continueButton!=null&&continueButton.contains(x,y))return Target.CONTINUE;
+        if(newGameButton.contains(x,y))return Target.NEW_GAME;
+        for(int row=0;row<2;row++)for(int col=0;col<2;col++)if(utilities[row][col].contains(x,y)){
+            if(row==0)return col==0?Target.SHOP:Target.ACHIEVEMENTS;
+            return col==0?Target.STATISTICS:Target.TASKS;
+        }
         return Target.NONE;
     }
 }
