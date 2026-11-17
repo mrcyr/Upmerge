@@ -1535,7 +1535,7 @@ public final class UpMergeGame extends ApplicationAdapter {
 
         float panelWidth = Math.min(390f * uiScale, screenW - 44f * uiScale);
         boolean compact = screenH / uiScale < 680f;
-        float panelHeight = Math.min(screenH - 24f * uiScale, screenH * .68f);
+        float panelHeight = Math.min(screenH - 24f * uiScale, screenH * .78f);
         float panelX = (screenW - panelWidth) * .5f;
         float panelY = (screenH - panelHeight) * .5f;
         float radius = 27f * uiScale;
