@@ -23,7 +23,7 @@ public class GameScreenLayoutTest {
             GameScreenLayout l=new GameScreenLayout(d[0],d[1],d[2]);
             assertTrue(l.statBottom>=l.pillBottom+l.pillHeight);
             assertTrue(l.statBottom+l.statHeight<=l.screenH);
-            assertTrue(l.pillBottom+l.pillHeight<=l.screenH-l.headerHeight+l.headerHeight);
+            assertTrue(l.pillBottom>=l.screenH-l.headerHeight);
             assertTrue(l.pillBottom>l.boardTop);
             assertTrue(l.boardTop<=l.screenH-l.headerHeight);
             assertTrue(l.statBottom+l.statHeight<=l.screenH);
