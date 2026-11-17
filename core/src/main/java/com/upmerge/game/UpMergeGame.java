@@ -707,11 +707,13 @@ public final class UpMergeGame extends ApplicationAdapter {
                     gameLayout.toolbarHeight - 2f, 11f * uiScale,
                     selected ? uiTheme.accent : uiTheme.accentSecondary, selected ? .90f : .40f);
         }
+        float[] queueWidths = {queueCurrentW, queueNextW};
+        float[] queueXs = {queueLeft, queueLeft + queueCurrentW + queueGap};
         for (int i = 0; i < 2; i++) {
-            float x = queueLeft + i * (queueW + queueGap);
-            drawRoundedGradientHex(x + 1f, queueY + 1f, queueW - 2f, queueH - 2f,
+            float x = queueXs[i], width = queueWidths[i];
+            drawRoundedGradientHex(x + 1f, queueY + 1f, width - 2f, queueH - 2f,
                     10f * uiScale, UiTheme.mix(uiTheme.surface, 0xffffff, .04f), uiTheme.panel);
-            drawRoundedOutlineHex(x + 1f, queueY + 1f, queueW - 2f, queueH - 2f,
+            drawRoundedOutlineHex(x + 1f, queueY + 1f, width - 2f, queueH - 2f,
                     10f * uiScale, uiTheme.accentSecondary, .55f);
         }
 
