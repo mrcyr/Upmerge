@@ -117,6 +117,10 @@ public class MainMenuLayoutTest {
     @Test public void menuAnchorsMatchTheSuppliedReferenceProportions() {
         MainMenuLayout layout = new MainMenuLayout(279f, 527f, true);
         assertEquals(279f * .774f, layout.contentWidth, .01f);
+        assertEquals(279f * .868f, layout.panelWidth, .01f);
+        assertEquals(527f * .666f, layout.panelHeight, .01f);
+        assertEquals(18.414f, layout.panelLeft, .01f);
+        assertEquals(70.091f, layout.panelBottom, .02f);
         assertEquals(527f * .357f, 527f - layout.modes[0].y - layout.modes[0].height, .01f);
         assertEquals(527f * .418f, 527f - layout.directions[0].y - layout.directions[0].height, .01f);
         assertEquals(527f * .478f, 527f - layout.menuActions[0].y - layout.menuActions[0].height, .01f);
