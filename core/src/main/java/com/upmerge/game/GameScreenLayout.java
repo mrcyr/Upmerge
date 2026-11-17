@@ -6,7 +6,7 @@ final class GameScreenLayout {
     final float headerHeight,footerHeight,cell;
     final float boardLeft,boardBottom,boardTop,boardRight;
     final float statBottom,statHeight,pillBottom,pillHeight;
-    final float queueBottom,queueHeight,queueWidth,queueGap;
+    final float queueBottom,queueHeight,queueLeft,queueCurrentWidth,queueNextWidth,queueGap;
     final float toolbarBottom,toolbarHeight,hintBottom,hintHeight,pauseSize;
 
     GameScreenLayout(float width,float height,float density){
@@ -19,7 +19,8 @@ final class GameScreenLayout {
         statHeight=Math.min(58f*d,screenH*.071f);statBottom=screenH-120f*d;
         pillHeight=Math.min(38f*d,screenH*.056f);pillBottom=screenH-158f*d;
         queueHeight=Math.min(46f*d,screenH*.056f);
-        queueWidth=Math.min(112f*d,(screenW-32f*d-12f*d)*.5f);queueGap=12f*d;
+        queueCurrentWidth=screenW*.263f;queueNextWidth=screenW*.317f;queueGap=screenW*.027f;
+        queueLeft=screenW*.525f-(queueCurrentWidth+queueGap+queueNextWidth)*.5f;
         toolbarHeight=Math.min(55f*d,screenH*.063f);toolbarBottom=screenH*.074f;
         hintHeight=Math.min(18f*d,screenH*.036f);hintBottom=screenH*.025f;
         pauseSize=44f*d;
