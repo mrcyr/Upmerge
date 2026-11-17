@@ -66,6 +66,7 @@ public class GameScreenLayoutTest {
         assertEquals(13.85f, l.hintBottom, .02f);
         assertEquals(18f, l.hintHeight, .02f);
         assertEquals(38.65f, l.cell, .05f);
+        assertEquals(38.79f, l.boardLeft, .05f);
     }
 
     @Test public void pauseTargetIsInsideTopRightHeaderOnly(){
