@@ -7,8 +7,9 @@ import java.util.Random;
  * Pure timing/particle state is separated from rendering so it can be tested.
  */
 final class MergeVfx {
-    private static final int MAX_PARTICLES = 40;
-    private static final float DURATION = .68f;
+    private static final int MAX_PARTICLES = 96;
+    private static final float DURATION = .90f;
+    private static final float RING_DURATION = .82f;
     private final float[] x = new float[MAX_PARTICLES];
     private final float[] y = new float[MAX_PARTICLES];
     private final float[] previousX = new float[MAX_PARTICLES];
@@ -25,27 +26,31 @@ final class MergeVfx {
     private boolean active;
 
     void start(float cx, float cy, float cell, long value, int mergedCount) {
+        start(cx, cy, cell, value, mergedCount, CubePalette.rgb(value));
+    }
+
+    void start(float cx, float cy, float cell, long value, int mergedCount, int rgb) {
         centerX = cx;
         centerY = cy;
         cellSize = Math.max(1f, cell);
-        int rgb = CubePalette.rgb(value);
         red = ((rgb >>> 16) & 255) / 255f;
         green = ((rgb >>> 8) & 255) / 255f;
         blue = (rgb & 255) / 255f;
-        count = Math.min(MAX_PARTICLES, 24 + Math.max(0, mergedCount - 2) * 4);
+        count = Math.min(MAX_PARTICLES, 62 + Math.max(0, mergedCount - 2) * 10);
         elapsed = 0f;
         active = true;
         Random random = new Random(value * 31L + mergedCount * 997L);
         for (int i = 0; i < count; i++) {
             double angle = Math.PI * 2d * i / count + (random.nextFloat() - .5f) * .20f;
-            float speed = cellSize * (.85f + random.nextFloat() * 1.35f);
+            float scale = cellSize / 39f;
+            float speed = (50f + random.nextFloat() * 210f) * scale;
             x[i] = previousX[i] = cx;
             y[i] = previousY[i] = cy;
             vx[i] = (float) Math.cos(angle) * speed;
             vy[i] = (float) Math.sin(angle) * speed;
-            sizes[i] = cellSize * (.025f + random.nextFloat() * .045f);
+            sizes[i] = (2f + random.nextFloat() * 4f) * scale;
             ages[i] = 0f;
-            lifetimes[i] = .34f + random.nextFloat() * .30f;
+            lifetimes[i] = .55f + random.nextFloat() * .35f;
         }
     }
 
@@ -59,15 +64,16 @@ final class MergeVfx {
             ages[i] += dt;
             x[i] += vx[i] * dt;
             y[i] += vy[i] * dt;
-            vx[i] *= (float) Math.pow(.12f, dt);
-            vy[i] *= (float) Math.pow(.12f, dt);
-            vy[i] -= cellSize * 1.8f * dt;
+            float drag = (float) Math.pow(.98f, dt * 60f);
+            vx[i] *= drag;
+            vy[i] *= drag;
+            vy[i] -= 260f * (cellSize / 39f) * dt;
         }
         if (elapsed >= DURATION) active = false;
     }
 
     boolean isActive() { return active; }
-    float progress() { return Math.min(1f, elapsed / DURATION); }
+    float progress() { return Math.min(1f, elapsed / RING_DURATION); }
     float centerX() { return centerX; }
     float centerY() { return centerY; }
     float cellSize() { return cellSize; }
