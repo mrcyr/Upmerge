@@ -147,12 +147,12 @@ public final class UpMergeGame extends ApplicationAdapter {
     }
 
     /**
-     * Android's bundled Roboto has full Cyrillic coverage. Generate one atlas
-     * at startup so every native dialog and HUD label can render Russian text.
+     * Load the bundled Archangelsk display face first. Android system fonts
+     * remain a fallback so a missing/corrupt asset never prevents startup.
      */
     private BitmapFont createCyrillicFont() {
-        // Prefer the clean, compact Noto Sans family for UI copy.
-        // Keep Android font fallbacks for devices with different system images.
+        BitmapFont bundled = generateBundledFont(24, false);
+        if (bundled != null) return bundled;
         String[] candidates = {
                 "/system/fonts/NotoSans-Regular.ttf",
                 "/system/fonts/Roboto-Regular.ttf",
@@ -185,6 +185,8 @@ public final class UpMergeGame extends ApplicationAdapter {
     }
 
     private BitmapFont createLogoFont() {
+        BitmapFont bundled = generateBundledFont(24, true);
+        if (bundled != null) return bundled;
         String[] candidates = {
                 "/system/fonts/RobotoCondensed-Bold.ttf",
                 "/system/fonts/NotoSans-Bold.ttf",
@@ -214,6 +216,32 @@ public final class UpMergeGame extends ApplicationAdapter {
             }
         }
         return createCyrillicFont();
+    }
+
+    private BitmapFont generateBundledFont(int size, boolean fauxBold) {
+        FreeTypeFontGenerator generator = null;
+        try {
+            generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Archangelsk.ttf"));
+            FreeTypeFontGenerator.FreeTypeFontParameter parameter =
+                    new FreeTypeFontGenerator.FreeTypeFontParameter();
+            parameter.size = size;
+            parameter.characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+                    + "0123456789АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"
+                    + "абвгдеёжзийклмнопрстуфхцчшщъыьэюя .,!?-—:;()[]+/%№";
+            parameter.incremental = false;
+            parameter.magFilter = Texture.TextureFilter.Linear;
+            parameter.minFilter = Texture.TextureFilter.Linear;
+            BitmapFont generated = generator.generateFont(parameter);
+            generated.setColor(0.94f, 0.97f, 1f, 1f);
+            // The supplied Archangelsk file has Regular style only. A subtle
+            // second pass in drawMenuHeading supplies weight for headings.
+            return generated;
+        } catch (Exception error) {
+            Gdx.app.error("UpMergeFont", "Bundled Archangelsk font unavailable; using system fallback", error);
+            return null;
+        } finally {
+            if (generator != null) generator.dispose();
+        }
     }
 
     @Override public void resize(int width, int height) {
