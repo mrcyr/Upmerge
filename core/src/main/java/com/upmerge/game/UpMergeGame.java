@@ -278,7 +278,9 @@ public final class UpMergeGame extends ApplicationAdapter {
         if (!menuVisible && !paused) checkBoardCapacity();
         handleInput();
 
-        ScreenUtils.clear(0.035f, 0.055f, 0.090f, 1f);
+        ScreenUtils.clear(((uiTheme.background >>> 16) & 255) / 255f,
+                ((uiTheme.background >>> 8) & 255) / 255f,
+                (uiTheme.background & 255) / 255f, 1f);
         drawPanels();
         drawBoard();
         drawCubes();
@@ -738,13 +740,13 @@ public final class UpMergeGame extends ApplicationAdapter {
         shapes.end();
         float boardWidth = cell * BoardEngine.COLUMNS;
         float boardHeight = cell * BoardEngine.ROWS;
-        drawRoundedFill(boardLeft - 4f * uiScale, boardBottom - 4f * uiScale,
+        drawRoundedFillHex(boardLeft - 4f * uiScale, boardBottom - 4f * uiScale,
                 boardWidth + 8f * uiScale, boardHeight + 8f * uiScale,
                 17f * uiScale, uiTheme.background, .98f);
-        drawRoundedOutline(boardLeft - 3f * uiScale, boardBottom - 3f * uiScale,
+        drawRoundedOutlineHex(boardLeft - 3f * uiScale, boardBottom - 3f * uiScale,
                 boardWidth + 6f * uiScale, boardHeight + 6f * uiScale,
                 16f * uiScale, uiTheme.accent, .92f);
-        drawRoundedFill(boardLeft + 8f * uiScale, boardBottom + boardHeight - 2f * uiScale,
+        drawRoundedFillHex(boardLeft + 8f * uiScale, boardBottom + boardHeight - 2f * uiScale,
                 boardWidth - 16f * uiScale, 1.4f * uiScale, 1f,
                 uiTheme.accent, .26f);
     }
@@ -1025,13 +1027,12 @@ public final class UpMergeGame extends ApplicationAdapter {
                 screenH * .745f - 2f * uiScale);
         logoFont.setColor(.93f, .97f, 1f, 1f);
         logoFont.draw(batch, "UP", logoLeft, screenH * .745f);
-        setFontHex(uiTheme.accent);
+        setLogoFontHex(uiTheme.accent);
         logoFont.draw(batch, "MERGE", logoLeft + upWidth, screenH * .745f);
         font.setColor(.66f, .76f, .89f, 1f);
         font.getData().setScale(uiScale * (15f / 24f));
-        drawCentered("Запускай кубики вверх.", center, screenH * .705f);
-        drawCentered("Объединяй одинаковые числа", center, screenH * .680f);
-        drawCentered("и создавай цепные реакции.", center, screenH * .655f);
+        drawCentered("Запускай кубики вверх. Объединяй одинаковые", center, screenH * .700f);
+        drawCentered("числа и создавай цепные реакции.", center, screenH * .675f);
         batch.end();
 
         MainMenuLayout.Rect[] modeCards = mainMenuLayout.modes;
@@ -1670,8 +1671,8 @@ public final class UpMergeGame extends ApplicationAdapter {
         float left = (screenW - width) * .5f;
         float bottom = centerY - height * .5f;
         float radius = Math.min(17f * uiScale, height * .34f);
-        drawRoundedFill(left, bottom - 4f * uiScale, width, height + 5f * uiScale,
-                radius, .002f, .012f, .030f, .88f);
+        drawRoundedFillHex(left, bottom - 4f * uiScale, width, height + 5f * uiScale,
+                radius, uiTheme.background, .88f);
         if (highlighted) {
             drawRoundedGradientHex(left, bottom, width, height, radius,
                     0x69e2ff, 0x6ea8ff);
