@@ -633,8 +633,8 @@ public final class UpMergeGame extends ApplicationAdapter {
     private void drawGameBackdrop() {
         float centerX = screenW * .5f;
         float centerY = screenH * .75f;
-        float radiusX = screenW * 1.45f;
-        float radiusY = screenH * 1.22f;
+        float radiusX = screenW * .85f;
+        float radiusY = screenH * .85f;
         shapes.begin(ShapeRenderer.ShapeType.Filled);
         for (int i = 0; i < 36; i++) {
             float t = i / 35f;
@@ -758,8 +758,13 @@ public final class UpMergeGame extends ApplicationAdapter {
         float boardHeight = cell * BoardEngine.ROWS;
         // Keep the arena transparent over the continuous screen background, as in HTML.
         shapes.begin(ShapeRenderer.ShapeType.Filled);
-        setShapeHex(uiTheme.background, 1f);
-        shapes.rect(boardLeft, boardBottom, boardWidth, boardHeight);
+        // The HTML canvas has its own top-to-bottom theme gradient inside the arena.
+        for (int band = 0; band < 28; band++) {
+            float t = band / 27f;
+            setShapeHex(UiTheme.mix(uiTheme.surface, uiTheme.background, t), 1f);
+            float y = boardBottom + boardHeight * band / 28f;
+            shapes.rect(boardLeft, y, boardWidth, boardHeight / 28f + 1f);
+        }
         for (int row = 0; row < BoardEngine.ROWS; row++) {
             for (int column = 0; column < BoardEngine.COLUMNS; column++) {
                 boolean alternate = ((row + column) & 1) == 0;
