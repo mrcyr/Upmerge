@@ -48,6 +48,7 @@ final class MainMenuLayout {
             float cx = center + (i - 1) * (modeW + modeGap);
             modes[i] = new Rect(cx - modeW * .5f, modeY, modeW, modeH);
         }
+        boolean compact = screenH / this.density < 680f;
         float dirGap = 7f * this.density;
         float dirW = (contentWidth - dirGap) * .5f, dirH = 40f * this.density;
         for (int i = 0; i < 2; i++) {
@@ -55,7 +56,6 @@ final class MainMenuLayout {
             directions[i] = new Rect(cx - dirW * .5f,
                     screenH * (compact ? .54f : .545f) - dirH * .5f, dirW, dirH);
         }
-        boolean compact = screenH / this.density < 680f;
         float actionGap = 8f * this.density;
         float actionW = (contentWidth - actionGap) * .5f, actionH = 40f * this.density;
         float actionsY = screenH * (compact ? .465f : .48f);
