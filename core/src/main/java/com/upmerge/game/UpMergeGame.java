@@ -1486,7 +1486,8 @@ public final class UpMergeGame extends ApplicationAdapter {
         undoTimeLeft = timeLeft;
     }
     private void handleToolBarInput(float x, float y) {
-        int i = MathUtils.clamp((int) (x / (screenW / 5f)), 0, 4);
+        int i = gameLayout.toolbarIndex(x, y);
+        if (i < 0) return;
         if (i == 0) {
             if (undoCharges > 0 && undoBoardState != null
                     && engine.loadState(undoBoardState)
