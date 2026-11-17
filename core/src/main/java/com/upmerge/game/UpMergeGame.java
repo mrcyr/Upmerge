@@ -925,16 +925,20 @@ public final class UpMergeGame extends ApplicationAdapter {
         float pillY = gameLayout.pillBottom, pillW = (screenW - pad * 2f - gap) * .5f;
         font.setColor(.58f, .70f, .82f, 1f);
         font.getData().setScale(uiScale * (10f / 24f));
-        font.draw(batch, "ЦЕЛЬ", pad + 8f * uiScale, pillY + 15f * uiScale);
+        font.draw(batch, "МОНЕТЫ", pad + 8f * uiScale, pillY + 15f * uiScale);
         font.setColor(.94f, .97f, 1f, 1f);
         font.getData().setScale(uiScale * (16f / 24f));
-        font.draw(batch, NumberFormatter.compact(cubeQueue.goalTarget()), pad + pillW - 52f * uiScale, pillY + 2f * uiScale);
+        drawCenteredFit(NumberFormatter.compact(economy.coins()),
+                pad + pillW * .5f, pillY + 2f * uiScale, pillW - 12f * uiScale,
+                uiScale * (16f / 24f));
         font.setColor(.58f, .70f, .82f, 1f);
         font.getData().setScale(uiScale * (10f / 24f));
-        font.draw(batch, "ДАЛЬШЕ", pad + pillW + gap + 8f * uiScale, pillY + 15f * uiScale);
-        setFontHex(uiTheme.accent);
+        font.draw(batch, "УРОВЕНЬ", pad + pillW + gap + 8f * uiScale, pillY + 15f * uiScale);
+        font.setColor(.94f, .97f, 1f, 1f);
         font.getData().setScale(uiScale * (16f / 24f));
-        font.draw(batch, "×2", pad + pillW + gap + pillW - 34f * uiScale, pillY + 2f * uiScale);
+        drawCenteredFit(NumberFormatter.compact(cubeQueue.goalTarget()),
+                pad + pillW + gap + pillW * .5f, pillY + 2f * uiScale,
+                pillW - 12f * uiScale, uiScale * (16f / 24f));
 
         // Queue labels sit beside their cube previews, not above them.
         float queueY = gameLayout.queueBottom;
