@@ -544,7 +544,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         // Cube selection is a gameplay mode, not a blocking dialog: keep the
         // board fully visible and tappable after the player chooses SPLIT.
         if (splitSelecting) {
-            shapes.begin(ShapeRenderer.ShapeType.Filled);
+            beginShapes(ShapeRenderer.ShapeType.Filled);
             shapes.setColor(0.04f, 0.42f, 0.52f, 0.96f);
             shapes.rect(screenW * 0.08f, 5f, screenW * 0.84f, Math.max(30f, footerHeight - 10f));
             shapes.end();
@@ -557,7 +557,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         }
         if (levelUpVisible) {
             float pulse = 0.5f + 0.5f * MathUtils.sin((3.2f - levelUpTime) * 5.5f);
-            shapes.begin(ShapeRenderer.ShapeType.Filled);
+            beginShapes(ShapeRenderer.ShapeType.Filled);
             shapes.setColor(0.015f, 0.025f, 0.055f, 0.90f);
             shapes.rect(0, 0, screenW, screenH);
             // Layered cyan/gold halos create a celebratory glow without external assets.
@@ -590,7 +590,7 @@ public final class UpMergeGame extends ApplicationAdapter {
             font.setColor(0.80f, 0.89f, 0.98f, 1f);
             font.getData().setScale(uiScale * MathUtils.clamp(screenW / 390f, 0.72f, 0.95f));
             drawCentered("ЦЕЛЬ ДОСТИГНУТА · ТЕПЕРЬ СЛЕДУЮЩАЯ", screenW * 0.5f, screenH * 0.435f);
-            shapes.begin(ShapeRenderer.ShapeType.Filled);
+            beginShapes(ShapeRenderer.ShapeType.Filled);
             shapes.setColor(0.20f, 0.72f, 0.96f, 1f);
             shapes.rect(screenW * 0.17f, screenH * 0.365f, screenW * 0.66f, screenH * 0.065f);
             shapes.end();
@@ -601,7 +601,7 @@ public final class UpMergeGame extends ApplicationAdapter {
             return;
         }
         if (!emergencyDialog && !gameOver) return;
-        shapes.begin(ShapeRenderer.ShapeType.Filled);
+        beginShapes(ShapeRenderer.ShapeType.Filled);
         shapes.setColor(0f, 0f, 0f, 0.78f);
         shapes.rect(0, 0, screenW, screenH);
         shapes.setColor(0.075f, 0.105f, 0.145f, 1f);
@@ -640,7 +640,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         float centerY = screenH * .75f;
         float radiusX = screenW * .85f;
         float radiusY = screenH * .85f;
-        shapes.begin(ShapeRenderer.ShapeType.Filled);
+        beginShapes(ShapeRenderer.ShapeType.Filled);
         for (int i = 0; i < 36; i++) {
             float t = i / 35f;
             int color = t < .52f
@@ -658,7 +658,7 @@ public final class UpMergeGame extends ApplicationAdapter {
     private void drawPanels() {
         // The HTML reference keeps the header, arena and footer on one continuous
         // background. Only HUD cards and controls receive their own surfaces.
-        shapes.begin(ShapeRenderer.ShapeType.Filled);
+        beginShapes(ShapeRenderer.ShapeType.Filled);
         float topPad = Math.max(10f, screenW * .04f);
         float statGap = 7f * uiScale;
         float statY = gameLayout.statBottom;
@@ -744,7 +744,7 @@ public final class UpMergeGame extends ApplicationAdapter {
                     10f * uiScale, uiTheme.accentSecondary, .55f);
         }
 
-        shapes.begin(ShapeRenderer.ShapeType.Filled);
+        beginShapes(ShapeRenderer.ShapeType.Filled);
         float cubePreview = Math.min(34f * uiScale,
                 Math.min(queueH - 6f * uiScale, queueCurrentW * .37f));
         setCubeFaceColor(cubeQueue.current(), 1f);
@@ -762,7 +762,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         float boardWidth = cell * BoardEngine.COLUMNS;
         float boardHeight = cell * BoardEngine.ROWS;
         // Keep the arena transparent over the continuous screen background, as in HTML.
-        shapes.begin(ShapeRenderer.ShapeType.Filled);
+        beginShapes(ShapeRenderer.ShapeType.Filled);
         // The HTML canvas has its own top-to-bottom theme gradient inside the arena.
         for (int band = 0; band < 28; band++) {
             float t = band / 27f;
@@ -781,7 +781,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         shapes.end();
 
         // The reference draws a fine accent outline around every one of the 5×7 cells.
-        shapes.begin(ShapeRenderer.ShapeType.Line);
+        beginShapes(ShapeRenderer.ShapeType.Line);
         shapes.setColor(((uiTheme.accent >>> 16) & 255) / 255f,
                 ((uiTheme.accent >>> 8) & 255) / 255f,
                 (uiTheme.accent & 255) / 255f, .27f);
@@ -799,7 +799,7 @@ public final class UpMergeGame extends ApplicationAdapter {
     }
 
     private void drawCubes() {
-        shapes.begin(ShapeRenderer.ShapeType.Filled);
+        beginShapes(ShapeRenderer.ShapeType.Filled);
         for (BoardEngine.Cube cube : engine.cubes()) {
             float size = cell;
             if (cube.mergePending) {
@@ -825,7 +825,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         shapes.end();
 
         if (splitSelecting) {
-            shapes.begin(ShapeRenderer.ShapeType.Line);
+            beginShapes(ShapeRenderer.ShapeType.Line);
             shapes.setColor(.25f, .95f, 1f, 1f);
             for (BoardEngine.Cube cube : engine.cubes()) {
                 float x = boardLeft + (cube.lane + .5f) * cell;
@@ -845,7 +845,7 @@ public final class UpMergeGame extends ApplicationAdapter {
 
         // Expanding impact rings: a bright contact shockwave followed by a softer halo.
         // HTML reference: one colored impact ring and a softer white inner ring.
-        shapes.begin(ShapeRenderer.ShapeType.Line);
+        beginShapes(ShapeRenderer.ShapeType.Line);
         setShapeRgb(mergeVfx.red(), mergeVfx.green(), mergeVfx.blue(), fade * .72f);
         shapes.circle(cx, cy, radius * (.30f + progress * 1.05f), 48);
         shapes.setColor(1f, 1f, 1f, fade * .42f);
@@ -853,7 +853,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         shapes.end();
 
         // Radial contact flash, followed by the same glowing round particles as the HTML build.
-        shapes.begin(ShapeRenderer.ShapeType.Filled);
+        beginShapes(ShapeRenderer.ShapeType.Filled);
         shapes.setColor(1f, 1f, 1f, fade * .82f);
         shapes.circle(cx, cy, radius * (.08f + fade * .20f), 32);
         setShapeRgb(mergeVfx.red(), mergeVfx.green(), mergeVfx.blue(), fade * .32f);
@@ -895,7 +895,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         float progress = 1f - mergeFlightTime / 0.30f;
         float targetX = boardLeft + (mergeFlightTargetLane + 0.5f) * cell;
         float targetY = boardBottom + (BoardEngine.ROWS - 0.5f - mergeFlightTargetRow) * cell;
-        shapes.begin(ShapeRenderer.ShapeType.Filled);
+        beginShapes(ShapeRenderer.ShapeType.Filled);
         for (BoardEngine.MergeSource source : mergeFlightSources) {
             if (source.lane == mergeFlightTargetLane && source.row == mergeFlightTargetRow) continue;
             float startX = boardLeft + (source.lane + 0.5f) * cell;
@@ -1057,7 +1057,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         float left = gameLayout.toolbarLeft;
         float cy = gameLayout.toolbarBottom + gameLayout.toolbarHeight * .66f;
         float s = Math.min(13f * uiScale, gameLayout.toolbarHeight * .34f);
-        shapes.begin(ShapeRenderer.ShapeType.Line);
+        beginShapes(ShapeRenderer.ShapeType.Line);
         // Undo: curved return arrow.
         setShapeHex(uiTheme.accent, .98f);
         float ux = left + width * .5f;
@@ -1091,13 +1091,13 @@ public final class UpMergeGame extends ApplicationAdapter {
 
         // Bomb uses a warm fuse/body color, like the emoji in the reference.
         float bx = left + step + width * .5f;
-        shapes.begin(ShapeRenderer.ShapeType.Filled);
+        beginShapes(ShapeRenderer.ShapeType.Filled);
         shapes.setColor(1f, .55f, .22f, 1f);
         shapes.circle(bx, cy - s * .04f, s * .31f, 20);
         shapes.setColor(.96f, .76f, .38f, 1f);
         shapes.circle(bx - s * .10f, cy + s * .08f, s * .08f, 12);
         shapes.end();
-        shapes.begin(ShapeRenderer.ShapeType.Line);
+        beginShapes(ShapeRenderer.ShapeType.Line);
         shapes.setColor(1f, .70f, .30f, 1f);
         shapes.line(bx + s * .16f, cy + s * .22f, bx + s * .34f, cy + s * .43f);
         shapes.line(bx + s * .34f, cy + s * .43f, bx + s * .46f, cy + s * .36f);
@@ -1428,7 +1428,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         drawCentered("НАГРАДА: " + dailyTaskReward() + " МОНЕТ", screenW * .5f, screenH * .40f);
         batch.end();
 
-        shapes.begin(ShapeRenderer.ShapeType.Filled);
+        beginShapes(ShapeRenderer.ShapeType.Filled);
         shapes.setColor(.075f, .12f, .18f, 1f);
         shapes.rect(screenW * .12f, screenH * .35f, screenW * .76f, screenH * .025f);
         shapes.setColor(.30f, .78f, .96f, 1f);
@@ -1658,6 +1658,14 @@ public final class UpMergeGame extends ApplicationAdapter {
         shapes.setColor(red, green, blue, alpha);
     }
 
+    private void beginShapes(ShapeRenderer.ShapeType type) {
+        // SpriteBatch.end() disables GL_BLEND. Re-enable it before every
+        // ShapeRenderer pass so translucent HTML-style surfaces stay translucent.
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        shapes.begin(type);
+    }
+
     private void setShapeHex(int hex, float alpha) {
         shapes.setColor(((hex >>> 16) & 255) / 255f,
                 ((hex >>> 8) & 255) / 255f, (hex & 255) / 255f, alpha);
@@ -1688,7 +1696,7 @@ public final class UpMergeGame extends ApplicationAdapter {
     private void drawRoundedFill(float x, float y, float width, float height, float radius,
                                  float red, float green, float blue, float alpha) {
         float r = Math.min(radius, Math.min(width, height) * 0.5f);
-        shapes.begin(ShapeRenderer.ShapeType.Filled);
+        beginShapes(ShapeRenderer.ShapeType.Filled);
         shapes.setColor(red, green, blue, alpha);
         shapes.rect(x + r, y, width - 2f * r, height);
         shapes.rect(x, y + r, width, height - 2f * r);
@@ -1735,7 +1743,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         float r = Math.max(2f * uiScale, size * .10f);
         setShapeHex(uiTheme.accent, .96f);
         if (icon == 1) {
-            shapes.begin(ShapeRenderer.ShapeType.Filled);
+            beginShapes(ShapeRenderer.ShapeType.Filled);
             shapes.circle(cx - size * .16f, cy + size * .10f, r, 12);
             shapes.circle(cx + size * .12f, cy + size * .18f, r, 12);
             shapes.circle(cx + size * .22f, cy - size * .10f, r, 12);
@@ -1743,25 +1751,25 @@ public final class UpMergeGame extends ApplicationAdapter {
             shapes.circle(cx - size * .28f, cy - size * .04f, r, 12);
             shapes.end();
         } else if (icon == 2) {
-            shapes.begin(ShapeRenderer.ShapeType.Line);
+            beginShapes(ShapeRenderer.ShapeType.Line);
             shapes.rect(cx - size * .30f, cy - size * .27f, size * .60f, size * .54f);
             shapes.line(cx - size * .18f, cy + size * .37f, cx - size * .18f, cy + size * .19f);
             shapes.line(cx + size * .18f, cy + size * .37f, cx + size * .18f, cy + size * .19f);
             shapes.end();
-            shapes.begin(ShapeRenderer.ShapeType.Filled);
+            beginShapes(ShapeRenderer.ShapeType.Filled);
             for (int row = 0; row < 2; row++)
                 for (int col = 0; col < 3; col++)
                     shapes.circle(cx - size * .17f + col * size * .17f,
                             cy + size * .06f - row * size * .19f, r * .48f, 8);
             shapes.end();
         } else if (icon == 3) {
-            shapes.begin(ShapeRenderer.ShapeType.Filled);
+            beginShapes(ShapeRenderer.ShapeType.Filled);
             shapes.rect(cx - size * .30f, cy - size * .28f, size * .13f, size * .34f);
             shapes.rect(cx - size * .06f, cy - size * .28f, size * .13f, size * .56f);
             shapes.rect(cx + size * .18f, cy - size * .28f, size * .13f, size * .78f);
             shapes.end();
         } else if (icon == 4) {
-            shapes.begin(ShapeRenderer.ShapeType.Line);
+            beginShapes(ShapeRenderer.ShapeType.Line);
             shapes.rect(cx - size * .25f, cy - size * .32f, size * .50f, size * .62f);
             shapes.rect(cx - size * .12f, cy + size * .25f, size * .24f, size * .13f);
             shapes.line(cx - size * .14f, cy + size * .08f, cx + size * .14f, cy + size * .08f);
@@ -1769,7 +1777,7 @@ public final class UpMergeGame extends ApplicationAdapter {
             shapes.line(cx - size * .14f, cy - size * .20f, cx + size * .06f, cy - size * .20f);
             shapes.end();
         } else if (icon == 5) {
-            shapes.begin(ShapeRenderer.ShapeType.Line);
+            beginShapes(ShapeRenderer.ShapeType.Line);
             shapes.line(cx - size * .34f, cy + size * .18f, cx + size * .30f, cy + size * .18f);
             shapes.line(cx - size * .34f, cy + size * .18f, cx - size * .22f, cy - size * .12f);
             shapes.line(cx - size * .22f, cy - size * .12f, cx + size * .26f, cy - size * .12f);
@@ -1777,12 +1785,12 @@ public final class UpMergeGame extends ApplicationAdapter {
             shapes.line(cx - size * .18f, cy + size * .18f, cx - size * .12f, cy + size * .30f);
             shapes.line(cx + size * .18f, cy + size * .18f, cx + size * .12f, cy + size * .30f);
             shapes.end();
-            shapes.begin(ShapeRenderer.ShapeType.Filled);
+            beginShapes(ShapeRenderer.ShapeType.Filled);
             shapes.circle(cx - size * .18f, cy - size * .25f, r * .72f, 12);
             shapes.circle(cx + size * .20f, cy - size * .25f, r * .72f, 12);
             shapes.end();
         } else if (icon == 6) {
-            shapes.begin(ShapeRenderer.ShapeType.Line);
+            beginShapes(ShapeRenderer.ShapeType.Line);
             shapes.line(cx - size * .22f, cy + size * .28f, cx + size * .22f, cy + size * .28f);
             shapes.line(cx - size * .22f, cy + size * .28f, cx - size * .15f, cy - size * .02f);
             shapes.line(cx + size * .22f, cy + size * .28f, cx + size * .15f, cy - size * .02f);
@@ -1845,7 +1853,7 @@ public final class UpMergeGame extends ApplicationAdapter {
                                      float r2, float g2, float b2) {
         float r = Math.max(0f, Math.min(radius, Math.min(width, height) * .5f));
         int strips = 24;
-        shapes.begin(ShapeRenderer.ShapeType.Filled);
+        beginShapes(ShapeRenderer.ShapeType.Filled);
         for (int i = 0; i < strips; i++) {
             float t = (i + .5f) / strips;
             float sx = x + width * i / strips;
@@ -1869,7 +1877,7 @@ public final class UpMergeGame extends ApplicationAdapter {
     private void drawRoundedOutline(float x, float y, float width, float height, float radius,
                                     float red, float green, float blue, float alpha) {
         float r = Math.max(0f, Math.min(radius, Math.min(width, height) * .5f));
-        shapes.begin(ShapeRenderer.ShapeType.Line);
+        beginShapes(ShapeRenderer.ShapeType.Line);
         shapes.setColor(red, green, blue, alpha);
         shapes.rect(x + r, y, width - 2f * r, height);
         shapes.rect(x, y + r, width, height - 2f * r);
@@ -1881,7 +1889,7 @@ public final class UpMergeGame extends ApplicationAdapter {
     }
 
     private void drawPauseMenu() {
-        shapes.begin(ShapeRenderer.ShapeType.Filled);
+        beginShapes(ShapeRenderer.ShapeType.Filled);
         shapes.setColor(0f, 0f, 0f, 0.86f);
         shapes.rect(0, 0, screenW, screenH);
         shapes.end();
