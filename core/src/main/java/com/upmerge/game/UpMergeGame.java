@@ -319,7 +319,6 @@ public final class UpMergeGame extends ApplicationAdapter {
             else if (achievementsVisible) drawAchievementsMenu();
             else if (statsVisible) drawStatsMenu();
             else if (tasksVisible) drawTasksMenu();
-            else if (themesVisible) drawThemesMenu();
             else if (modeSelectionVisible) drawModeMenu();
             else drawMainMenu();
         } else if (paused) drawPauseMenu();
@@ -927,6 +926,7 @@ public final class UpMergeGame extends ApplicationAdapter {
             drawCubeShapeInBatch(x, y, size, size, Math.max(7f, Math.min(14f, size * .16f)));
         }
         shapes.end();
+        drawCubeMaterialDetails();
 
         if (splitSelecting) {
             beginShapes(ShapeRenderer.ShapeType.Line);
@@ -938,6 +938,56 @@ public final class UpMergeGame extends ApplicationAdapter {
             }
             shapes.end();
         }
+    }
+
+    /** Procedural material details; generated in vector form, no external textures. */
+    private void drawCubeMaterialDetails() {
+        if ("flat".equals(cubeFinish) || "convex".equals(cubeFinish)) return;
+        beginShapes(ShapeRenderer.ShapeType.Line);
+        for (BoardEngine.Cube cube : engine.cubes()) {
+            float size=cell*.70f;
+            float cx=boardLeft+(cube.lane+.5f)*cell;
+            float cy=boardBottom+(BoardEngine.ROWS-.5f-cube.visualRow)*cell;
+            float x=cx-size*.5f, y=cy-size*.5f;
+            shapes.setColor(1f,1f,1f,.22f);
+            if ("metal".equals(cubeFinish)) {
+                for(int k=1;k<=4;k++) shapes.line(x+size*.12f,y+size*k/5f,x+size*.88f,y+size*k/5f);
+            } else if ("carbon".equals(cubeFinish)) {
+                for(int k=-2;k<=5;k++){
+                    float sx=x+k*size*.22f;
+                    shapes.line(sx,y+size*.08f,sx+size*.42f,y+size*.92f);
+                    shapes.line(sx+size*.11f,y+size*.08f,sx+size*.53f,y+size*.92f);
+                }
+            } else if ("wood".equals(cubeFinish)) {
+                for(int k=0;k<4;k++){
+                    float yy=y+size*(.22f+k*.18f);
+                    shapes.arc(cx,yy,size*(.22f+k*.035f),0f,180f,18);
+                }
+            } else if ("marble".equals(cubeFinish)) {
+                for(int k=0;k<3;k++){
+                    float offset=k*size*.20f;
+                    shapes.line(x+offset,y+size*.12f,x+size*.48f+offset,y+size*.88f);
+                    shapes.line(x+size*.15f+offset,y+size*.12f,x+size*.63f+offset,y+size*.88f);
+                }
+            } else if ("stone".equals(cubeFinish)) {
+                for(int k=0;k<7;k++){
+                    float px=x+size*(.16f+((k*37)%67)/100f);
+                    float py=y+size*(.15f+((k*23)%69)/100f);
+                    shapes.circle(px,py,size*.025f,8);
+                }
+            } else if ("crystal".equals(cubeFinish)) {
+                shapes.line(x+size*.18f,y+size*.18f,cx,cy+size*.42f);
+                shapes.line(cx,cy+size*.42f,x+size*.82f,y+size*.18f);
+                shapes.line(x+size*.18f,y+size*.18f,x+size*.50f,y+size*.82f);
+                shapes.line(x+size*.82f,y+size*.18f,x+size*.50f,y+size*.82f);
+            } else if ("holo".equals(cubeFinish)) {
+                for(int k=0;k<5;k++){
+                    float xx=x+size*(.12f+k*.17f);
+                    shapes.line(xx,y+size*.10f,xx+size*.16f,y+size*.90f);
+                }
+            }
+        }
+        shapes.end();
     }
 
     private void drawMergeVfx() {
@@ -984,9 +1034,10 @@ public final class UpMergeGame extends ApplicationAdapter {
         } else {
             roundedRectInBatch(x, y, width, height, radius);
         }
-        if ("convex".equals(cubeFinish)) {
+        if ("convex".equals(cubeFinish) || "ceramic".equals(cubeFinish)
+                || "crystal".equals(cubeFinish) || "holo".equals(cubeFinish)) {
             float inset = Math.max(1f, width*.10f);
-            shapes.setColor(1f,1f,1f,.16f);
+            shapes.setColor(1f,1f,1f,"ceramic".equals(cubeFinish)?.24f:.16f);
             roundedRectInBatch(x+inset, y+height*.62f, width-2f*inset,
                     Math.max(1f,height*.16f), Math.max(1f,radius*.35f));
         }
@@ -2117,6 +2168,7 @@ public final class UpMergeGame extends ApplicationAdapter {
     }
 
     private void drawPauseMenu() {
+        if (themesVisible) { drawThemesMenu(); return; }
         if (settingsVisible) {
             drawSettingsMenu();
             return;
