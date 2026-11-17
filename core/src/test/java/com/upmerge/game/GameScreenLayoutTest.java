@@ -63,6 +63,10 @@ public class GameScreenLayoutTest {
         assertEquals(16.058f, l.toolbarLeft, .02f);
         assertEquals(6.993f, l.toolbarGap, .02f);
         assertEquals(39.782f, l.toolbarCardWidth, .02f);
+        assertEquals(0, l.toolbarIndex(l.toolbarLeft + l.toolbarCardWidth * .5f,
+                l.toolbarBottom + l.toolbarHeight * .5f));
+        assertEquals(-1, l.toolbarIndex(l.toolbarLeft + l.toolbarCardWidth + l.toolbarGap * .5f,
+                l.toolbarBottom + l.toolbarHeight * .5f));
         assertEquals(13.85f, l.hintBottom, .02f);
         assertEquals(18f, l.hintHeight, .02f);
         assertEquals(38.65f, l.cell, .05f);
