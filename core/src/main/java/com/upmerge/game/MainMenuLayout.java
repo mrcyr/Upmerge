@@ -43,14 +43,14 @@ final class MainMenuLayout {
         float mainH=Math.min(52f*this.density,screenH*.085f);
         if(saved){
             continueButton=topRect(cx,screenH*.575f,contentWidth,mainH);
-            newGameButton=topRect(cx,screenH*.655f,contentWidth,mainH);
+            newGameButton=topRect(cx,screenH*.665f,contentWidth,mainH);
         }else{
             continueButton=null;
             newGameButton=topRect(cx,screenH*.615f,contentWidth,mainH);
         }
         float utilityW=half;
         float utilityH=Math.min(rowH,screenH*.055f);
-        float utilityTop0=screenH*.75f,utilityTop1=screenH*.815f;
+        float utilityTop0=screenH*.76f,utilityTop1=screenH*.82f;
         for(int row=0;row<2;row++) for(int col=0;col<2;col++){
             float yTop=row==0?utilityTop0:utilityTop1;
             utilities[row][col]=topRect(cx+(col==0?-1:1)*(utilityW+8f*this.density)*.5f,
