@@ -11,7 +11,7 @@ public class MainMenuLayoutTest {
                     (layout.modes[0].centerX() + layout.modes[2].centerX()) * .5f, .01f);
             assertEquals(layout.modes[1].centerX(), size[0] * .5f, .01f);
             for (MainMenuLayout.Rect mode : layout.modes)
-                assertEquals(40f, mode.height, .01f);
+                assertEquals(Math.min(46f, size[1] * .07f), mode.height, .01f);
             assertFalse(layout.modes[0].overlaps(layout.modes[1]));
             assertFalse(layout.modes[1].overlaps(layout.modes[2]));
             assertFalse(layout.directions[0].overlaps(layout.directions[1]));
@@ -38,13 +38,13 @@ public class MainMenuLayoutTest {
                 layout.hit(layout.menuActions[0].centerX(), layout.menuActions[0].centerY()));
         assertEquals(MainMenuLayout.Target.DAILY,
                 layout.hit(layout.menuActions[1].centerX(), layout.menuActions[1].centerY()));
-        assertEquals(MainMenuLayout.Target.SHOP,
-                layout.hit(layout.utilities[0][0].centerX(), layout.utilities[0][0].centerY()));
-        assertEquals(MainMenuLayout.Target.ACHIEVEMENTS,
-                layout.hit(layout.utilities[0][1].centerX(), layout.utilities[0][1].centerY()));
         assertEquals(MainMenuLayout.Target.STATISTICS,
-                layout.hit(layout.utilities[1][0].centerX(), layout.utilities[1][0].centerY()));
+                layout.hit(layout.utilities[0][0].centerX(), layout.utilities[0][0].centerY()));
         assertEquals(MainMenuLayout.Target.TASKS,
+                layout.hit(layout.utilities[0][1].centerX(), layout.utilities[0][1].centerY()));
+        assertEquals(MainMenuLayout.Target.SHOP,
+                layout.hit(layout.utilities[1][0].centerX(), layout.utilities[1][0].centerY()));
+        assertEquals(MainMenuLayout.Target.ACHIEVEMENTS,
                 layout.hit(layout.utilities[1][1].centerX(), layout.utilities[1][1].centerY()));
     }
 
