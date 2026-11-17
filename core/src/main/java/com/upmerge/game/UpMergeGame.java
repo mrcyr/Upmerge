@@ -652,7 +652,9 @@ public final class UpMergeGame extends ApplicationAdapter {
         setShapeHex(uiTheme.panel, 1f);
         roundedRectInBatch(topPad + pillW + pillGap, pillY, pillW, gameLayout.pillHeight, 11f * uiScale);
 
-        float toolW = screenW / 5f;
+        float toolW = gameLayout.toolbarCardWidth;
+        float toolGap = gameLayout.toolbarGap;
+        float toolLeft = gameLayout.toolbarLeft;
         for (int i = 0; i < 5; i++) {
             boolean selected = (i == 2 && activeTool == Tool.SPLIT)
                     || (i == 3 && activeTool == Tool.MOVE)
@@ -663,7 +665,8 @@ public final class UpMergeGame extends ApplicationAdapter {
                     : i == 3 ? moveCharges > 0 : swapCharges > 0;
             setShapeHex(selected ? UiTheme.mix(uiTheme.accent, uiTheme.panel, .42f)
                     : available ? UiTheme.mix(uiTheme.surface, uiTheme.panel, .35f) : uiTheme.panel, 1f);
-            roundedRectInBatch(i * toolW + 2f, gameLayout.toolbarBottom, toolW - 4f, gameLayout.toolbarHeight, 11f * uiScale);
+            roundedRectInBatch(toolLeft + i * (toolW + toolGap), gameLayout.toolbarBottom,
+                    toolW, gameLayout.toolbarHeight, 11f * uiScale);
         }
         // Queue cards mirror the HTML flex row: label on the left, colored cube on the right.
         float queueY = gameLayout.queueBottom;
@@ -694,16 +697,16 @@ public final class UpMergeGame extends ApplicationAdapter {
                     11f * uiScale, uiTheme.accentSecondary, .55f);
         }
         for (int i = 0; i < 5; i++) {
-            float x = i * toolW + 2f;
+            float x = toolLeft + i * (toolW + toolGap);
             boolean selected = (i == 2 && activeTool == Tool.SPLIT)
                     || (i == 3 && activeTool == Tool.MOVE)
                     || (i == 4 && activeTool == Tool.SWAP)
                     || (i == 1 && activeTool == Tool.BOMB);
-            drawRoundedGradientHex(x + 1f, gameLayout.toolbarBottom + 1f, toolW - 6f,
+            drawRoundedGradientHex(x + 1f, gameLayout.toolbarBottom + 1f, toolW - 2f,
                     gameLayout.toolbarHeight - 2f, 11f * uiScale,
                     selected ? UiTheme.mix(uiTheme.accent, uiTheme.panel, .30f)
                             : UiTheme.mix(uiTheme.surface, uiTheme.panel, .35f), uiTheme.panel);
-            drawRoundedOutlineHex(x + 1f, gameLayout.toolbarBottom + 1f, toolW - 6f,
+            drawRoundedOutlineHex(x + 1f, gameLayout.toolbarBottom + 1f, toolW - 2f,
                     gameLayout.toolbarHeight - 2f, 11f * uiScale,
                     selected ? uiTheme.accent : uiTheme.accentSecondary, selected ? .90f : .40f);
         }
@@ -973,11 +976,14 @@ public final class UpMergeGame extends ApplicationAdapter {
         String[] toolLabels = {"ОТМЕНА", "БОМБА ×" + bombCharges,
                 "УДАЛИТЬ ×" + splitCharges, "ПЕРЕМЕСТИТЬ ×" + moveCharges,
                 "ПОМЕНЯТЬ 2 ×" + swapCharges};
-        float toolW = screenW / 5f;
+        float toolW = gameLayout.toolbarCardWidth;
+        float toolGap = gameLayout.toolbarGap;
+        float toolLeft = gameLayout.toolbarLeft;
         for (int i = 0; i < icons.length; i++) {
             setFontHex(uiTheme.accent);
             font.getData().setScale(uiScale * (17f / 24f));
-            drawCentered(icons[i], (i + .5f) * toolW, gameLayout.toolbarBottom + gameLayout.toolbarHeight * .72f);
+            drawCentered(icons[i], toolLeft + i * (toolW + toolGap) + toolW * .5f,
+                    gameLayout.toolbarBottom + gameLayout.toolbarHeight * .72f);
             font.setColor(.88f, .94f, 1f, 1f);
             font.getData().setScale(uiScale * (7f / 24f));
             drawCenteredFit(toolLabels[i], (i + .5f) * toolW, gameLayout.toolbarBottom + gameLayout.toolbarHeight * .27f,
