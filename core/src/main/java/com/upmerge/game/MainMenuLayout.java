@@ -16,6 +16,15 @@ final class MainMenuLayout {
         float centerX(){return x+width*.5f;}
         float centerY(){return y+height*.5f;}
         boolean contains(float px,float py){return px>=x&&px<=x+width&&py>=y&&py<=y+height;}
+
+        /** Returns true when the interiors of two rectangles intersect. */
+        boolean overlaps(Rect other) {
+            return other != null
+                    && x < other.x + other.width
+                    && x + width > other.x
+                    && y < other.y + other.height
+                    && y + height > other.y;
+        }
     }
 
     final float screenW,screenH,density,contentWidth,panelLeft,panelBottom,panelWidth,panelHeight;
