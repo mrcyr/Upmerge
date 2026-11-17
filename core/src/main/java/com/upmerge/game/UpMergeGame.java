@@ -454,13 +454,18 @@ public final class UpMergeGame extends ApplicationAdapter {
                 return;
             }
             if (settingsVisible) {
-                if (y > screenH * 0.62f && y <= screenH * 0.74f) {
-                    cycleUiTheme();
-                } else if (y > screenH * 0.38f && y <= screenH * 0.54f) {
+                if (y > screenH*.58f && y <= screenH*.70f) {
+                    menuSelectedDirection = x < screenW*.5f
+                            ? BoardEngine.Direction.UP : BoardEngine.Direction.DOWN;
+                    preferences.putString("menuDirection", menuSelectedDirection.name());
+                    preferences.flush();
+                } else if (y > screenH*.40f && y <= screenH*.53f) {
+                    themesVisible = true;
+                } else if (y > screenH*.23f && y <= screenH*.36f) {
                     hapticsEnabled = !hapticsEnabled;
                     preferences.putBoolean("hapticsEnabled", hapticsEnabled);
                     preferences.flush();
-                } else if (y <= screenH * 0.30f) {
+                } else if (y <= screenH*.18f) {
                     settingsVisible = false;
                 }
                 return;
@@ -496,12 +501,17 @@ public final class UpMergeGame extends ApplicationAdapter {
             if (themesVisible) {
                 handleThemesInput(x, y);
             } else if (settingsVisible) {
-                if (y > screenH * .62f && y <= screenH * .76f) cycleUiTheme();
-                else if (y > screenH * .40f && y <= screenH * .56f) {
+                if (y > screenH*.58f && y <= screenH*.70f) {
+                    menuSelectedDirection = x < screenW*.5f
+                            ? BoardEngine.Direction.UP : BoardEngine.Direction.DOWN;
+                    preferences.putString("menuDirection", menuSelectedDirection.name());
+                    preferences.flush();
+                } else if (y > screenH*.40f && y <= screenH*.53f) themesVisible = true;
+                else if (y > screenH*.23f && y <= screenH*.36f) {
                     hapticsEnabled = !hapticsEnabled;
                     preferences.putBoolean("hapticsEnabled", hapticsEnabled);
                     preferences.flush();
-                } else if (y <= screenH * .30f) settingsVisible = false;
+                } else if (y <= screenH*.18f) settingsVisible = false;
             } else if (y > screenH * .55f) paused = false;
             else if (y > screenH * .43f) settingsVisible = true;
             else if (y > screenH * .29f) startMode(gameMode, false);
@@ -1844,17 +1854,22 @@ public final class UpMergeGame extends ApplicationAdapter {
         batch.begin();
         setFontHex(uiTheme.accent);
         font.getData().setScale(uiScale * MathUtils.clamp(screenW / 240f, 1.25f, 1.65f));
-        drawCentered("ТЕМЫ", screenW * 0.5f, screenH * 0.82f);
-        font.setColor(0.72f, 0.82f, 0.92f, 1f);
-        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 390f, 0.78f, 0.95f));
-        drawCenteredFit("ЦВЕТА И ОФОРМЛЕНИЕ ИГРЫ",
-                screenW * 0.5f, screenH * 0.72f, screenW * 0.82f,
-                uiScale * MathUtils.clamp(screenW / 390f, 0.65f, 0.86f));
+        drawCentered("НАСТРОЙКИ", screenW * .5f, screenH * .84f);
+        font.setColor(.72f, .82f, .92f, 1f);
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 390f, .70f, .88f));
+        drawCenteredFit("Направление и оформление можно менять прямо во время игры.",
+                screenW*.5f, screenH*.77f, screenW*.84f, uiScale*.72f);
         batch.end();
-        drawMenuButton("ТЕМА: " + uiTheme.name, screenH * 0.66f, 0.10f, true);
-        drawMenuButton("ВИБРАЦИЯ: " + (hapticsEnabled ? "ВКЛ" : "ВЫКЛ"),
-                screenH * 0.46f, 0.10f, hapticsEnabled);
-        drawMenuButton("НАЗАД", screenH * 0.25f, 0.11f, false);
+
+        float half=(screenW*.84f-screenW*.025f)*.5f;
+        float left=screenW*.08f;
+        drawMenuChoice("СНИЗУ ВВЕРХ ↑",left+half*.5f,screenH*.635f,half,42f*uiScale,
+                menuSelectedDirection==BoardEngine.Direction.UP);
+        drawMenuChoice("СВЕРХУ ВНИЗ ↓",left+half+screenW*.025f+half*.5f,screenH*.635f,
+                half,42f*uiScale,menuSelectedDirection==BoardEngine.Direction.DOWN);
+        drawMenuButton("ТЕМЫ И ФОРМА КУБИКОВ",screenH*.465f,.085f,true);
+        drawMenuButton("ВИБРАЦИЯ: "+(hapticsEnabled?"ВКЛ":"ВЫКЛ"),screenH*.295f,.085f,hapticsEnabled);
+        drawMenuButton("ГОТОВО",screenH*.115f,.085f,true);
     }
 
     private void cycleUiTheme() {
