@@ -1,17 +1,21 @@
 package com.upmerge.game;
 
-/** Single source of truth for menu geometry. All rectangles use libGDX bottom-left coordinates. */
+/**
+ * Menu geometry translated from the HTML panel's flex column and CSS gaps.
+ * Rectangles are in libGDX bottom-left screen coordinates.
+ */
 final class MainMenuLayout {
     enum Target { MODE_CLASSIC, MODE_TIMED, MODE_CHALLENGE, DIRECTION_UP, DIRECTION_DOWN,
         THEMES, DAILY, CONTINUE, NEW_GAME, SHOP, ACHIEVEMENTS, STATISTICS, TASKS, NONE }
 
     static final class Rect {
         final float x, y, width, height;
-        Rect(float x,float y,float width,float height){this.x=x;this.y=y;this.width=width;this.height=height;}
+        Rect(float x, float y, float width, float height) {
+            this.x=x; this.y=y; this.width=width; this.height=height;
+        }
         float centerX(){return x+width*.5f;}
         float centerY(){return y+height*.5f;}
         boolean contains(float px,float py){return px>=x&&px<=x+width&&py>=y&&py<=y+height;}
-        boolean overlaps(Rect r){return x<r.x+r.width&&x+width>r.x&&y<r.y+r.height&&y+height>r.y;}
     }
 
     final float screenW,screenH,density,contentWidth,panelLeft,panelBottom,panelWidth,panelHeight;
@@ -22,50 +26,67 @@ final class MainMenuLayout {
 
     MainMenuLayout(float width,float height,boolean saved){this(width,height,saved,1f);}
     MainMenuLayout(float width,float height,boolean saved,float density){
-        screenW=Math.max(1f,width);screenH=Math.max(1f,height);this.density=Math.max(.75f,density);
-        float gap=7f*this.density;
-        // Reference layout is authored against the supplied 279x527 menu mockup.
-        // Ratios keep the same pixel geometry on other screen sizes.
-        panelWidth=screenW*.868f;
-        panelHeight=screenH*.666f;
-        panelLeft=screenW*.036f;
-        panelBottom=screenH*.133f;
-        contentWidth=screenW*.774f;
-        float cx=screenW*.469f;
-        float rowH=Math.min(screenH*.048f,46f*this.density);
-        float modeW=(contentWidth-2f*gap)/3f;
-        // Top-down anchors are converted once to bottom-left coordinates.
-        float top=screenH*.357f;
-        for(int i=0;i<3;i++) modes[i]=topRect(cx+(i-1)*(modeW+gap),top,modeW,rowH);
-        float dirW=(contentWidth-gap)*.5f;
-        top=screenH*.418f;
-        for(int i=0;i<2;i++) directions[i]=topRect(cx+(i==0?-1:1)*(dirW+gap)*.5f,top,dirW,rowH);
-        float half=(contentWidth-8f*this.density)*.5f;
-        top=screenH*.478f;
-        float actionOffset=(half+4f*this.density)*.5f;
-        menuActions[0]=topRect(cx-actionOffset,top,half,rowH);
-        menuActions[1]=topRect(cx+actionOffset,top,half,rowH);
-        float mainH=Math.min(52f*this.density,screenH*.063f);
+        screenW=Math.max(1f,width); screenH=Math.max(1f,height);
+        this.density=Math.max(.75f,density);
+        float d=this.density, w=screenW/d, h=screenH/d;
+        // #menu.overlay has 12px padding; #menu .panel has responsive 14-22px
+        // horizontal padding and a 390px maximum width.
+        panelWidth=Math.min(390f,w-24f)*d;
+        float horizontalPad=Math.max(14f,Math.min(22f,w*.05f));
+        contentWidth=Math.max(1f,panelWidth-2f*horizontalPad*d);
+        float verticalPad=Math.max(16f,Math.min(25f,w*.045f));
+        float logoH=Math.max(38f,Math.min(48f,w*.105f));
+        float subH=Math.max(39f,Math.min(58f,w*.145f));
+        float rowH=38f;
+        float actionH=40f;
+        float buttonH=48f;
+        float utilityH=42f;
+        float gap=7f;
+        float utilityGap=8f;
+        float bottomGap=14f;
+        float heightDp=verticalPad*2f+logoH+3f+subH+12f
+                +rowH+12f+rowH+8f+actionH
+                +(saved?8f+buttonH:0f)+8f+buttonH+8f
+                +utilityH*2f+utilityGap+bottomGap+24f;
+        panelHeight=Math.min(h-24f,Math.max(1f,heightDp))*d;
+        panelLeft=(screenW-panelWidth)*.5f;
+        panelBottom=(screenH-panelHeight)*.5f;
+
+        float cx=screenW*.5f;
+        float innerLeft=panelLeft+horizontalPad*d;
+        float innerW=contentWidth;
+        float top=screenH-panelBottom-panelHeight+verticalPad*d;
+        // Top-down CSS flow: logo, subtitle, mode row, direction row, actions,
+        // continue/new game, utility grid and footer.
+        top+=logoH*d+3f*d+subH*d+12f*d;
+        float modeGap=7f*d, modeW=(innerW-2f*modeGap)/3f;
+        for(int i=0;i<3;i++)modes[i]=topRect(innerLeft+i*(modeW+modeGap),top,modeW,rowH*d);
+        top+=rowH*d+12f*d;
+        float dirGap=7f*d, dirW=(innerW-dirGap)*.5f;
+        directions[0]=topRect(innerLeft,top,dirW,rowH*d);
+        directions[1]=topRect(innerLeft+dirW+dirGap,top,dirW,rowH*d);
+        top+=rowH*d+8f*d;
+        menuActions[0]=topRect(innerLeft,top,dirW,actionH*d);
+        menuActions[1]=topRect(innerLeft+dirW+dirGap,top,dirW,actionH*d);
+        top+=actionH*d;
         if(saved){
-            continueButton=topRect(cx,screenH*.543f,contentWidth,mainH);
-            newGameButton=topRect(cx,screenH*.621f,contentWidth,mainH);
-        }else{
-            continueButton=null;
-            newGameButton=topRect(cx,screenH*.621f,contentWidth,mainH);
-        }
-        float utilityW=half;
-        float utilityH=rowH;
-        float utilityTop0=screenH*.700f,utilityTop1=screenH*.761f;
-        for(int row=0;row<2;row++) for(int col=0;col<2;col++){
-            float yTop=row==0?utilityTop0:utilityTop1;
-            utilities[row][col]=topRect(cx+(col==0?-1:1)*(utilityW+8f*this.density)*.5f,
-                    yTop,utilityW,utilityH);
-        }
-        footer=topRect(cx,screenH*.82f,contentWidth,Math.min(18f*this.density,screenH*.034f));
+            top+=8f*d;
+            continueButton=topRect(innerLeft,top,innerW,buttonH*d);
+            top+=buttonH*d;
+        }else continueButton=null;
+        top+=8f*d;
+        newGameButton=topRect(innerLeft,top,innerW,buttonH*d);
+        top+=buttonH*d+8f*d;
+        float utilityGapPx=utilityGap*d, utilityW=(innerW-utilityGapPx)*.5f;
+        for(int row=0;row<2;row++)for(int col=0;col<2;col++)
+            utilities[row][col]=topRect(innerLeft+col*(utilityW+utilityGapPx),
+                    top+row*(utilityH*d+utilityGapPx),utilityW,utilityH*d);
+        top+=2f*utilityH*d+utilityGapPx+bottomGap*d;
+        footer=topRect(cx,Math.min(top,screenH-panelBottom-verticalPad*d),innerW,18f*d);
     }
 
-    private Rect topRect(float cx,float top,float w,float h){
-        return new Rect(cx-w*.5f,screenH-top-h,w,h);
+    private Rect topRect(float x,float top,float w,float h){
+        return new Rect(x,screenH-top-h,w,h);
     }
 
     Target hit(float x,float y){
