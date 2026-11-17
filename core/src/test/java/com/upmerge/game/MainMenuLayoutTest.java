@@ -36,6 +36,14 @@ public class MainMenuLayoutTest {
         assertEquals(MainMenuLayout.Target.TASKS,layout.hit(layout.utilities[1][1].centerX(),layout.utilities[1][1].centerY()));
     }
 
+    @Test public void mainMenuPanelUsesTheWholeScreenHeight() {
+        for (float[] size : new float[][] {{320,568,1}, {360,800,1}, {1080,2400,3}}) {
+            MainMenuLayout layout = new MainMenuLayout(size[0], size[1], true, size[2]);
+            assertEquals(0f, layout.panelBottom, .001f);
+            assertEquals(size[1], layout.panelHeight, .001f);
+        }
+    }
+
     @Test public void continueButtonExistsOnlyForSavedRun() {
         MainMenuLayout fresh=new MainMenuLayout(360,800,false);
         MainMenuLayout saved=new MainMenuLayout(360,800,true);
