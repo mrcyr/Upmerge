@@ -490,8 +490,8 @@ public final class UpMergeGame extends ApplicationAdapter {
             return;
         }
         if (gameOver) {
-            if (y >= screenH * .52f) beginEmergencySplit(true);
-            else if (y >= screenH * .38f) startMode(gameMode, true);
+            if (y >= screenH * .425f) beginEmergencySplit(true);
+            else if (y >= screenH * .315f) startMode(gameMode, true);
             else if (y < screenH * .30f) { menuVisible = true; gameOver = false; }
             return;
         }
