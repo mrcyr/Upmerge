@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.ScreenUtils;
 import java.util.ArrayList;
@@ -92,6 +93,10 @@ public final class UpMergeGame extends ApplicationAdapter {
     @Override public void create() {
         camera = new OrthographicCamera();
         shapes = new ShapeRenderer();
+        // ShapeRenderer does not enable alpha blending like SpriteBatch does.
+        // The HTML reference relies on translucent surfaces and subtle grid tints.
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         batch = new SpriteBatch();
         font = createCyrillicFont();
         logoFont = createLogoFont();
@@ -99,7 +104,7 @@ public final class UpMergeGame extends ApplicationAdapter {
             region.getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         }
         preferences = Gdx.app.getPreferences("UpMergeNative");
-        uiTheme = UiTheme.fromIndex(preferences.getInteger("uiTheme", 16));
+        uiTheme = UiTheme.fromIndex(preferences.getInteger("uiTheme", 0));
         bestScore = preferences.getLong("bestScore", 0L);
         lifetimeGames = preferences.getLong("statsGames", 0L);
         lifetimeMerges = preferences.getLong("statsMerges", 0L);
@@ -1695,16 +1700,9 @@ public final class UpMergeGame extends ApplicationAdapter {
     }
 
     private void drawMenuBackdrop() {
-        // Theme colors change; the reference geometry remains fixed.
-        shapes.begin(ShapeRenderer.ShapeType.Filled);
-        for (int i = 0; i < 28; i++) {
-            float t = i / 27f;
-            setShapeHex(UiTheme.mix(uiTheme.background, uiTheme.surface, t), 1f);
-            shapes.rect(0, screenH * i / 28f, screenW, screenH / 28f + 1f);
-        }
-        setShapeHex(uiTheme.accent, .08f);
-        shapes.circle(screenW * .5f, screenH * .84f, Math.min(screenW, screenH) * .42f, 48);
-        shapes.end();
+        // Use the same radial background as the HTML body; no decorative
+        // circles, rings, textures or extra shapes are present in the reference.
+        drawGameBackdrop();
 
         boolean mainMenu = !settingsVisible && !shopVisible && !achievementsVisible
                 && !statsVisible && !tasksVisible && !modeSelectionVisible;
