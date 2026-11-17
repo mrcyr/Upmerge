@@ -26,7 +26,7 @@ final class GameScreenLayout {
         float headerNeedBottom=Math.min(screenH-headerHeight,Math.min(pillBottom,statBottom));
         float footerContentTop=footerHeight-8f*d;
         float boardAreaBottom=footerContentTop+gap;
-        float boardAreaTop=headerNeedBottom-gap;
+        float boardAreaTop=headerNeedBottom-7f*d;
         float usable=Math.max(1f,boardAreaTop-boardAreaBottom);
         float side=Math.max(8f*d,screenW*.025f);
         cell=Math.max(1f,Math.min((screenW-2f*side)/BoardEngine.COLUMNS,
