@@ -1200,10 +1200,10 @@ public final class UpMergeGame extends ApplicationAdapter {
                 actionCards[1].width, actionCards[1].height, false);
 
         if (hasSavedGame) {
-            drawMenuButton("ПРОДОЛЖИТЬ ИГРУ", mainMenuLayout.continueButton, false);
-            drawMenuButton("НОВАЯ ИГРА", mainMenuLayout.newGameButton, true);
+            drawMenuButton("ПРОДОЛЖИТЬ ИГРУ", mainMenuLayout.continueButton, true);
+            drawMenuButton("НОВАЯ ИГРА", mainMenuLayout.newGameButton, false);
         } else {
-            drawMenuButton("НОВАЯ ИГРА", mainMenuLayout.newGameButton, true);
+            drawMenuButton("НОВАЯ ИГРА", mainMenuLayout.newGameButton, false);
         }
 
         MainMenuLayout.Rect[][] utilityCards = mainMenuLayout.utilities;
@@ -1828,22 +1828,18 @@ public final class UpMergeGame extends ApplicationAdapter {
         float left = centerX - width * .5f;
         float bottom = centerY - height * .5f;
         float radius = Math.min(16f * uiScale, height * .5f);
-        drawRoundedFillHex(left, bottom - 4f * uiScale, width, height + 5f * uiScale,
-                radius, uiTheme.background, .88f);
         if (highlighted) {
+            drawRoundedFillHex(left, bottom - 3f * uiScale, width, height + 3f * uiScale,
+                    radius, uiTheme.background, .22f);
             drawRoundedGradientHex(left, bottom, width, height, radius,
                     0x69e2ff, 0x6ea8ff);
-            drawRoundedFillHex(left + 5f * uiScale, bottom + height - 4f * uiScale,
-                    width - 10f * uiScale, 1.5f * uiScale, 1f, 0xffffff, .55f);
             drawRoundedOutlineHex(left + 1f, bottom + 1f, width - 2f, height - 2f,
-                    radius - 1f, uiTheme.accent, .60f);
+                    radius - 1f, 0xffffff, .18f);
         } else {
-            drawRoundedGradientHex(left, bottom, width, height, radius,
-                    UiTheme.mix(uiTheme.surface, 0xffffff, .05f), uiTheme.panel);
+            drawRoundedFillHex(left, bottom, width, height, radius,
+                    UiTheme.mix(uiTheme.panel, 0xffffff, .05f), 1f);
             drawRoundedOutlineHex(left + 1f, bottom + 1f, width - 2f, height - 2f,
-                    radius - 1f, uiTheme.accentSecondary, .50f);
-            drawRoundedFillHex(left + 6f * uiScale, bottom + height - 4f * uiScale,
-                    width - 12f * uiScale, 1.2f * uiScale, 1f, uiTheme.accent, .18f);
+                    radius - 1f, 0xffffff, .12f);
         }
         batch.begin();
         font.setColor(highlighted ? .018f : .91f, highlighted ? .075f : .95f,
