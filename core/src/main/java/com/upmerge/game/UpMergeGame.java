@@ -759,43 +759,52 @@ public final class UpMergeGame extends ApplicationAdapter {
     }
 
     private void drawBoard() {
-        float boardWidth = cell * BoardEngine.COLUMNS;
-        float boardHeight = cell * BoardEngine.ROWS;
-        // Keep the arena transparent over the continuous screen background, as in HTML.
+        // Port of the HTML canvas: a vertical arena gradient, then a centered
+        // 5x7 square-cell board with subtle alternating tint and 1px cell lines.
+        float arenaLeft = 10f * uiScale;
+        float arenaRight = screenW - arenaLeft;
+        float arenaBottom = gameLayout.arenaBottom;
+        float arenaTop = gameLayout.arenaTop;
+        float arenaHeight = Math.max(1f, arenaTop - arenaBottom);
         beginShapes(ShapeRenderer.ShapeType.Filled);
-        // The HTML canvas has its own top-to-bottom theme gradient inside the arena.
-        for (int band = 0; band < 28; band++) {
-            float t = band / 27f;
-            setShapeHex(UiTheme.mix(uiTheme.background, uiTheme.surface, t), 1f);
-            float y = boardBottom + boardHeight * band / 28f;
-            shapes.rect(boardLeft, y, boardWidth, boardHeight / 28f + 1f);
+        for (int band = 0; band < 36; band++) {
+            float t = band / 35f;
+            int color = t < .55f
+                    ? UiTheme.mix(uiTheme.surface, uiTheme.panel, t / .55f)
+                    : UiTheme.mix(uiTheme.panel, uiTheme.background, (t - .55f) / .45f);
+            setShapeHex(color, 1f);
+            float y = arenaBottom + arenaHeight * band / 36f;
+            shapes.rect(arenaLeft, y, arenaRight - arenaLeft, arenaHeight / 36f + 1f);
         }
         for (int row = 0; row < BoardEngine.ROWS; row++) {
             for (int column = 0; column < BoardEngine.COLUMNS; column++) {
-                boolean alternate = ((row + column) & 1) == 0;
-                setShapeHex(uiTheme.accent, alternate ? .075f : .035f);
-                shapes.rect(boardLeft + column * cell, boardBottom + row * cell,
+                float alpha = ((row + column) & 1) == 0 ? .075f : .035f;
+                setShapeHex(uiTheme.accent, alpha);
+                shapes.rect(boardLeft + column * cell,
+                        boardBottom + (BoardEngine.ROWS - 1 - row) * cell,
                         cell, cell);
             }
         }
         shapes.end();
 
-        // The reference draws a fine accent outline around every one of the 5×7 cells.
         beginShapes(ShapeRenderer.ShapeType.Line);
-        shapes.setColor(((uiTheme.accent >>> 16) & 255) / 255f,
-                ((uiTheme.accent >>> 8) & 255) / 255f,
-                (uiTheme.accent & 255) / 255f, .27f);
+        setShapeHex(uiTheme.accent, .27f);
         for (int row = 0; row < BoardEngine.ROWS; row++) {
             for (int column = 0; column < BoardEngine.COLUMNS; column++) {
-                shapes.rect(boardLeft + column * cell + .5f,
-                        boardBottom + row * cell + .5f, cell - 1f, cell - 1f);
+                float x = boardLeft + column * cell;
+                float y = boardBottom + (BoardEngine.ROWS - 1 - row) * cell;
+                shapes.rect(x + .5f, y + .5f, cell - 1f, cell - 1f);
             }
         }
         shapes.end();
 
-        drawRoundedOutlineHex(boardLeft - 1f * uiScale, boardBottom - 1f * uiScale,
-                boardWidth + 2f * uiScale, boardHeight + 2f * uiScale,
-                1f * uiScale, uiTheme.accent, .42f);
+        // Only the board's own fine border; no rings, circles, texture marks,
+        // or extra lane decorations are drawn over the HTML grid.
+        beginShapes(ShapeRenderer.ShapeType.Line);
+        setShapeHex(uiTheme.accent, .42f);
+        shapes.rect(boardLeft - .5f, boardBottom - .5f,
+                cell * BoardEngine.COLUMNS + 1f, cell * BoardEngine.ROWS + 1f);
+        shapes.end();
     }
 
     private void drawCubes() {
