@@ -269,7 +269,9 @@ public final class UpMergeGame extends ApplicationAdapter {
     @Override public void render() {
         float dt = Math.min(Gdx.graphics.getDeltaTime(), 0.05f);
         if (!menuVisible && (!paused || settingsVisible) && !gameOver && !emergencyDialog && !levelUpVisible) {
-            if (gameMode == GameMode.TIMED) {
+            // Settings may allow the board's pending gravity animation to finish,
+            // but opening settings must never consume the timed-mode clock.
+            if (!paused && gameMode == GameMode.TIMED) {
                 timeLeft = Math.max(0f, timeLeft - dt);
                 if (timeLeft <= 0f) gameOver = true;
             }
@@ -1197,7 +1199,8 @@ public final class UpMergeGame extends ApplicationAdapter {
         float pillY = gameLayout.pillBottom, pillW = (screenW - pad * 2f - pillGap) * .5f;
         font.setColor(.58f, .70f, .82f, 1f);
         font.getData().setScale(uiScale * (10f / 24f));
-        font.draw(batch, "МОНЕТЫ", pad + 8f * uiScale, pillY + 15f * uiScale);
+        drawCenteredAt("МОНЕТЫ", pad + 8f * uiScale + 23f * uiScale,
+                pillY + gameLayout.pillHeight * .72f);
         font.setColor(.94f, .97f, 1f, 1f);
         font.getData().setScale(uiScale * (16f / 24f));
         drawCenteredFit(NumberFormatter.compact(economy.coins()),
@@ -1205,7 +1208,8 @@ public final class UpMergeGame extends ApplicationAdapter {
                 uiScale * (16f / 24f));
         font.setColor(.58f, .70f, .82f, 1f);
         font.getData().setScale(uiScale * (10f / 24f));
-        font.draw(batch, "УРОВЕНЬ", pad + pillW + pillGap + 8f * uiScale, pillY + 15f * uiScale);
+        drawCenteredAt("УРОВЕНЬ", pad + pillW + pillGap + 8f * uiScale + 25f * uiScale,
+                pillY + gameLayout.pillHeight * .72f);
         font.setColor(.94f, .97f, 1f, 1f);
         font.getData().setScale(uiScale * (16f / 24f));
         drawCenteredFit(NumberFormatter.compact(cubeQueue.goalTarget()),
@@ -1250,7 +1254,7 @@ public final class UpMergeGame extends ApplicationAdapter {
             font.setColor(.88f, .94f, 1f, 1f);
             font.getData().setScale(uiScale * (7f / 24f));
             drawCenteredFit(toolLabels[i], toolLeft + i * (toolW + toolGap) + toolW * .5f,
-                    gameLayout.toolbarBottom + 4f * uiScale,
+                    gameLayout.toolbarBottom + gameLayout.toolbarHeight * .30f,
                     toolW - 4f * uiScale, uiScale * (7f / 24f));
         }
 
