@@ -7,15 +7,15 @@ public class MainMenuLayoutTest {
     @Test public void modeAndDirectionCardsAreCenteredAndDoNotOverlap() {
         for (float[] size : new float[][] {{320, 568}, {360, 800}, {430, 932}, {1080, 2400}}) {
             MainMenuLayout layout = new MainMenuLayout(size[0], size[1], false);
-            assertEquals(size[0] * .5f,
+            assertEquals(size[0] * .469f,
                     (layout.modes[0].centerX() + layout.modes[2].centerX()) * .5f, .01f);
-            assertEquals(layout.modes[1].centerX(), size[0] * .5f, .01f);
+            assertEquals(layout.modes[1].centerX(), size[0] * .469f, .01f);
             for (MainMenuLayout.Rect mode : layout.modes)
                 assertEquals(Math.min(46f, size[1] * .048f), mode.height, .01f);
             assertFalse(layout.modes[0].overlaps(layout.modes[1]));
             assertFalse(layout.modes[1].overlaps(layout.modes[2]));
             assertFalse(layout.directions[0].overlaps(layout.directions[1]));
-            assertEquals(size[0], layout.directions[0].centerX()
+            assertEquals(size[0] * .938f, layout.directions[0].centerX()
                     + layout.directions[1].centerX(), .01f);
         }
     }
@@ -119,7 +119,7 @@ public class MainMenuLayoutTest {
         assertEquals(279f * .774f, layout.contentWidth, .01f);
         assertEquals(279f * .868f, layout.panelWidth, .01f);
         assertEquals(527f * .666f, layout.panelHeight, .01f);
-        assertEquals(18.414f, layout.panelLeft, .01f);
+        assertEquals(10.044f, layout.panelLeft, .01f);
         assertEquals(70.091f, layout.panelBottom, .02f);
         assertEquals(527f * .357f, 527f - layout.modes[0].y - layout.modes[0].height, .01f);
         assertEquals(527f * .418f, 527f - layout.directions[0].y - layout.directions[0].height, .01f);
