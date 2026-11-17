@@ -571,4 +571,58 @@ public class BoardEngineTest {
         assertEquals(0, engine.score());
         assertFalse(engine.isMergePending());
     }
+
+    @Test public void directLaunchesStackInConsecutiveCellsWithoutFreePhysics() {
+        BoardEngine engine = new BoardEngine();
+        for (int expectedRow = 0; expectedRow < BoardEngine.ROWS; expectedRow++) {
+            assertTrue(engine.launch(2, 2L << (expectedRow % 3)));
+            settle(engine);
+            BoardEngine.Cube landed = engine.cubes().stream()
+                    .filter(c -> c.lane == 2 && c.row == expectedRow)
+                    .findFirst().orElse(null);
+            assertNotNull("Each launch must land in the next cell of its lane", landed);
+            assertFalse("A settled cube must no longer be moving", landed.moving);
+            assertEquals(landed.row, (int) landed.visualRow);
+        }
+    }
+
+    @Test public void separatedEqualCubesDoNotMergeAcrossEmptyLanes() {
+        BoardEngine engine = new BoardEngine();
+        assertTrue(engine.launch(0, 2));
+        settle(engine);
+        assertTrue(engine.launch(4, 2));
+        settle(engine);
+        assertFalse(engine.isMergePending());
+        assertEquals(2, engine.cubes().size());
+        assertNull(engine.consumeMergeEvent());
+    }
+
+    @Test public void threeConnectedCubesResolveAsOneGroupAndUseRoundedValue() {
+        BoardEngine engine = new BoardEngine();
+        for (int lane = 0; lane < 3; lane++) {
+            assertTrue(engine.launch(lane, 2));
+            settle(engine);
+        }
+        assertTrue("Three face-connected equal cubes must start one merge", engine.isMergePending());
+        finishMerge(engine);
+        BoardEngine.MergeEvent event = engine.consumeMergeEvent();
+        assertNotNull(event);
+        assertEquals(3, event.count);
+        assertEquals(8L, event.value);
+        assertEquals(8L, event.points);
+        assertEquals(1, engine.cubes().size());
+        assertEquals(8L, engine.cubes().get(0).value);
+    }
+
+    @Test public void pendingMergeBlocksAdditionalLaunchesUntilTransactionCompletes() {
+        BoardEngine engine = new BoardEngine();
+        assertTrue(engine.launch(0, 2));
+        settle(engine);
+        assertTrue(engine.launch(1, 2));
+        settle(engine);
+        assertTrue(engine.isMergePending());
+        assertFalse(engine.launch(2, 2));
+        finishMerge(engine);
+        assertTrue(engine.launch(2, 2));
+    }
 }
