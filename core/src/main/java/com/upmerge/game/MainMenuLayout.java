@@ -16,14 +16,9 @@ final class MainMenuLayout {
         float centerX(){return x+width*.5f;}
         float centerY(){return y+height*.5f;}
         boolean contains(float px,float py){return px>=x&&px<=x+width&&py>=y&&py<=y+height;}
-
-        /** Returns true when the interiors of two rectangles intersect. */
         boolean overlaps(Rect other) {
-            return other != null
-                    && x < other.x + other.width
-                    && x + width > other.x
-                    && y < other.y + other.height
-                    && y + height > other.y;
+            return other != null && x < other.x + other.width && x + width > other.x
+                    && y < other.y + other.height && y + height > other.y;
         }
     }
 
@@ -38,38 +33,30 @@ final class MainMenuLayout {
         screenW=Math.max(1f,width); screenH=Math.max(1f,height);
         this.density=Math.max(.75f,density);
         float d=this.density, w=screenW/d, h=screenH/d;
-        // #menu.overlay has 12px padding; #menu .panel has responsive 14-22px
-        // horizontal padding and a 390px maximum width.
-        panelWidth=Math.min(390f,w-24f)*d;
+        panelWidth=Math.min(390f,Math.max(1f,w-24f))*d;
         float horizontalPad=Math.max(14f,Math.min(22f,w*.05f));
         contentWidth=Math.max(1f,panelWidth-2f*horizontalPad*d);
         float verticalPad=Math.max(16f,Math.min(25f,w*.045f));
         float logoH=Math.max(38f,Math.min(48f,w*.105f));
-        float subH=Math.max(39f,Math.min(58f,w*.145f));
-        float rowH=38f;
-        float actionH=40f;
-        float buttonH=48f;
-        float utilityH=42f;
-        float utilityGap=8f;
-        float bottomGap=14f;
+        float subH=Math.max(48f,Math.min(62f,w*.155f));
+        float rowH=38f, actionH=40f, buttonH=48f, utilityH=42f;
+        float utilityGap=8f, bottomGap=14f;
         float heightDp=verticalPad*2f+logoH+3f+subH+12f
                 +rowH+12f+rowH+8f+actionH
                 +(saved?8f+buttonH:0f)+8f+buttonH+8f
                 +utilityH*2f+utilityGap+bottomGap+24f;
-        // The HTML panel scrolls on short viewports. In the native fixed
-        // canvas we compress vertical rhythm proportionally so every control
-        // remains visible and keeps the same order without clipping.
         float verticalScale=Math.min(1f,Math.max(.78f,(h-24f)/Math.max(1f,heightDp)));
         float v=d*verticalScale;
-        panelHeight=Math.min(h-24f,Math.max(1f,heightDp*verticalScale))*d;
+
+        // The native menu uses the full safe viewport, like the HTML app's
+        // 100svh root. Content remains in a centered max-width column.
+        panelHeight=Math.max(1f,screenH-24f*d);
         panelLeft=(screenW-panelWidth)*.5f;
-        panelBottom=(screenH-panelHeight)*.5f;
+        panelBottom=12f*d;
 
         float innerLeft=panelLeft+horizontalPad*d;
         float innerW=contentWidth;
         float top=screenH-panelBottom-panelHeight+verticalPad*v;
-        // Top-down CSS flow: logo, subtitle, mode row, direction row, actions,
-        // continue/new game, utility grid and footer.
         top+=logoH*v+3f*v+subH*v+12f*v;
         float modeGap=7f*d, modeW=(innerW-2f*modeGap)/3f;
         for(int i=0;i<3;i++)modes[i]=topRect(innerLeft+i*(modeW+modeGap),top,modeW,rowH*v);
@@ -94,7 +81,6 @@ final class MainMenuLayout {
             utilities[row][col]=topRect(innerLeft+col*(utilityW+utilityGapPx),
                     top+row*(utilityH*v+utilityGapPx*verticalScale),utilityW,utilityH*v);
         top+=2f*utilityH*v+utilityGapPx*verticalScale+bottomGap*v;
-        // Footer spans the same content column as the other menu controls.
         footer=topRect(innerLeft,Math.min(top,screenH-panelBottom-verticalPad*v),innerW,18f*v);
     }
 
