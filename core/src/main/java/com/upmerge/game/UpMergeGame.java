@@ -1580,10 +1580,14 @@ public final class UpMergeGame extends ApplicationAdapter {
         shapes.circle(screenW * .5f, screenH * .84f, Math.min(screenW, screenH) * .42f, 48);
         shapes.end();
 
-        float panelWidth = screenW * .868f;
-        float panelHeight = screenH * .666f;
+        boolean mainMenu = !settingsVisible && !shopVisible && !achievementsVisible
+                && !statsVisible && !tasksVisible && !modeSelectionVisible;
+        float panelWidth = mainMenu ? screenW * .868f
+                : Math.min(390f * uiScale, screenW - 44f * uiScale);
+        float panelHeight = mainMenu ? screenH * .666f
+                : Math.min(screenH - 24f * uiScale, screenH * .78f);
         float panelX = (screenW - panelWidth) * .5f;
-        float panelY = screenH * .133f;
+        float panelY = mainMenu ? screenH * .133f : (screenH - panelHeight) * .5f;
         float radius = 27f * uiScale;
         drawRoundedFillHex(panelX - 2f * uiScale, panelY - 5f * uiScale,
                 panelWidth + 4f * uiScale, panelHeight + 10f * uiScale,
