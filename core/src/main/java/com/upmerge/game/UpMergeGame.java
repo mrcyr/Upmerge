@@ -724,8 +724,8 @@ public final class UpMergeGame extends ApplicationAdapter {
         // The HTML reference keeps the header, arena and footer on one continuous
         // background. Only HUD cards and controls receive their own surfaces.
         beginShapes(ShapeRenderer.ShapeType.Filled);
-        float topPad = Math.max(10f, screenW * .04f);
-        float statGap = 7f * uiScale;
+        float topPad = (screenH / uiScale <= 740f ? 12f : 16f) * uiScale;
+        float statGap = (screenH / uiScale <= 740f ? 7f : 10f) * uiScale;
         float statY = gameLayout.statBottom;
         float statH = gameLayout.statHeight;
         float statW = (screenW - topPad * 2f - statGap * 2f) / 3f;
@@ -1015,7 +1015,7 @@ public final class UpMergeGame extends ApplicationAdapter {
                 headerButton, headerButton, 12f * uiScale, uiTheme.accentSecondary, .48f);
         batch.begin();
         float pad = (viewportDp <= 740f ? 12f : 16f) * uiScale;
-        float gap = 7f * uiScale;
+        float gap = (viewportDp <= 740f ? 7f : 10f) * uiScale;
         float statW = (screenW - pad * 2f - gap * 2f) / 3f;
         float statY = gameLayout.statBottom, statH = gameLayout.statHeight;
 
