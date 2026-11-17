@@ -71,8 +71,8 @@ public class GameScreenLayoutTest {
 
     @Test public void pauseTargetIsInsideTopRightHeaderOnly(){
         GameScreenLayout l=new GameScreenLayout(384,828,1);
-        assertTrue(l.pauseContains(380,810));
-        assertFalse(l.pauseContains(20,810));
+        assertTrue(l.pauseContains(365,770));
+        assertFalse(l.pauseContains(20,770));
         assertFalse(l.pauseContains(380,l.screenH-l.headerHeight-1f));
     }
 
