@@ -757,23 +757,10 @@ public final class UpMergeGame extends ApplicationAdapter {
             float x = boardLeft + (cube.lane + .5f) * cell - size * .5f;
             float y = boardBottom + (BoardEngine.ROWS - .5f - cube.visualRow) * cell - size * .5f;
             float radius = Math.max(7f, Math.min(14f, size * .16f));
-            float red, green, blue;
-            switch ((int) cube.value) {
-                case 2: red=.392f; green=.851f; blue=1f; break;       // #64d9ff
-                case 4: red=.376f; green=.898f; blue=.769f; break;   // #60e5c4
-                case 8: red=.561f; green=.890f; blue=.431f; break;   // #8fe36e
-                case 16: red=1f; green=.859f; blue=.412f; break;     // #ffdb69
-                case 32: red=1f; green=.608f; blue=.341f; break;     // #ff9b57
-                case 64: red=1f; green=.396f; blue=.490f; break;     // #ff657d
-                case 128: red=.733f; green=.525f; blue=1f; break;    // #bb86ff
-                case 256: red=.510f; green=.573f; blue=1f; break;    // #8292ff
-                case 512: red=1f; green=.459f; blue=.784f; break;   // #ff75c8
-                case 1024: red=.96f; green=.96f; blue=1f; break;    // #f5f5ff
-                default:
-                    float hue = ((float) (Math.log(cube.value) / Math.log(2.0)) * .105f) % 1f;
-                    red = .45f + .45f * hue; green = .80f - .20f * hue; blue = .95f;
-                    break;
-            }
+            int rgb = CubePalette.rgb(cube.value);
+            float red = ((rgb >>> 16) & 0xff) / 255f;
+            float green = ((rgb >>> 8) & 0xff) / 255f;
+            float blue = (rgb & 0xff) / 255f;
             // Base theme: deliberately flat solid-color tiles.
             shapes.setColor(red, green, blue, 1f);
             roundedRectInBatch(x, y, size, size, radius);
@@ -810,18 +797,9 @@ public final class UpMergeGame extends ApplicationAdapter {
 
     /** Rounded rectangle primitive that can be drawn inside an active ShapeRenderer batch. */
     private void setCubeFaceColor(long value, float alpha) {
-        switch ((int) value) {
-            case 2: shapes.setColor(.392f, .851f, 1f, alpha); break;
-            case 4: shapes.setColor(.376f, .898f, .769f, alpha); break;
-            case 8: shapes.setColor(.561f, .890f, .431f, alpha); break;
-            case 16: shapes.setColor(1f, .859f, .412f, alpha); break;
-            case 32: shapes.setColor(1f, .608f, .341f, alpha); break;
-            case 64: shapes.setColor(1f, .396f, .490f, alpha); break;
-            case 128: shapes.setColor(.733f, .525f, 1f, alpha); break;
-            case 256: shapes.setColor(.510f, .573f, 1f, alpha); break;
-            case 512: shapes.setColor(1f, .459f, .784f, alpha); break;
-            default: shapes.setColor(.96f, .96f, 1f, alpha); break;
-        }
+        int rgb = CubePalette.rgb(value);
+        shapes.setColor(((rgb >>> 16) & 0xff) / 255f,
+                ((rgb >>> 8) & 0xff) / 255f, (rgb & 0xff) / 255f, alpha);
     }
 
     private void roundedRectInBatch(float x, float y, float width, float height, float radius) {
