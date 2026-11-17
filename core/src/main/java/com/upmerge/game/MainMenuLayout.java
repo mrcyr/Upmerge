@@ -23,40 +23,41 @@ final class MainMenuLayout {
     MainMenuLayout(float width,float height,boolean saved){this(width,height,saved,1f);}
     MainMenuLayout(float width,float height,boolean saved,float density){
         screenW=Math.max(1f,width);screenH=Math.max(1f,height);this.density=Math.max(.75f,density);
-        float margin=14f*this.density;
-        float panelW=Math.min(390f*this.density,screenW-2f*margin);
-        contentWidth=Math.max(100f*this.density,panelW-38f*this.density);
-        float cx=screenW*.5f, gap=7f*this.density;
-        float rowH=Math.min(46f*this.density,screenH*.07f);
+        float gap=7f*this.density;
+        // Reference layout is authored against the supplied 279x527 menu mockup.
+        // Ratios keep the same pixel geometry on other screen sizes.
+        contentWidth=screenW*.774f;
+        float cx=screenW*.5f;
+        float rowH=Math.min(screenH*.048f,46f*this.density);
         float modeW=(contentWidth-2f*gap)/3f;
         // Top-down anchors are converted once to bottom-left coordinates.
-        float top=screenH*.34f;
+        float top=screenH*.357f;
         for(int i=0;i<3;i++) modes[i]=topRect(cx+(i-1)*(modeW+gap),top,modeW,rowH);
         float dirW=(contentWidth-gap)*.5f;
-        top=screenH*.42f;
+        top=screenH*.418f;
         for(int i=0;i<2;i++) directions[i]=topRect(cx+(i==0?-1:1)*(dirW+gap)*.5f,top,dirW,rowH);
         float half=(contentWidth-8f*this.density)*.5f;
-        top=screenH*.50f;
+        top=screenH*.478f;
         float actionOffset=(half+4f*this.density)*.5f;
         menuActions[0]=topRect(cx-actionOffset,top,half,rowH);
         menuActions[1]=topRect(cx+actionOffset,top,half,rowH);
-        float mainH=Math.min(52f*this.density,screenH*.085f);
+        float mainH=Math.min(52f*this.density,screenH*.063f);
         if(saved){
-            continueButton=topRect(cx,screenH*.575f,contentWidth,mainH);
-            newGameButton=topRect(cx,screenH*.665f,contentWidth,mainH);
+            continueButton=topRect(cx,screenH*.543f,contentWidth,mainH);
+            newGameButton=topRect(cx,screenH*.621f,contentWidth,mainH);
         }else{
             continueButton=null;
-            newGameButton=topRect(cx,screenH*.615f,contentWidth,mainH);
+            newGameButton=topRect(cx,screenH*.621f,contentWidth,mainH);
         }
         float utilityW=half;
-        float utilityH=Math.min(rowH,screenH*.055f);
-        float utilityTop0=screenH*.76f,utilityTop1=screenH*.82f;
+        float utilityH=rowH;
+        float utilityTop0=screenH*.700f,utilityTop1=screenH*.761f;
         for(int row=0;row<2;row++) for(int col=0;col<2;col++){
             float yTop=row==0?utilityTop0:utilityTop1;
             utilities[row][col]=topRect(cx+(col==0?-1:1)*(utilityW+8f*this.density)*.5f,
                     yTop,utilityW,utilityH);
         }
-        footer=topRect(cx,screenH*.88f,contentWidth,18f*this.density);
+        footer=topRect(cx,screenH*.837f,contentWidth,Math.min(18f*this.density,screenH*.034f));
     }
 
     private Rect topRect(float cx,float top,float w,float h){
