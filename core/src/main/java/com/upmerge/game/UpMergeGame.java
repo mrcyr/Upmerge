@@ -268,7 +268,7 @@ public final class UpMergeGame extends ApplicationAdapter {
 
     @Override public void render() {
         float dt = Math.min(Gdx.graphics.getDeltaTime(), 0.05f);
-        if (!menuVisible && !paused && !gameOver && !emergencyDialog && !levelUpVisible) {
+        if (!menuVisible && (!paused || settingsVisible) && !gameOver && !emergencyDialog && !levelUpVisible) {
             if (gameMode == GameMode.TIMED) {
                 timeLeft = Math.max(0f, timeLeft - dt);
                 if (timeLeft <= 0f) gameOver = true;
@@ -415,6 +415,32 @@ public final class UpMergeGame extends ApplicationAdapter {
         hapticTimeRemaining = segment / 1000f;
     }
 
+    private void returnToMainMenu() {
+        // Normalize every overlay/input state before switching scenes. This
+        // prevents stale modal/tool states from leaking into the menu renderer.
+        saveGame();
+        menuVisible = true;
+        paused = false;
+        gameOver = false;
+        emergencyDialog = false;
+        splitSelecting = false;
+        activeTool = Tool.NONE;
+        selectedToolCubeId = -1L;
+        levelUpVisible = false;
+        levelUpTime = 0f;
+        settingsVisible = false;
+        themesVisible = false;
+        modeSelectionVisible = false;
+        shopVisible = false;
+        achievementsVisible = false;
+        statsVisible = false;
+        tasksVisible = false;
+        mergeFlightSources.clear();
+        mergeFlightTime = 0f;
+        mergeFlashTime = 0f;
+        mainMenuLayout = new MainMenuLayout(screenW, screenH, hasSavedGame, uiScale);
+    }
+
     private void handleInput() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.BACK)) {
             if (levelUpVisible) {
@@ -442,9 +468,7 @@ public final class UpMergeGame extends ApplicationAdapter {
                 gameOver = true;
                 saveGame();
             } else {
-                menuVisible = true;
-                gameOver = false;
-                saveGame();
+                returnToMainMenu();
             }
             return;
         }
@@ -487,6 +511,7 @@ public final class UpMergeGame extends ApplicationAdapter {
                 if (y > screenH*.58f && y <= screenH*.70f) {
                     menuSelectedDirection = x < screenW*.5f
                             ? BoardEngine.Direction.UP : BoardEngine.Direction.DOWN;
+                    engine.setDirection(menuSelectedDirection);
                     preferences.putString("menuDirection", menuSelectedDirection.name());
                     preferences.flush();
                 } else if (y > screenH*.40f && y <= screenH*.53f) {
@@ -534,6 +559,7 @@ public final class UpMergeGame extends ApplicationAdapter {
                 if (y > screenH*.58f && y <= screenH*.70f) {
                     menuSelectedDirection = x < screenW*.5f
                             ? BoardEngine.Direction.UP : BoardEngine.Direction.DOWN;
+                    engine.setDirection(menuSelectedDirection);
                     preferences.putString("menuDirection", menuSelectedDirection.name());
                     preferences.flush();
                 } else if (y > screenH*.40f && y <= screenH*.53f) themesVisible = true;
@@ -545,13 +571,13 @@ public final class UpMergeGame extends ApplicationAdapter {
             } else if (y > screenH * .55f) paused = false;
             else if (y > screenH * .43f) settingsVisible = true;
             else if (y > screenH * .29f) startMode(gameMode, false);
-            else { paused = false; menuVisible = true; saveGame(); }
+            else { returnToMainMenu(); }
             return;
         }
         if (gameOver) {
             if (y >= screenH * .425f && splitCharges > 0) { gameOver = false; splitSelecting = true; }
             else if (y >= screenH * .315f) startMode(gameMode, true);
-            else if (y < screenH * .30f) { menuVisible = true; gameOver = false; }
+            else if (y < screenH * .30f) returnToMainMenu();
             return;
         }
         if (emergencyDialog) {
@@ -1524,8 +1550,7 @@ public final class UpMergeGame extends ApplicationAdapter {
             textLayout.setText(font, label);
         }
         float labelCenterX = centerX + (icon == 0 ? 0f : height * .13f);
-        font.draw(batch, label, labelCenterX - textLayout.width * .5f,
-                centerY + textLayout.height * .5f);
+        drawCenteredAt(label, labelCenterX, centerY);
         batch.end();
         if (icon != 0) drawMenuIcon(icon, left + height * .52f, centerY, height * .48f);
     }
@@ -2197,8 +2222,8 @@ public final class UpMergeGame extends ApplicationAdapter {
         if (highlighted) {
             drawRoundedFillHex(left, bottom - 3f * uiScale, width, height + 3f * uiScale,
                     radius, uiTheme.background, .22f);
-            drawRoundedGradientHex(left, bottom, width, height, radius,
-                    0x69e2ff, 0x6ea8ff);
+            drawRoundedFillHex(left, bottom, width, height, radius,
+                    0x62cfff, 1f);
             drawRoundedOutlineHex(left + 1f, bottom + 1f, width - 2f, height - 2f,
                     radius - 1f, 0xffffff, .18f);
         } else {
@@ -2224,8 +2249,7 @@ public final class UpMergeGame extends ApplicationAdapter {
             font.getData().setScale(scale);
             textLayout.setText(font, label);
         }
-        font.draw(batch, label, centerX - textLayout.width * .5f,
-                centerY + textLayout.height * .5f);
+        drawCenteredAt(label, centerX, centerY);
         batch.end();
     }
 
