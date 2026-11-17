@@ -12,8 +12,8 @@ final class GameScreenLayout {
     GameScreenLayout(float width,float height,float density){
         screenW=Math.max(1f,width);screenH=Math.max(1f,height);this.density=Math.max(.75f,density);
         float d=this.density;
-        headerHeight=Math.max(174f*d,screenH*.225f);
-        footerHeight=Math.max(154f*d,screenH*.205f);
+        headerHeight=Math.max(174f*d,screenH*.145f);
+        footerHeight=Math.max(154f*d,screenH*.14f);
         float gap=10f*d;
         statHeight=58f*d;statBottom=screenH-112f*d;
         pillHeight=38f*d;pillBottom=screenH-165f*d;
