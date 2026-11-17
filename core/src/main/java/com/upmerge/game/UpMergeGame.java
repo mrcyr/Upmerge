@@ -957,7 +957,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         font.setColor(.62f, .72f, .84f, 1f);
         font.getData().setScale(uiScale * (9f / 24f));
         drawCenteredFit("СЕЙЧАС", queueLeft + (queueCurrentW - previewW) * .5f,
-                queueY + 12f * uiScale,
+                queueY + 13f * uiScale,
                 queueCurrentW - previewW - 10f * uiScale, uiScale * (9f / 24f));
         drawCenteredFit("СЛЕДУЮЩИЙ", queueLeft + queueCurrentW + queueGap
                         + (queueNextW - nextW) * .5f, queueY + queueH * .5f + 2f * uiScale,
@@ -986,7 +986,7 @@ public final class UpMergeGame extends ApplicationAdapter {
                     gameLayout.toolbarBottom + gameLayout.toolbarHeight * .46f);
             font.setColor(.88f, .94f, 1f, 1f);
             font.getData().setScale(uiScale * (7f / 24f));
-            drawCenteredFit(toolLabels[i], (i + .5f) * toolW, gameLayout.toolbarBottom + 2f * uiScale,
+            drawCenteredFit(toolLabels[i], (i + .5f) * toolW, gameLayout.toolbarBottom + 4f * uiScale,
                     toolW - 4f * uiScale, uiScale * (8f / 24f));
         }
 
