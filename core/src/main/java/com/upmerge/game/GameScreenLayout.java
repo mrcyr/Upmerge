@@ -35,7 +35,7 @@ final class GameScreenLayout {
         cell=Math.max(1f,Math.min((screenW-2f*side)/BoardEngine.COLUMNS,
                 usable/BoardEngine.ROWS));
         float boardH=cell*BoardEngine.ROWS;
-        boardLeft=(screenW-cell*BoardEngine.COLUMNS)*.5f;
+        boardLeft=screenW*.523f-cell*BoardEngine.COLUMNS*.5f;
         boardRight=boardLeft+cell*BoardEngine.COLUMNS;
         boardBottom=boardAreaBottom+(usable-boardH)*.5f;
         boardTop=boardBottom+boardH;
