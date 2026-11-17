@@ -929,10 +929,14 @@ public final class UpMergeGame extends ApplicationAdapter {
     }
 
     private void drawText() {
-        float headerButton = 42f * uiScale;
-        float headerButtonY = screenH - 57f * uiScale;
-        float soundCenterX = screenW - 89f * uiScale;
-        float pauseCenterX = screenW - 39f * uiScale;
+        float viewportDp = screenH / uiScale;
+        float headerButton = (viewportDp <= 650f ? 36f : 42f) * uiScale;
+        float headerCenterY = screenH - gameLayout.headerHeight * .5f;
+        float headerButtonY = headerCenterY - headerButton * .5f;
+        float headerPad = (viewportDp <= 740f ? 14f : 18f) * uiScale;
+        float headerGap = 8f * uiScale;
+        float pauseCenterX = screenW - headerPad - headerButton * .5f;
+        float soundCenterX = pauseCenterX - headerButton - headerGap;
         drawRoundedFillHex(soundCenterX - headerButton * .5f, headerButtonY,
                 headerButton, headerButton, 12f * uiScale, UiTheme.mix(uiTheme.surface, uiTheme.panel, .45f), .92f);
         drawRoundedOutlineHex(soundCenterX - headerButton * .5f, headerButtonY,
@@ -942,7 +946,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         drawRoundedOutlineHex(pauseCenterX - headerButton * .5f, headerButtonY,
                 headerButton, headerButton, 12f * uiScale, uiTheme.accentSecondary, .48f);
         batch.begin();
-        float pad = Math.max(10f, screenW * .04f);
+        float pad = (viewportDp <= 740f ? 12f : 16f) * uiScale;
         float gap = 7f * uiScale;
         float statW = (screenW - pad * 2f - gap * 2f) / 3f;
         float statY = gameLayout.statBottom, statH = gameLayout.statHeight;
@@ -950,9 +954,9 @@ public final class UpMergeGame extends ApplicationAdapter {
         // Brand row, matching the reference's compact header.
         font.setColor(.91f, .96f, 1f, 1f);
         font.getData().setScale(uiScale * (19f / 24f));
-        font.draw(batch, "UP", pad, screenH - 62f * uiScale);
+        font.draw(batch, "UP", pad, screenH - (gameLayout.headerHeight * .5f - 7f * uiScale));
         setFontHex(uiTheme.accent);
-        font.draw(batch, "MERGE", pad + 24f * uiScale, screenH - 62f * uiScale);
+        font.draw(batch, "MERGE", pad + 24f * uiScale, screenH - (gameLayout.headerHeight * .5f - 7f * uiScale));
         font.setColor(.86f, .93f, 1f, 1f);
         font.getData().setScale(uiScale * .72f);
         textLayout.setText(font, "♫");
