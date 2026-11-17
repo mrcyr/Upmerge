@@ -126,6 +126,8 @@ public final class UpMergeGame extends ApplicationAdapter {
      */
     private BitmapFont createCyrillicFont() {
         String[] candidates = {
+                "/system/fonts/Roboto-Medium.ttf",
+                "/system/fonts/NotoSans-Medium.ttf",
                 "/system/fonts/Roboto-Regular.ttf",
                 "/system/fonts/NotoSans-Regular.ttf"
         };
@@ -155,8 +157,8 @@ public final class UpMergeGame extends ApplicationAdapter {
 
     private BitmapFont createLogoFont() {
         String[] candidates = {
-                "/system/fonts/Roboto-Black.ttf",
-                "/system/fonts/Roboto-Bold.ttf"
+                "/system/fonts/Roboto-Bold.ttf",
+                "/system/fonts/Roboto-Black.ttf"
         };
         for (String path : candidates) {
             FreeTypeFontGenerator generator = null;
@@ -975,7 +977,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         drawMenuBackdrop();
         float center = screenW * .5f;
         batch.begin();
-        float logoScale = uiScale * (38f / 24f);
+        float logoScale = uiScale * (42f / 24f);
         logoFont.getData().setScale(logoScale);
         textLayout.setText(logoFont, "UP");
         float upWidth = textLayout.width;
@@ -987,7 +989,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         logoFont.setColor(.42f, .86f, 1f, 1f);
         logoFont.draw(batch, "MERGE", logoLeft + upWidth, screenH * .855f);
         font.setColor(.66f, .76f, .89f, 1f);
-        font.getData().setScale(uiScale * (13f / 24f));
+        font.getData().setScale(uiScale * (14f / 24f));
         drawCentered("Запускай кубики вверх.", center, screenH * .79f);
         drawCentered("Объединяй одинаковые числа", center, screenH * .765f);
         drawCentered("и создавай цепные реакции.", center, screenH * .74f);
@@ -1015,7 +1017,7 @@ public final class UpMergeGame extends ApplicationAdapter {
 
         if (hasSavedGame) {
             drawMenuButton("ПРОДОЛЖИТЬ ИГРУ", mainMenuLayout.continueButton, true);
-            drawMenuButton("НОВАЯ ИГРА", mainMenuLayout.newGameButton, false);
+            drawMenuButton("НОВАЯ ИГРА", mainMenuLayout.newGameButton, true);
         } else {
             drawMenuButton("НОВАЯ ИГРА", mainMenuLayout.newGameButton, false);
         }
@@ -1072,7 +1074,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         batch.begin();
         font.setColor(selected ? .48f : .88f, selected ? .88f : .93f,
                 selected ? 1f : .98f, 1f);
-        float scale = uiScale * (11.5f / 24f);
+        float scale = uiScale * (13.5f / 24f);
         font.getData().setScale(scale);
         textLayout.setText(font, label);
         if (textLayout.width > width * .86f && textLayout.width > 0f) {
@@ -1540,7 +1542,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         batch.begin();
         font.setColor(highlighted ? .025f : .91f, highlighted ? .09f : .95f,
                 highlighted ? .15f : 1f, 1f);
-        float scale = uiScale * (15f / 24f);
+        float scale = uiScale * (16f / 24f);
         font.getData().setScale(scale);
         textLayout.setText(font, label);
         if (textLayout.width > width * .88f && textLayout.width > 0f) {
