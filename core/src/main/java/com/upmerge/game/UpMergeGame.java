@@ -475,8 +475,16 @@ public final class UpMergeGame extends ApplicationAdapter {
             return;
         }
         if (paused) {
-            if (y > screenH * 0.56f) paused = false;
-            else if (y > screenH * 0.36f) startMode(gameMode, false);
+            if (settingsVisible) {
+                if (y > screenH * .62f && y <= screenH * .76f) cycleUiTheme();
+                else if (y > screenH * .40f && y <= screenH * .56f) {
+                    hapticsEnabled = !hapticsEnabled;
+                    preferences.putBoolean("hapticsEnabled", hapticsEnabled);
+                    preferences.flush();
+                } else if (y <= screenH * .30f) settingsVisible = false;
+            } else if (y > screenH * .55f) paused = false;
+            else if (y > screenH * .43f) settingsVisible = true;
+            else if (y > screenH * .29f) startMode(gameMode, false);
             else { paused = false; menuVisible = true; saveGame(); }
             return;
         }
@@ -1913,19 +1921,27 @@ public final class UpMergeGame extends ApplicationAdapter {
     }
 
     private void drawPauseMenu() {
-        beginShapes(ShapeRenderer.ShapeType.Filled);
-        shapes.setColor(0f, 0f, 0f, 0.86f);
-        shapes.rect(0, 0, screenW, screenH);
-        shapes.end();
+        if (settingsVisible) {
+            drawSettingsMenu();
+            return;
+        }
+        drawMenuBackdrop();
         batch.begin();
         font.setColor(1f, 1f, 1f, 1f);
-        font.getData().setScale(uiScale * 1.4f);
-        drawCentered("ПАУЗА", screenW * 0.5f, screenH * 0.72f);
-        font.getData().setScale(uiScale);
-        drawCentered("ПРОДОЛЖИТЬ", screenW * 0.5f, screenH * 0.58f);
-        drawCentered("НАЧАТЬ ЗАНОВО", screenW * 0.5f, screenH * 0.42f);
-        drawCentered("В ГЛАВНОЕ МЕНЮ", screenW * 0.5f, screenH * 0.25f);
+        font.getData().setScale(uiScale * MathUtils.clamp(screenW / 240f, 1.25f, 1.65f));
+        drawCentered("ПАУЗА", screenW * .5f, screenH * .72f);
+        font.setColor(.62f, .70f, .82f, 1f);
+        font.getData().setScale(uiScale * (13f / 24f));
+        drawCenteredFit("Передохни. Твои кубики никуда не денутся.",
+                screenW * .5f, screenH * .665f, screenW * .82f, uiScale * (13f / 24f));
         batch.end();
+
+        float buttonHeight = 48f * uiScale;
+        float ratio = buttonHeight / screenH;
+        drawMenuButton("ПРОДОЛЖИТЬ", screenH * .57f, ratio, true);
+        drawMenuButton("НАСТРОЙКИ", screenH * .44f, ratio, false);
+        drawMenuButton("НАЧАТЬ ЗАНОВО", screenH * .31f, ratio, false);
+        drawMenuButton("В ГЛАВНОЕ МЕНЮ", screenH * .18f, ratio, false);
     }
 
     private void startNewRun(boolean resetProgress) {
