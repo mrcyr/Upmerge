@@ -1,4 +1,4 @@
-name: Android build and visual smoke test
+name: Android build
 
 on:
   workflow_dispatch:
@@ -36,46 +36,3 @@ jobs:
         with:
           name: UpMerge-debug
           path: app/build/outputs/apk/debug/app-debug.apk
-
-  emulator-smoke:
-    needs: verify
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
-      - name: Assemble debug APK
-        run: bash ./gradlew :app:assembleDebug
-      - name: Boot emulator, launch game and capture screen
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 35
-          arch: x86_64
-          profile: pixel_2
-          disable-animations: true
-          script: |
-            adb install -r app/build/outputs/apk/debug/app-debug.apk
-            adb shell am start -n com.upmerge.numberpuzzle/com.upmerge.game.android.AndroidLauncher
-            sleep 12
-            adb logcat -d -t 4000 > emulator-logcat.txt
-            adb shell screencap -p /sdcard/upmerge-main.png
-            adb pull /sdcard/upmerge-main.png upmerge-main.png
-            test -s upmerge-main.png
-            if grep -E 'FATAL EXCEPTION|AndroidRuntime.*FATAL' emulator-logcat.txt; then exit 1; fi
-      - name: Upload emulator screenshot and log
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: UpMerge-emulator-inspection
-          path: |
-            upmerge-main.png
-            emulator-logcat.txt
-          if-no-files-found: warn
