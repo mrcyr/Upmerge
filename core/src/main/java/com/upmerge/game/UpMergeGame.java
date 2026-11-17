@@ -875,6 +875,18 @@ public final class UpMergeGame extends ApplicationAdapter {
     }
 
     private void drawText() {
+        float headerButton = 29f * uiScale;
+        float headerButtonY = screenH - 72f * uiScale;
+        float soundCenterX = screenW - 55.5f * uiScale;
+        float pauseCenterX = screenW - 20.5f * uiScale;
+        drawRoundedFillHex(soundCenterX - headerButton * .5f, headerButtonY,
+                headerButton, headerButton, 12f * uiScale, UiTheme.mix(uiTheme.surface, uiTheme.panel, .45f), .92f);
+        drawRoundedOutlineHex(soundCenterX - headerButton * .5f, headerButtonY,
+                headerButton, headerButton, 12f * uiScale, uiTheme.accentSecondary, .48f);
+        drawRoundedFillHex(pauseCenterX - headerButton * .5f, headerButtonY,
+                headerButton, headerButton, 12f * uiScale, UiTheme.mix(uiTheme.surface, uiTheme.panel, .45f), .92f);
+        drawRoundedOutlineHex(pauseCenterX - headerButton * .5f, headerButtonY,
+                headerButton, headerButton, 12f * uiScale, uiTheme.accentSecondary, .48f);
         batch.begin();
         float pad = Math.max(10f, screenW * .04f);
         float gap = 7f * uiScale;
@@ -888,8 +900,11 @@ public final class UpMergeGame extends ApplicationAdapter {
         setFontHex(uiTheme.accent);
         font.draw(batch, "MERGE", pad + 24f * uiScale, screenH - 50f * uiScale);
         font.setColor(.86f, .93f, 1f, 1f);
-        font.getData().setScale(uiScale * .92f);
-        drawCentered("Ⅱ", screenW - pad - 12f * uiScale, screenH - 50f * uiScale);
+        font.getData().setScale(uiScale * .72f);
+        textLayout.setText(font, "♫");
+        drawCentered("♫", soundCenterX, headerButtonY + headerButton * .5f - textLayout.height * .5f);
+        textLayout.setText(font, "Ⅱ");
+        drawCentered("Ⅱ", pauseCenterX, headerButtonY + headerButton * .5f - textLayout.height * .5f);
 
         String[] labels = {"СЧЁТ", "РЕКОРД", "КОМБО"};
         String[] values = {NumberFormatter.compact(engine.score()),
