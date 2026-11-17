@@ -243,7 +243,7 @@ public final class UpMergeGame extends ApplicationAdapter {
             mergeFlightTime = 0.30f;
             mergeVfx.start(boardLeft + (mergeEvent.lane + .5f) * cell,
                     boardBottom + (BoardEngine.ROWS - .5f - mergeEvent.row) * cell,
-                    cell, mergeEvent.value, mergeEvent.count);
+                    cell, mergeEvent.value, mergeEvent.count, uiTheme.cubeColor(mergeEvent.value));
             mergeFlightTargetLane = mergeEvent.lane;
             mergeFlightTargetRow = mergeEvent.row;
             mergeFlightSources.clear();
@@ -807,37 +807,29 @@ public final class UpMergeGame extends ApplicationAdapter {
         float radius = mergeVfx.cellSize();
 
         // Expanding impact rings: a bright contact shockwave followed by a softer halo.
+        // HTML reference: one colored impact ring and a softer white inner ring.
         shapes.begin(ShapeRenderer.ShapeType.Line);
-        setShapeHex(uiTheme.accent, fade * .92f);
-        shapes.circle(cx, cy, radius * (.20f + progress * .78f), 48);
-        setShapeHex(uiTheme.accentSecondary, fade * .52f);
-        shapes.circle(cx, cy, radius * (.34f + progress * 1.05f), 48);
+        setShapeRgb(mergeVfx.red(), mergeVfx.green(), mergeVfx.blue(), fade * .72f);
+        shapes.circle(cx, cy, radius * (.30f + progress * 1.05f), 48);
+        shapes.setColor(1f, 1f, 1f, fade * .42f);
+        shapes.circle(cx, cy, radius * (.12f + progress * .72f), 48);
         shapes.end();
 
-        // A brief central flash and radial streaks make the collision read as an impact.
+        // Radial contact flash, followed by the same glowing round particles as the HTML build.
         shapes.begin(ShapeRenderer.ShapeType.Filled);
         shapes.setColor(1f, 1f, 1f, fade * .82f);
         shapes.circle(cx, cy, radius * (.08f + fade * .20f), 32);
-        setShapeHex(uiTheme.accent, fade * .42f);
+        setShapeRgb(mergeVfx.red(), mergeVfx.green(), mergeVfx.blue(), fade * .32f);
         shapes.circle(cx, cy, radius * (.18f + fade * .25f), 32);
         for (int i = 0; i < mergeVfx.particleCount(); i++) {
             float alpha = mergeVfx.particleAlpha(i);
             if (alpha <= 0f) continue;
             float x = mergeVfx.particleX(i), y = mergeVfx.particleY(i);
             float size = mergeVfx.particleSize(i);
-            setShapeHex(uiTheme.accent, alpha);
-            shapes.rect(x - size * .5f, y - size * .5f, size, size);
-        }
-        shapes.end();
-
-        shapes.begin(ShapeRenderer.ShapeType.Line);
-        for (int i = 0; i < mergeVfx.particleCount(); i++) {
-            float alpha = mergeVfx.particleAlpha(i);
-            if (alpha <= 0f) continue;
-            float x = mergeVfx.particleX(i), y = mergeVfx.particleY(i);
-            float px = mergeVfx.previousX(i), py = mergeVfx.previousY(i);
-            setShapeHex(uiTheme.accentSecondary, alpha * .82f);
-            shapes.line(px, py, x, y);
+            setShapeRgb(mergeVfx.red(), mergeVfx.green(), mergeVfx.blue(), alpha * .22f);
+            shapes.circle(x, y, size * 2.1f, 12);
+            setShapeRgb(mergeVfx.red(), mergeVfx.green(), mergeVfx.blue(), alpha);
+            shapes.circle(x, y, size, 12);
         }
         shapes.end();
     }
@@ -1562,6 +1554,10 @@ public final class UpMergeGame extends ApplicationAdapter {
     private void setLogoFontHex(int hex) {
         logoFont.setColor(((hex >>> 16) & 255) / 255f,
                 ((hex >>> 8) & 255) / 255f, (hex & 255) / 255f, 1f);
+    }
+
+    private void setShapeRgb(float red, float green, float blue, float alpha) {
+        shapes.setColor(red, green, blue, alpha);
     }
 
     private void setShapeHex(int hex, float alpha) {
