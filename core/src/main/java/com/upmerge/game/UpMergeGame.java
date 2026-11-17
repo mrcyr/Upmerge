@@ -883,13 +883,13 @@ public final class UpMergeGame extends ApplicationAdapter {
 
         // Brand row, matching the reference's compact header.
         font.setColor(.91f, .96f, 1f, 1f);
-        font.getData().setScale(uiScale * (19f / 24f));
-        font.draw(batch, "UP", pad, screenH - 27f * uiScale);
-        font.setColor(.42f, .86f, 1f, 1f);
-        font.draw(batch, "MERGE", pad + 27f * uiScale, screenH - 27f * uiScale);
+        font.getData().setScale(uiScale * (17f / 24f));
+        font.draw(batch, "UP", pad, screenH - 50f * uiScale);
+        setFontHex(uiTheme.accent);
+        font.draw(batch, "MERGE", pad + 24f * uiScale, screenH - 50f * uiScale);
         font.setColor(.86f, .93f, 1f, 1f);
         font.getData().setScale(uiScale * .92f);
-        drawCentered("Ⅱ", screenW - pad - 12f * uiScale, screenH - 27f * uiScale);
+        drawCentered("Ⅱ", screenW - pad - 12f * uiScale, screenH - 50f * uiScale);
 
         String[] labels = {"СЧЁТ", "РЕКОРД", "КОМБО"};
         String[] values = {NumberFormatter.compact(engine.score()),
@@ -915,7 +915,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         font.setColor(.58f, .70f, .82f, 1f);
         font.getData().setScale(uiScale * (10f / 24f));
         font.draw(batch, "ДАЛЬШЕ", pad + pillW + gap + 8f * uiScale, pillY + 25f * uiScale);
-        font.setColor(.45f, .82f, 1f, 1f);
+        setFontHex(uiTheme.accent);
         font.getData().setScale(uiScale * (16f / 24f));
         font.draw(batch, "×2", pad + pillW + gap + pillW - 34f * uiScale, pillY + 13f * uiScale);
 
@@ -948,7 +948,7 @@ public final class UpMergeGame extends ApplicationAdapter {
                 "ПОМЕНЯТЬ 2 ×" + swapCharges};
         float toolW = screenW / 5f;
         for (int i = 0; i < icons.length; i++) {
-            font.setColor(.45f, .86f, 1f, 1f);
+            setFontHex(uiTheme.accent);
             font.getData().setScale(uiScale * (18f / 24f));
             drawCentered(icons[i], (i + .5f) * toolW, gameLayout.toolbarBottom + gameLayout.toolbarHeight * .72f);
             font.setColor(.88f, .94f, 1f, 1f);
