@@ -704,16 +704,16 @@ public final class UpMergeGame extends ApplicationAdapter {
         for (int i = 0; i < 3; i++) {
             float x = topPad + i * (statW + statGap);
             drawRoundedGradientHex(x + 1f, statY + 1f, statW - 2f, statH - 2f,
-                    14f * uiScale, UiTheme.mix(uiTheme.surface, 0xffffff, .04f), uiTheme.panel);
+                    16f * uiScale, UiTheme.mix(uiTheme.surface, 0xffffff, .04f), uiTheme.panel);
             drawRoundedOutlineHex(x + 1f, statY + 1f, statW - 2f, statH - 2f,
-                    14f * uiScale, uiTheme.accentSecondary, .55f);
+                    16f * uiScale, uiTheme.accentSecondary, .55f);
         }
         float[] pillX = {topPad, topPad + pillW + pillGap};
         for (float x : pillX) {
             drawRoundedGradientHex(x + 1f, pillY + 1f, pillW - 2f, gameLayout.pillHeight - 2f,
-                    11f * uiScale, UiTheme.mix(uiTheme.surface, 0xffffff, .03f), uiTheme.panel);
+                    12f * uiScale, UiTheme.mix(uiTheme.surface, 0xffffff, .03f), uiTheme.panel);
             drawRoundedOutlineHex(x + 1f, pillY + 1f, pillW - 2f, gameLayout.pillHeight - 2f,
-                    11f * uiScale, uiTheme.accentSecondary, .55f);
+                    12f * uiScale, uiTheme.accentSecondary, .55f);
         }
         for (int i = 0; i < 5; i++) {
             float x = toolLeft + i * (toolW + toolGap);
@@ -722,7 +722,7 @@ public final class UpMergeGame extends ApplicationAdapter {
                     || (i == 4 && activeTool == Tool.SWAP)
                     || (i == 1 && activeTool == Tool.BOMB);
             drawRoundedGradientHex(x + 1f, gameLayout.toolbarBottom + 1f, toolW - 2f,
-                    gameLayout.toolbarHeight - 2f, 11f * uiScale,
+                    gameLayout.toolbarHeight - 2f, 13f * uiScale,
                     selected ? UiTheme.mix(uiTheme.accent, uiTheme.panel, .30f)
                             : UiTheme.mix(uiTheme.surface, uiTheme.panel, .35f), uiTheme.panel);
             drawRoundedOutlineHex(x + 1f, gameLayout.toolbarBottom + 1f, toolW - 2f,
@@ -734,7 +734,7 @@ public final class UpMergeGame extends ApplicationAdapter {
         for (int i = 0; i < 2; i++) {
             float x = queueXs[i], width = queueWidths[i];
             drawRoundedGradientHex(x + 1f, queueY + 1f, width - 2f, queueH - 2f,
-                    10f * uiScale, UiTheme.mix(uiTheme.surface, 0xffffff, .04f), uiTheme.panel);
+                    12f * uiScale, UiTheme.mix(uiTheme.surface, 0xffffff, .04f), uiTheme.panel);
             drawRoundedOutlineHex(x + 1f, queueY + 1f, width - 2f, queueH - 2f,
                     10f * uiScale, uiTheme.accentSecondary, .55f);
         }
